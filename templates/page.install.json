@@ -1,0 +1,6 @@
+{
+  "sections": {
+    "main": { "type": "install-app", "settings": {} }
+  },
+  "order": ["main"]
+}

@@ -1,0 +1,69 @@
+/*
+  Font stack confirmed via live computed-style inspection of bloxcart.com (Phase 0).
+  All four families are self-hosted there via next/font — none are in Shopify's
+  curated font picker, so we bundle the actual font files as theme assets instead
+  of using settings_schema's `font_picker` type.
+
+  TODO before Phase 3 sign-off: source the real .woff2 files and drop them in
+  /assets, then swap each `src: url(...)` below for
+  {{ 'geist-variable.woff2' | asset_url }} via a matching *.css.liquid rename,
+  or upload through Shopify's Files API and reference the CDN URL.
+
+  - Geist: open source, Vercel (github.com/vercel/geist-font) — variable weight 100-900.
+  - Poppins, Plus Jakarta Sans, Outfit: open source, Google Fonts (SIL OFL) —
+    can self-host by downloading the static .woff2 files rather than linking
+    fonts.googleapis.com at runtime (avoids an extra external request + FOUC).
+*/
+
+@font-face {
+  font-family: "Geist";
+  src: url("geist-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("plus-jakarta-sans-variable.woff2") format("woff2-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("poppins-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("poppins-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("poppins-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("outfit-variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-geist: "Geist", system-ui, "Segoe UI", "Noto Sans", sans-serif;
+  --font-poppins: "Poppins", system-ui, sans-serif;
+  --font-plus-jakarta-sans: "Plus Jakarta Sans", system-ui, "Noto Sans", sans-serif;
+  --font-outfit: "Outfit", system-ui, sans-serif;
+}

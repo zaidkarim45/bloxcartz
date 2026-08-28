@@ -1,0 +1,11 @@
+<div class="static-page page-width static-page--narrow">
+  <h1>{{ 'customer.activate_account.title' | t: default: 'Activate account' }}</h1>
+  {%- form 'activate_customer_password' -%}
+    {%- if form.errors -%}
+      <div class="alert--warning">{{ form.errors | default_errors }}</div>
+    {%- endif -%}
+    <label><span>{{ 'customer.activate_account.password' | t: default: 'Password' }}</span><input type="password" name="customer[password]" autocomplete="new-password" required></label>
+    <label><span>{{ 'customer.activate_account.password_confirm' | t: default: 'Confirm password' }}</span><input type="password" name="customer[password_confirmation]" autocomplete="new-password" required></label>
+    <button type="submit" name="accept" class="btn btn--primary btn--full">{{ 'customer.activate_account.submit' | t: default: 'Activate account' }}</button>
+  {%- endform -%}
+</div>

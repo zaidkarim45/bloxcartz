@@ -1,0 +1,102 @@
+<footer class="site-footer">
+  <div class="page-width site-footer__inner">
+
+    <div class="site-footer__social">
+      <span class="site-footer__social-label">Follow us:</span>
+      {%- if settings.social_x_link != blank -%}
+        <a href="{{ settings.social_x_link }}" aria-label="X (Twitter)" target="_blank" rel="noopener">X (Twitter)</a>
+      {%- endif -%}
+      {%- if settings.social_youtube_link != blank -%}
+        <a href="{{ settings.social_youtube_link }}" aria-label="YouTube" target="_blank" rel="noopener">YouTube</a>
+      {%- endif -%}
+      {%- if settings.social_discord_link != blank -%}
+        <a href="{{ settings.social_discord_link }}" aria-label="Discord" target="_blank" rel="noopener">Discord</a>
+      {%- endif -%}
+      {%- if settings.social_tiktok_link != blank -%}
+        <a href="{{ settings.social_tiktok_link }}" aria-label="TikTok" target="_blank" rel="noopener">TikTok</a>
+      {%- endif -%}
+    </div>
+
+    <div class="site-footer__columns">
+      {%- if section.settings.support_menu != blank -%}
+        <div class="site-footer__column">
+          <h3>{{ section.settings.support_menu.title | default: 'Support' }}</h3>
+          <ul>
+            {%- for link in section.settings.support_menu.links -%}
+              <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.learn_menu != blank -%}
+        <div class="site-footer__column">
+          <h3>{{ section.settings.learn_menu.title | default: 'Learn' }}</h3>
+          <ul>
+            {%- for link in section.settings.learn_menu.links -%}
+              <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.legal_menu != blank -%}
+        <div class="site-footer__column">
+          <h3>{{ section.settings.legal_menu.title | default: 'Legal' }}</h3>
+          <ul>
+            {%- for link in section.settings.legal_menu.links -%}
+              <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="site-footer__bottom">
+      <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. All rights reserved.</span>
+      <button type="button" data-consent-preferences>Consent Preferences</button>
+      {%- if settings.payment_icons_enabled != false -%}
+        {%- for type in shop.enabled_payment_types -%}
+          {{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.disclaimer != blank -%}
+      <p class="site-footer__disclaimer">{{ section.settings.disclaimer }}</p>
+    {%- endif -%}
+
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "support_menu",
+      "label": "Support column menu",
+      "info": "Claim Order, Contact Us, FAQ"
+    },
+    {
+      "type": "link_list",
+      "id": "learn_menu",
+      "label": "Learn column menu",
+      "info": "Tutorials, Blog, Guarantee, Install App, Trust Pilot"
+    },
+    {
+      "type": "link_list",
+      "id": "legal_menu",
+      "label": "Legal column menu",
+      "info": "Terms of Service, Privacy Policy, Cookie Policy, Refund Policy"
+    },
+    {
+      "type": "textarea",
+      "id": "disclaimer",
+      "label": "IP disclaimer",
+      "default": "BloxCart is an independent marketplace and is not affiliated with, associated with, authorized, endorsed, or sponsored by Roblox Corporation or any game developer, publisher, or rights holder featured on this website. All trademarks, game names, logos, and other intellectual property remain the property of their respective owners and are used for identification purposes only."
+    }
+  ]
+}
+{% endschema %}

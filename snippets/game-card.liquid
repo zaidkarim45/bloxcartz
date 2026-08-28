@@ -1,0 +1,23 @@
+{%- comment -%}
+  Accepts: game_title, game_url, game_image, gradient_start, gradient_end,
+  limited_stock (bool), external (bool)
+{%- endcomment -%}
+<article class="game-card" style="--gradient-start: {{ gradient_start | default: '#8B5CF6' }}; --gradient-end: {{ gradient_end | default: '#4C1D95' }};">
+  <h3 class="visually-hidden">{{ game_title }}</h3>
+  <a href="{{ game_url }}" class="game-card__link" aria-label="{{ 'products.game.view_products' | t: default: 'View products' }}: {{ game_title }}" {% if external %}target="_blank" rel="noopener sponsored"{% endif %}>
+    <span class="game-card__watermark" aria-hidden="true"></span>
+    {%- if game_image != blank -%}
+      {{ game_image | image_url: width: 400 | image_tag: alt: game_title, loading: 'lazy', class: 'game-card__image' }}
+    {%- endif -%}
+    <span class="game-card__title">{{ game_title }}</span>
+    {%- if limited_stock -%}
+      <span class="game-card__badge">
+        <span class="game-card__badge-dot"></span>{{ 'products.game.limited_stock' | t: default: 'Limited Stock' }}
+      </span>
+    {%- endif -%}
+    <span class="game-card__cta">
+      {{ 'products.game.shop_now' | t: default: 'Shop now' }}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </span>
+  </a>
+</article>

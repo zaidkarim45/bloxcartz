@@ -1,0 +1,87 @@
+{
+  "_meta": {
+    "source": "Live DOM/computed-style inspection of https://bloxcart.com, 2026-08-28",
+    "method": "getComputedStyle(), document.fonts, network/script inspection via headless browser — not guessed from screenshots",
+    "note": "Replaces all best-guess values in BLOXCART_SHOPIFY_REBUILD_SPEC.md Section 3"
+  },
+  "color": {
+    "bg-primary": "#131C23",
+    "bg-card": "#18222A",
+    "border-subtle": "rgba(255,255,255,0.10)",
+    "accent-primary": "#B556F3",
+    "accent-primary-button": "#9D41D9",
+    "text-primary": "#FAFAFA",
+    "text-secondary": "#8295A1",
+    "price-current": "#25EB67",
+    "price-strikethrough-text": "muted-foreground (same grey as text-secondary)",
+    "price-strikethrough-line": "red-500 (~#EF4444) — NOT a CSS text-decoration line-through; it's a separate absolutely-positioned div rotated -12deg overlaid on the grey price text",
+    "warning-bg": "oklab(0.769 0.0724 0.156 / 0.04) — amber/orange family, ~4% opacity fill",
+    "warning-border": "same hue / 32% opacity",
+    "rarity_colors_CONFIRMED": {
+      "note": "Rarity is per-game free text, NOT a fixed global enum. Colors below are from Murder Mystery 2 only — other games' rarity tiers (Legendary/Rare/Uncommon/Common/mythical for Blox Fruits, Common/secret/og for Steal a Brainrot, etc.) have not had their accent colors individually sampled yet.",
+      "godly": "#E7592C",
+      "ancient": "#C46CFF",
+      "unique": "#FE5050"
+    }
+  },
+  "typography": {
+    "families_CONFIRMED": {
+      "Geist": "variable weight 100-900 — body text, h1 hero heading, most product/category page UI",
+      "Poppins": "static weights 100-900 loaded — header Log in button and some nav chrome",
+      "Plus Jakarta Sans": "variable weight 200-800 — hero CTA button ('Explore games')",
+      "Outfit": "static weights 100-900 fully loaded — used somewhere not yet visually located, likely game-card or marketing sections"
+    },
+    "all_self_hosted_via_next_font": true,
+    "note": "Spec's guess (single family, Poppins/Plus Jakarta Sans/Manrope/Inter) was wrong in kind — site actually mixes 3-4 distinct font families across different UI regions, not one. Confirm Outfit's usage location during Phase 3/4 build.",
+    "h1_hero": {
+      "fontFamily": "Geist",
+      "fontSize": "48px (desktop)",
+      "fontWeight": 700,
+      "lineHeight": "67.2px",
+      "color": "#FAFAFA",
+      "accentSpanColor": "#B556F3"
+    },
+    "body_subtext": {
+      "fontFamily": "Geist",
+      "fontSize": "16px",
+      "fontWeight": 300,
+      "color": "#8295A1"
+    },
+    "product_price": {
+      "fontFamily": "Geist",
+      "fontSize": "16px",
+      "fontWeight": 700
+    }
+  },
+  "buttons": {
+    "primary_solid": {
+      "background": "#9D41D9 (flat color, NOT a gradient despite spec's guess)",
+      "textColor": "#FAFAFA",
+      "borderRadius": "8px",
+      "hover": "brightness(1.10)",
+      "active": "brightness(0.90) scale(0.95)",
+      "note": "Hero CTA 'Explore games' renders with a visible gradient + drop-shadow/offset 3D look on closer inspection — likely a different, more decorative button variant than the flat in-grid 'Add' buttons. Distinguish these as two button styles during build."
+    },
+    "buy_it_now": {
+      "note": "NOT in original spec — confirmed on PDP: a second CTA next to 'Add to cart', green fill, glowing/shadowed, likely Shopify-native express checkout equivalent (Shop Pay / accelerated checkout) worth replicating via Shopify's native buy-now button block."
+    },
+    "out_of_stock": {
+      "background": "#1E2C36",
+      "textColor": "#8295A1",
+      "borderRadius": "8px",
+      "sameShapeAsActive": true
+    }
+  },
+  "cards": {
+    "product_card_image_bg": "#18222A",
+    "accent_bar": "4px tall, ~80px wide, centered top edge, rounded-b-full, color = rarity color"
+  },
+  "spacing_radius": {
+    "button_radius": "8px",
+    "warning_banner_radius": "14px",
+    "note": "Consistent with spec's 8-12px guess"
+  },
+  "breakpoints": {
+    "note": "Not exhaustively probed; mobile (375px) and desktop (1280px) both spot-checked and layouts reflow correctly (hero stacks, game grid collapses to what looks like 2-col on mobile). Tailwind default breakpoints likely in use given class names seen (lg:, md: prefixes observed in captured classNames)."
+  }
+}

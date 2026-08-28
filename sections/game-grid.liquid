@@ -1,0 +1,72 @@
+<section class="game-grid-section page-width">
+  <div class="game-grid-section__header">
+    <h2>{{ section.settings.heading }}</h2>
+    <form role="search" action="{{ routes.search_url }}" class="game-grid-section__search">
+      <input type="search" name="q" placeholder="{{ 'general.search.placeholder' | t: default: 'Search game' }}">
+    </form>
+    {%- if section.settings.view_all_url != blank -%}
+      <a href="{{ section.settings.view_all_url }}" class="game-grid-section__view-all">{{ section.settings.view_all_label }}</a>
+    {%- endif -%}
+  </div>
+
+  <div class="game-grid">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'game' -%}
+        {%- liquid
+          assign game_title = block.settings.title
+          assign game_url = block.settings.external_url | default: block.settings.collection.url
+          assign game_image = block.settings.image | default: block.settings.collection.featured_image
+          assign external = false
+          if block.settings.external_url != blank
+            assign external = true
+          endif
+        -%}
+        <div {{ block.shopify_attributes }}>
+          {%- render 'game-card',
+            game_title: game_title,
+            game_url: game_url,
+            game_image: game_image,
+            gradient_start: block.settings.gradient_start,
+            gradient_end: block.settings.gradient_end,
+            limited_stock: block.settings.limited_stock,
+            external: external
+          -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Game grid",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "All games" },
+    { "type": "text", "id": "view_all_label", "label": "View all label", "default": "Explore games" },
+    { "type": "url", "id": "view_all_url", "label": "View all link" }
+  ],
+  "blocks": [
+    {
+      "type": "game",
+      "name": "Game",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title" },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection",
+          "info": "Leave blank and use an external URL instead for affiliate games (e.g. Adopt Me → NeonPets)."
+        },
+        { "type": "url", "id": "external_url", "label": "External URL (overrides collection link)" },
+        { "type": "image_picker", "id": "image", "label": "Card image (overrides collection image)" },
+        { "type": "color", "id": "gradient_start", "label": "Gradient start", "default": "#8B5CF6" },
+        { "type": "color", "id": "gradient_end", "label": "Gradient end", "default": "#4C1D95" },
+        { "type": "checkbox", "id": "limited_stock", "label": "Show \"Limited Stock\" badge", "default": false }
+      ]
+    }
+  ],
+  "presets": [
+    { "name": "Game grid" }
+  ]
+}
+{% endschema %}

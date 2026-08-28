@@ -1,0 +1,47 @@
+{%- comment -%}
+  Only rendered when settings.cart_type is "page" — default behavior is the
+  drawer (snippets/cart-drawer.liquid), matching the live site.
+{%- endcomment -%}
+<div class="static-page page-width">
+  <h1>{{ 'cart.general.title' | t: default: 'Cart' }}</h1>
+  {%- if cart.item_count == 0 -%}
+    <p>{{ 'cart.general.empty' | t: default: 'Your cart is empty' }}</p>
+    <a href="/collections" class="btn btn--primary">{{ 'cart.general.continue_shopping' | t: default: 'Continue shopping' }}</a>
+  {%- else -%}
+    <form action="{{ routes.cart_url }}" method="post" class="cart-page">
+      {%- for item in cart.items -%}
+        <div class="cart-drawer__line" data-cart-line data-line-key="{{ item.key }}">
+          <a href="{{ item.url }}" class="cart-drawer__line-image">
+            {{ item.image | image_url: width: 160 | image_tag: alt: item.title, loading: 'lazy' }}
+          </a>
+          <div class="cart-drawer__line-details">
+            <a href="{{ item.url }}" class="cart-drawer__line-title">{{ item.product.title }}</a>
+            <div class="price">
+              <span class="price__current">{{ item.final_price | money }}</span>
+            </div>
+            <div class="cart-drawer__qty" data-qty-stepper>
+              <button type="button" data-qty-remove aria-label="Remove">&times;</button>
+              <span data-qty-value>{{ item.quantity }}</span>
+              <button type="button" data-qty-increase aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+          <div class="cart-drawer__line-total">{{ item.final_line_price | money }}</div>
+        </div>
+      {%- endfor -%}
+      <div class="cart-drawer__total">
+        <span>{{ 'cart.general.total' | t: default: 'Total' }}</span>
+        <span data-cart-total>{{ cart.total_price | money }}</span>
+      </div>
+      <button type="submit" name="checkout" class="btn btn--primary btn--full">
+        {{ 'cart.general.checkout' | t: default: 'Checkout' }}
+      </button>
+    </form>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Cart page",
+  "settings": []
+}
+{% endschema %}

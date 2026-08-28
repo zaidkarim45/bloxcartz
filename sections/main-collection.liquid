@@ -1,0 +1,153 @@
+{%- comment -%}
+  Filtering/faceting is powered by Shopify's native Search & Discovery app via
+  `collection.filters` — install it and configure filters for this collection
+  (price, availability, and a tag-based filter for "category" and "rarity")
+  before this section will show real counts. Until then the pill tab bar and
+  rarity checkboxes render from collection.all_tags without counts as a
+  fallback (see the `category_filter` / `rarity_filter` lookups below).
+
+  Tab bar → category is modeled as a `category:{slug}` tag per product
+  (see PHASE_0_EXTRACTION_NOTES.md — tab sets differ per game, e.g. MM2 has
+  Guns/Knives/Summer Specials, Steal a Brainrot has Brainrots/Gamepasses/Money).
+  Rarity is modeled as a `rarity:{value}` tag per product — vocabulary is
+  per-game and NOT a fixed enum (see notes), so this stays free-text rather
+  than a structured option/metafield.
+{%- endcomment -%}
+
+{%- liquid
+  assign category_filter = null
+  assign rarity_filter = null
+  assign price_filter = null
+  assign availability_filter = null
+  for filter in collection.filters
+    if filter.param_name contains 'category'
+      assign category_filter = filter
+    elsif filter.param_name contains 'rarity'
+      assign rarity_filter = filter
+    elsif filter.type == 'price_range'
+      assign price_filter = filter
+    elsif filter.param_name contains 'available'
+      assign availability_filter = filter
+    endif
+  endfor
+-%}
+
+<div class="collection-page page-width">
+  <h1 class="visually-hidden">{{ collection.title }}</h1>
+
+  {%- if collection.metafields.custom.stock_warning != blank -%}
+    <div class="alert--warning collection-page__banner">
+      {{ collection.metafields.custom.stock_warning }}
+    </div>
+  {%- endif -%}
+
+  <div class="collection-page__layout">
+
+    <aside class="collection-filters" data-collection-filters>
+      <form method="get" action="{{ collection.url }}" data-filter-form>
+      <div class="collection-filters__header">
+        <span>{{ 'collections.filters.title' | t: default: 'Filter' }}</span>
+        <span class="badge">{{ collection.products_count }} {{ 'collections.filters.items' | t: default: 'items' }}</span>
+      </div>
+
+      {%- if price_filter -%}
+        <div class="collection-filters__group">
+          <h3>{{ 'collections.filters.price' | t: default: 'Price' }}</h3>
+          <div class="collection-filters__price-inputs">
+            <label>
+              <span>{{ 'collections.filters.from' | t: default: 'From' }}</span>
+              <input type="number" name="{{ price_filter.min_value.param_name }}" value="{{ price_filter.min_value.value }}" placeholder="{{ price_filter.range_min | money_without_currency }}">
+            </label>
+            <label>
+              <span>{{ 'collections.filters.to' | t: default: 'To' }}</span>
+              <input type="number" name="{{ price_filter.max_value.param_name }}" value="{{ price_filter.max_value.value }}" placeholder="{{ price_filter.range_max | money_without_currency }}">
+            </label>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if availability_filter -%}
+        <div class="collection-filters__group">
+          <h3>{{ 'collections.filters.availability' | t: default: 'Availability' }}</h3>
+          {%- for value in availability_filter.values -%}
+            <label class="collection-filters__checkbox">
+              <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}" {% if value.active %}checked{% endif %}>
+              <span>{{ 'collections.filters.in_stock_only' | t: default: 'In stock only' }}</span>
+              <span class="collection-filters__count">({{ value.count }})</span>
+            </label>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if rarity_filter -%}
+        <div class="collection-filters__group">
+          <h3>{{ 'collections.filters.rarity' | t: default: 'Rarity' }}</h3>
+          {%- for value in rarity_filter.values -%}
+            <label class="collection-filters__checkbox" for="rarity-{{ value.value | handleize }}" id="rarity-{{ value.value | handleize }}-label">
+              <input type="checkbox" id="rarity-{{ value.value | handleize }}" name="{{ value.param_name }}" value="{{ value.value }}" {% if value.active %}checked{% endif %}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="{% render 'rarity-color', rarity: value.label %}" class="shrink-0 size-5"><path d="M18.5 3.7l2.9 3.3c.7.8.7 1.9.1 2.7L13.7 20.2c-.9 1.1-2.6 1.1-3.4 0L2.4 9.8c-.6-.8-.6-2 .1-2.7l2.9-3.3C5.9 3.3 6.5 3 7 3h10c.6 0 1.1.3 1.5.7z"/></svg>
+              <span>{{ value.label | capitalize }}</span>
+              <span class="collection-filters__count">({{ value.count }})</span>
+            </label>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      <noscript><button type="submit" class="btn btn--primary btn--full">{{ 'collections.filters.apply' | t: default: 'Apply' }}</button></noscript>
+      </form>
+    </aside>
+
+    <div class="collection-page__main">
+
+      <div class="collection-tabs" role="tablist">
+        <a href="{{ collection.url }}" class="pill-tab {% unless category_filter.active_values.size > 0 %}is-active{% endunless %}">
+          {{ 'collections.tabs.all_items' | t: default: 'All items' }}
+          <span class="collection-tabs__count">{{ collection.products_count }}</span>
+        </a>
+        {%- if category_filter -%}
+          {%- for value in category_filter.values -%}
+            <a href="{{ value.url_to_add }}" class="pill-tab {% if value.active %}is-active{% endif %}">
+              {{ value.label | capitalize }}
+              <span class="collection-tabs__count">{{ value.count }}</span>
+            </a>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+
+      <div class="collection-page__toolbar">
+        <form role="search" class="collection-page__search">
+          <input type="search" name="q" placeholder="{{ 'collections.search.placeholder' | t: default: 'Search items' }}">
+        </form>
+
+        <select name="sort_by" class="collection-page__sort" data-sort-select>
+          {%- for option in collection.sort_options -%}
+            <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>{{ option.name }}</option>
+          {%- endfor -%}
+        </select>
+      </div>
+
+      {%- paginate collection.products by 24 -%}
+        <div class="product-grid">
+          {%- for product in collection.products -%}
+            {% render 'product-card', product: product %}
+          {%- else -%}
+            <p class="collection-page__empty">{{ 'collections.general.no_matches' | t: default: 'No products match these filters.' }}</p>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="collection-page__pagination">
+            {{ paginate | default_pagination }}
+          </nav>
+        {%- endif -%}
+      {%- endpaginate -%}
+
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collection page",
+  "settings": []
+}
+{% endschema %}

@@ -1,0 +1,80 @@
+.product-page { padding-block: 1.5rem 4rem; }
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+.breadcrumb a { color: var(--color-text-secondary); }
+.breadcrumb a:hover { color: var(--color-text-primary); }
+.breadcrumb [aria-current] { color: var(--color-text-primary); }
+
+.product-page__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+}
+
+.product-page__gallery {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: calc(var(--radius-base) * 1.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.product-page__gallery img { max-height: 24rem; object-fit: contain; }
+
+.product-page__badges { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.product-page__badges .badge--rarity { background: color-mix(in srgb, var(--rarity-color) 16%, transparent); color: var(--rarity-color); }
+
+.product-page__title { font-size: 1.75rem; margin-bottom: 0.75rem; }
+
+.price--large .price__current { font-size: 1.5rem; }
+.price--large .price__compare { font-size: 0.9375rem; }
+
+.product-page__description {
+  margin-top: 1rem;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.product-page__rarity-line { margin-top: 0.75rem; color: var(--color-text-secondary); font-size: 0.875rem; }
+
+.product-page__stock { margin-top: 1rem; font-size: 0.875rem; font-weight: 600; }
+.product-page__stock.is-in-stock { color: var(--color-price-current); }
+.product-page__stock.is-out-of-stock { color: var(--color-price-strike-line); }
+
+.product-page__purchase-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.product-page__purchase-form,
+.product-page__buy-now-form { display: contents; }
+.product-page__add { height: 3rem; }
+
+.product-page__payment-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.product-page__secure-note {
+  margin-top: 1rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.product-page__similar { margin-top: 4rem; }
+.product-page__similar h2 { font-size: 1.25rem; margin-bottom: 1.25rem; }
+
+@media (max-width: 900px) {
+  .product-page__layout { grid-template-columns: 1fr; gap: 1.5rem; }
+}

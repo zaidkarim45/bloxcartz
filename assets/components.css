@@ -1,0 +1,211 @@
+/* Shared component primitives — button, badge, card, price.
+   Values match live computed styles captured in Phase 0 (see
+   ../PHASE_0_EXTRACTION_NOTES.md and ../design-tokens.json), not guesses. */
+
+/* ---- Buttons ---- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1rem;
+  border-radius: var(--radius-base);
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  transition: filter 150ms ease, transform 100ms ease;
+}
+.btn:hover { filter: brightness(1.10); }
+.btn:active { filter: brightness(0.90); transform: scale(0.95); }
+
+.btn--primary {
+  background: var(--color-accent-button);
+  color: var(--color-text-primary);
+}
+
+.btn--outline {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+  color: var(--color-text-primary);
+}
+
+.btn--buy-now {
+  background: var(--color-price-current);
+  color: #0B1710;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-price-current) 50%, transparent),
+              0 0 16px color-mix(in srgb, var(--color-price-current) 45%, transparent);
+}
+
+/* Hero CTA reads as a heavier, more decorative treatment on the live site —
+   visible gradient + offset drop-shadow, distinct from the flat in-grid
+   "Add" button. Confirm exact gradient stops during visual QA against a
+   screenshot diff once real content is in place. */
+.btn--hero {
+  height: 3.5rem;
+  padding: 0 2rem;
+  font-family: var(--font-plus-jakarta-sans);
+  font-size: 1.5rem;
+  font-weight: 600;
+  border-radius: var(--radius-base);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 85%, white 15%), var(--color-accent-button));
+  box-shadow: 0 6px 0 0 color-mix(in srgb, var(--color-accent-button) 70%, black 30%);
+}
+
+.btn--disabled,
+.btn[disabled] {
+  background: color-mix(in srgb, var(--color-bg-card) 85%, white 15%);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+  filter: none;
+}
+.btn--disabled:hover,
+.btn[disabled]:hover { filter: none; }
+
+.btn--full { width: 100%; }
+
+/* ---- Badges / pills ---- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge--rarity {
+  background: color-mix(in srgb, var(--rarity-color, var(--color-accent)) 16%, transparent);
+  color: var(--rarity-color, var(--color-accent));
+}
+
+.badge--bestseller {
+  background: color-mix(in srgb, var(--color-price-current) 16%, transparent);
+  color: var(--color-price-current);
+}
+
+.badge--discount {
+  background: color-mix(in srgb, var(--color-price-current) 16%, transparent);
+  color: var(--color-price-current);
+  font-weight: 700;
+}
+
+.pill-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2.5rem;
+  padding: 0 0.9375rem;
+  border-radius: var(--radius-base);
+  background: var(--color-bg-card);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.pill-tab[aria-pressed="true"],
+.pill-tab.is-active {
+  background: var(--color-accent-button);
+  color: var(--color-text-primary);
+}
+
+/* ---- Cards ---- */
+
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: calc(var(--radius-base) * 1.5);
+  overflow: hidden;
+}
+
+.product-card__accent-bar {
+  height: 4px;
+  width: 5rem;
+  margin-inline: auto;
+  border-radius: 0 0 999px 999px;
+  background: var(--rarity-color, var(--color-accent));
+}
+
+.product-card__image-wrap {
+  background: var(--color-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  height: 11rem;
+}
+.product-card__image { max-height: 100%; object-fit: contain; }
+
+.product-card { display: flex; flex-direction: column; }
+.product-card__link { display: flex; flex-direction: column; flex: 1; }
+.product-card__title {
+  padding: 0 1rem;
+  margin-top: 0.75rem;
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+.product-card .price { padding: 0.375rem 1rem 0; margin-top: auto; }
+.product-card__form,
+.product-card > .product-card__cta {
+  padding: 0.875rem 1rem 1rem;
+}
+.product-card__form { padding-top: 0.875rem; }
+
+/* ---- Price ---- */
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+}
+
+.price__current {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-price-current);
+}
+
+/* The live site does NOT use text-decoration: line-through for the compare-at
+   price — it overlays a separate rotated line on top of plain grey text.
+   Replicated here 1:1 rather than the CSS shorthand so the visual matches. */
+.price__compare {
+  position: relative;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+.price__compare::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+}
+.price__compare-line {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+}
+.price__compare-line span {
+  height: 1px;
+  width: 100%;
+  transform: rotate(-12deg);
+  background: var(--color-price-strike-line);
+}
+
+/* ---- Warning / stock banner ---- */
+
+.alert--warning {
+  border: 1px solid color-mix(in srgb, var(--color-warning) 32%, transparent);
+  background: color-mix(in srgb, var(--color-warning) 4%, transparent);
+  border-radius: 14px;
+  padding: 0.75rem 0.875rem;
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+}

@@ -1,0 +1,48 @@
+{%- comment -%} Accepts: product {%- endcomment -%}
+{%- liquid
+  assign rarity_tag = ''
+  for tag in product.tags
+    if tag contains 'rarity:'
+      assign rarity_tag = tag | remove: 'rarity:'
+    endif
+  endfor
+  assign variant = product.selected_or_first_available_variant
+  assign in_stock = variant.available
+-%}
+<div class="product-card card" style="--rarity-color: {% render 'rarity-color', rarity: rarity_tag %};">
+  {%- if rarity_tag != blank -%}
+    <span class="product-card__accent-bar" aria-hidden="true"></span>
+  {%- endif -%}
+
+  <a href="{{ product.url }}" class="product-card__link">
+    <div class="product-card__image-wrap">
+      {%- if product.featured_image -%}
+        {{ product.featured_image | image_url: width: 300 | image_tag: alt: product.title, loading: 'lazy', class: 'product-card__image' }}
+      {%- endif -%}
+    </div>
+    <p class="product-card__title">{{ product.title }}</p>
+    <div class="price">
+      <span class="price__current">{{ variant.price | money }}</span>
+      {%- if variant.compare_at_price > variant.price -%}
+        <span class="price__compare">
+          <span class="price__compare-line"><span></span></span>
+          {{ variant.compare_at_price | money }}
+        </span>
+      {%- endif -%}
+    </div>
+  </a>
+
+  {%- if in_stock -%}
+    <form data-add-to-cart-form class="product-card__form">
+      <input type="hidden" name="id" value="{{ variant.id }}">
+      <input type="hidden" name="quantity" value="1">
+      <button type="submit" class="btn btn--primary btn--full product-card__cta">
+        {% render 'icon-cart' %} {{ 'products.product.add' | t: default: 'Add' }}
+      </button>
+    </form>
+  {%- else -%}
+    <button type="button" class="btn btn--disabled btn--full product-card__cta" disabled>
+      {{ 'products.product.sold_out' | t: default: 'Out of stock' }}
+    </button>
+  {%- endif -%}
+</div>

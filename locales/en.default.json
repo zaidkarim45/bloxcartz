@@ -1,0 +1,132 @@
+{
+  "general": {
+    "search": {
+      "placeholder": "Search game",
+      "title": "Search",
+      "results_for": "results for"
+    },
+    "breadcrumb": {
+      "home": "Home"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "Cart",
+      "clear": "Clear cart",
+      "empty": "Your cart is empty",
+      "for_checkout": "For checkout",
+      "promo_code_placeholder": "Enter promo code",
+      "apply": "Apply",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "checkout": "Checkout",
+      "continue_shopping": "Continue shopping"
+    }
+  },
+  "claim": {
+    "order_reference": "Order number or reference",
+    "email": "Checkout email"
+  },
+  "contact": {
+    "form": {
+      "post_success": "Thanks — we'll be in touch soon.",
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "send": "Send"
+    }
+  },
+  "products": {
+    "game": {
+      "view_products": "View products",
+      "limited_stock": "Limited Stock",
+      "shop_now": "Shop now"
+    },
+    "product": {
+      "add": "Add",
+      "sold_out": "Out of stock",
+      "bestseller": "Bestseller",
+      "rarity": "Rarity",
+      "in_stock": "In stock",
+      "add_to_cart": "Add to cart",
+      "buy_now": "Buy it now",
+      "secure_checkout": "Secure checkout with 256-bit encryption",
+      "similar_items": "Similar items"
+    }
+  },
+  "collections": {
+    "filters": {
+      "title": "Filter",
+      "items": "items",
+      "price": "Price",
+      "from": "From",
+      "to": "To",
+      "availability": "Availability",
+      "in_stock_only": "In stock only",
+      "rarity": "Rarity",
+      "apply": "Apply"
+    },
+    "tabs": {
+      "all_items": "All items"
+    },
+    "search": {
+      "placeholder": "Search items"
+    },
+    "general": {
+      "no_matches": "No products match these filters."
+    }
+  },
+  "customer": {
+    "log_out": "Log out",
+    "login_page": {
+      "title": "Log in",
+      "email": "Email",
+      "password": "Password",
+      "sign_in": "Sign in",
+      "forgot_password": "Forgot your password?",
+      "create_account": "Create account"
+    },
+    "register_page": {
+      "title": "Create account",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create account"
+    },
+    "account": {
+      "title": "My account",
+      "details": "Hi"
+    },
+    "orders": {
+      "title": "Order history",
+      "none": "You haven't placed any orders yet.",
+      "order_number": "Order",
+      "date": "Date",
+      "payment_status": "Payment",
+      "total": "Total"
+    },
+    "order": {
+      "title": "Order",
+      "product": "Item",
+      "quantity": "Qty",
+      "total": "Total",
+      "back": "Back to account"
+    },
+    "reset_password": {
+      "title": "Reset your password",
+      "password": "New password",
+      "password_confirm": "Confirm password",
+      "submit": "Reset password"
+    },
+    "activate_account": {
+      "title": "Activate account",
+      "password": "Password",
+      "password_confirm": "Confirm password",
+      "submit": "Activate account"
+    },
+    "addresses": {
+      "title": "Addresses"
+    }
+  }
+}

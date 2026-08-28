@@ -1,0 +1,24 @@
+<div class="static-page page-width">
+  <h1>{{ 'general.search.title' | t: default: 'Search' }}</h1>
+  <form role="search" action="{{ routes.search_url }}" class="collection-page__search">
+    <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t: default: 'Search game' }}">
+  </form>
+
+  {%- if search.performed -%}
+    <p class="static-page__intro">{{ search.results_count }} {{ 'general.search.results_for' | t: default: 'results for' }} "{{ search.terms }}"</p>
+    <div class="product-grid">
+      {%- for item in search.results -%}
+        {%- if item.object_type == 'product' -%}
+          {% render 'product-card', product: item %}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Search results",
+  "settings": []
+}
+{% endschema %}

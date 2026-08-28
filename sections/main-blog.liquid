@@ -1,0 +1,28 @@
+<div class="static-page page-width">
+  <h1>{{ blog.title }}</h1>
+  <div class="blog-grid">
+    {%- paginate blog.articles by 12 -%}
+      {%- for article in blog.articles -%}
+        <a href="{{ article.url }}" class="blog-grid__card card">
+          {%- if article.image -%}
+            {{ article.image | image_url: width: 500 | image_tag: alt: article.title, loading: 'lazy' }}
+          {%- endif -%}
+          <div class="blog-grid__card-body">
+            <h2>{{ article.title }}</h2>
+            <p>{{ article.excerpt_or_content | strip_html | truncate: 120 }}</p>
+          </div>
+        </a>
+      {%- endfor -%}
+      {%- if paginate.pages > 1 -%}
+        <nav class="collection-page__pagination">{{ paginate | default_pagination }}</nav>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Blog",
+  "settings": []
+}
+{% endschema %}

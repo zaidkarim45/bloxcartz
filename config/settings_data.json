@@ -1,0 +1,28 @@
+{
+  "current": "Default",
+  "presets": {
+    "Default": {
+      "color_bg_primary": "#131C23",
+      "color_bg_card": "#18222A",
+      "color_border_subtle": "#FFFFFF",
+      "color_accent": "#B556F3",
+      "color_accent_button": "#9D41D9",
+      "color_text_primary": "#FAFAFA",
+      "color_text_secondary": "#8295A1",
+      "color_price_current": "#25EB67",
+      "color_price_strike_line": "#EF4444",
+      "color_warning": "#F0A63C",
+      "font_heading_role": "geist",
+      "font_body_role": "geist",
+      "page_width": 1400,
+      "radius_base": 8,
+      "social_x_link": "https://x.com/BloxCart",
+      "social_youtube_link": "https://www.youtube.com/@BloxCartYouTube",
+      "social_discord_link": "https://discord.com/invite/bloxcart",
+      "social_tiktok_link": "https://www.tiktok.com/@bloxcart",
+      "social_trustpilot_link": "https://www.trustpilot.com/review/bloxcart.com",
+      "cart_type": "drawer",
+      "cart_show_promo_code": true
+    }
+  }
+}

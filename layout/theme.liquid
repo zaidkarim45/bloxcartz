@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#131C23">
+  <meta name="color-scheme" content="dark">
+
+  {% if page_description %}
+    <meta name="description" content="{{ page_description | escape }}">
+  {% endif %}
+
+  <title>
+    {{ page_title }}
+    {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
+    {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+    {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+  </title>
+
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
+  {%- if settings.favicon != blank -%}
+    <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 48 }}">
+  {%- endif -%}
+
+  {{ 'fonts.css' | asset_url | stylesheet_tag }}
+  {{ 'base.css' | asset_url | stylesheet_tag }}
+  {{ 'components.css' | asset_url | stylesheet_tag }}
+  {{ 'layout.css' | asset_url | stylesheet_tag }}
+  {{ 'marketing.css' | asset_url | stylesheet_tag }}
+  {{ 'collection.css' | asset_url | stylesheet_tag }}
+  {{ 'product.css' | asset_url | stylesheet_tag }}
+  {{ 'static-pages.css' | asset_url | stylesheet_tag }}
+
+  <style>
+    :root {
+      --color-bg-primary: {{ settings.color_bg_primary }};
+      --color-bg-card: {{ settings.color_bg_card }};
+      --color-border-subtle: {{ settings.color_border_subtle }};
+      --color-accent: {{ settings.color_accent }};
+      --color-accent-button: {{ settings.color_accent_button }};
+      --color-text-primary: {{ settings.color_text_primary }};
+      --color-text-secondary: {{ settings.color_text_secondary }};
+      --color-price-current: {{ settings.color_price_current }};
+      --color-price-strike-line: {{ settings.color_price_strike_line }};
+      --color-warning: {{ settings.color_warning }};
+      --page-width: {{ settings.page_width }}px;
+      --radius-base: {{ settings.radius_base }}px;
+      --font-heading: var(--font-{{ settings.font_heading_role }});
+      --font-body: var(--font-{{ settings.font_body_role }});
+    }
+  </style>
+
+  {{ content_for_header }}
+</head>
+<body class="template-{{ request.page_type | handleize }}">
+
+  <a class="skip-to-content" href="#MainContent">Skip to content</a>
+
+  {% sections 'header-group' %}
+
+  <main id="MainContent" class="main-content">
+    {{ content_for_layout }}
+  </main>
+
+  {% sections 'footer-group' %}
+
+  {% render 'cart-drawer' %}
+  {% render 'third-party-scripts' %}
+
+</body>
+</html>

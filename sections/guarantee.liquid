@@ -1,0 +1,71 @@
+{%- comment -%}
+  The live copy says "As a Shopify Plus merchant, every transaction runs
+  through hosted, PCI-compliant checkout infrastructure" and "Payments are
+  processed by Stripe" — reused verbatim below via block defaults, but this
+  is a factual claim tied to the *current* store's plan/payment gateway.
+  Verify against whatever plan/gateway the fresh store actually ends up on
+  before launch — don't ship a Shopify Plus claim on a non-Plus store.
+{%- endcomment -%}
+<div class="static-page page-width">
+  <p class="static-page__eyebrow">{{ section.settings.eyebrow }}</p>
+  <h1>{{ section.settings.heading }}</h1>
+  <p class="static-page__intro">{{ section.settings.intro }}</p>
+
+  <div class="guarantee-stats">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'stat' -%}
+        <div class="guarantee-stats__item" {{ block.shopify_attributes }}>
+          <strong>{{ block.settings.value }}</strong>
+          <span>{{ block.settings.label }}</span>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  <div class="static-page__cta-box">
+    <h3>{{ section.settings.refund_heading }}</h3>
+    <p>{{ section.settings.refund_text }}</p>
+    {%- if section.settings.refund_policy_url != blank -%}
+      <a href="{{ section.settings.refund_policy_url }}">{{ section.settings.refund_cta }}</a>
+    {%- endif -%}
+  </div>
+
+  <p class="static-page__fineprint">{{ section.settings.payment_security_text }}</p>
+</div>
+
+{% schema %}
+{
+  "name": "Guarantee",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "DELIVERY GUARANTEE" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Your satisfaction, our promise." },
+    { "type": "textarea", "id": "intro", "label": "Intro", "default": "We know that when you buy something you want it quick, easy, and secure. That is exactly what we deliver." },
+    { "type": "header", "content": "Automatic refund" },
+    { "type": "text", "id": "refund_heading", "label": "Heading", "default": "AUTOMATIC" },
+    { "type": "textarea", "id": "refund_text", "label": "Text", "default": "Waiting is not fun, so here is our promise: if your order is not claimed within 48 hours, the full refund is issued automatically. You do not need to contact us, open a ticket, or ask for it." },
+    { "type": "text", "id": "refund_cta", "label": "Link label", "default": "Read the refund policy" },
+    { "type": "url", "id": "refund_policy_url", "label": "Refund policy link" },
+    { "type": "textarea", "id": "payment_security_text", "label": "Payment security fine print", "default": "Checkout is hosted and PCI compliant, so your card details never touch our servers. Payments are processed by Stripe, one of the most widely trusted payment providers in the world." }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        { "type": "text", "id": "value", "label": "Value" },
+        { "type": "text", "id": "label", "label": "Label" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Guarantee",
+      "blocks": [
+        { "type": "stat", "settings": { "value": "2m 14s", "label": "Median delivery time" } },
+        { "type": "stat", "settings": { "value": "81%", "label": "Delivered within 5 minutes" } },
+        { "type": "stat", "settings": { "value": "96%", "label": "Delivered within 30 minutes" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

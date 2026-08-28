@@ -1,0 +1,6 @@
+{
+  "sections": {
+    "main": { "type": "guarantee", "settings": {} }
+  },
+  "order": ["main"]
+}

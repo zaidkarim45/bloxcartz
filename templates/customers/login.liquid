@@ -1,0 +1,23 @@
+<div class="static-page page-width static-page--narrow">
+  <h1>{{ 'customer.login_page.title' | t: default: 'Log in' }}</h1>
+
+  {%- form 'customer_login' -%}
+    {%- if form.errors -%}
+      <div class="alert--warning">{{ form.errors | default_errors }}</div>
+    {%- endif -%}
+    <label>
+      <span>{{ 'customer.login_page.email' | t: default: 'Email' }}</span>
+      <input type="email" name="customer[email]" autocomplete="email" required>
+    </label>
+    <label>
+      <span>{{ 'customer.login_page.password' | t: default: 'Password' }}</span>
+      <input type="password" name="customer[password]" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="btn btn--primary btn--full">{{ 'customer.login_page.sign_in' | t: default: 'Sign in' }}</button>
+    <a href="{{ routes.account_recover_url }}" class="static-page__muted-link">{{ 'customer.login_page.forgot_password' | t: default: 'Forgot your password?' }}</a>
+  {%- endform -%}
+
+  {%- if shop.customer_accounts_optional -%}
+    <p class="static-page__muted-link"><a href="{{ routes.account_register_url }}">{{ 'customer.login_page.create_account' | t: default: 'Create account' }}</a></p>
+  {%- endif -%}
+</div>

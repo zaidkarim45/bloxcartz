@@ -1,0 +1,6 @@
+{
+  "sections": {
+    "main": { "type": "claim-order", "settings": {} }
+  },
+  "order": ["main"]
+}

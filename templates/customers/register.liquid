@@ -1,0 +1,13 @@
+<div class="static-page page-width static-page--narrow">
+  <h1>{{ 'customer.register_page.title' | t: default: 'Create account' }}</h1>
+  {%- form 'create_customer' -%}
+    {%- if form.errors -%}
+      <div class="alert--warning">{{ form.errors | default_errors }}</div>
+    {%- endif -%}
+    <label><span>{{ 'customer.register_page.first_name' | t: default: 'First name' }}</span><input type="text" name="customer[first_name]" autocomplete="given-name"></label>
+    <label><span>{{ 'customer.register_page.last_name' | t: default: 'Last name' }}</span><input type="text" name="customer[last_name]" autocomplete="family-name"></label>
+    <label><span>{{ 'customer.register_page.email' | t: default: 'Email' }}</span><input type="email" name="customer[email]" autocomplete="email" required></label>
+    <label><span>{{ 'customer.register_page.password' | t: default: 'Password' }}</span><input type="password" name="customer[password]" autocomplete="new-password" required></label>
+    <button type="submit" class="btn btn--primary btn--full">{{ 'customer.register_page.submit' | t: default: 'Create account' }}</button>
+  {%- endform -%}
+</div>

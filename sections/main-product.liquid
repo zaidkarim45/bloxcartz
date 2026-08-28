@@ -1,0 +1,144 @@
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign rarity_tag = ''
+  assign bestseller = false
+  for tag in product.tags
+    if tag contains 'rarity:'
+      assign rarity_tag = tag | remove: 'rarity:'
+    endif
+    if tag == 'bestseller'
+      assign bestseller = true
+    endif
+  endfor
+  assign discount_pct = 0
+  if variant.compare_at_price > variant.price
+    assign discount_pct = variant.compare_at_price | minus: variant.price | times: 100 | divided_by: variant.compare_at_price
+  endif
+-%}
+
+<div class="product-page page-width">
+
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">{{ 'general.breadcrumb.home' | t: default: 'Home' }}</a>
+    {%- if product.collections.first -%}
+      <span aria-hidden="true">›</span>
+      <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
+    {%- endif -%}
+    <span aria-hidden="true">›</span>
+    <span aria-current="page">{{ product.title }}</span>
+  </nav>
+
+  <div class="product-page__layout">
+
+    <div class="product-page__gallery">
+      {%- if product.featured_image -%}
+        {{ product.featured_image | image_url: width: 800 | image_tag: alt: product.featured_image.alt, loading: 'eager' }}
+      {%- endif -%}
+    </div>
+
+    <div class="product-page__info">
+      <div class="product-page__badges">
+        {%- if rarity_tag != blank -%}
+          <span class="badge badge--rarity" style="--rarity-color: {% render 'rarity-color', rarity: rarity_tag %};">{{ rarity_tag | capitalize }}</span>
+        {%- endif -%}
+        {%- if bestseller -%}
+          <span class="badge badge--bestseller">🔥 {{ 'products.product.bestseller' | t: default: 'Bestseller' }}</span>
+        {%- endif -%}
+      </div>
+
+      <h1 class="product-page__title">{{ product.title }}</h1>
+
+      <div class="price price--large">
+        <span class="price__current">{{ variant.price | money }}</span>
+        {%- if variant.compare_at_price > variant.price -%}
+          <span class="price__compare">
+            <span class="price__compare-line"><span></span></span>
+            {{ variant.compare_at_price | money }}
+          </span>
+          <span class="badge badge--discount">-{{ discount_pct }}% OFF</span>
+        {%- endif -%}
+      </div>
+
+      {%- if product.description != blank -%}
+        <div class="product-page__description">{{ product.description }}</div>
+      {%- endif -%}
+
+      {%- if rarity_tag != blank -%}
+        <p class="product-page__rarity-line">{{ 'products.product.rarity' | t: default: 'Rarity' }}: {{ rarity_tag }}</p>
+      {%- endif -%}
+
+      <p class="product-page__stock {% if variant.available %}is-in-stock{% else %}is-out-of-stock{% endif %}">
+        {%- if variant.available -%}
+          {{ 'products.product.in_stock' | t: default: 'In stock' }}
+        {%- else -%}
+          {{ 'products.product.sold_out' | t: default: 'Out of stock' }}
+        {%- endif -%}
+      </p>
+
+      {%- if variant.available -%}
+        {%- comment -%}
+          The live site's green glowing "Buy it now" next to "Add to cart"
+          (confirmed Phase 0, not in the original spec) is almost certainly
+          Shopify's native dynamic checkout / accelerated-checkout button —
+          it only exists on Shopify-backed carts (Shop Pay, Apple Pay,
+          Google Pay), which lines up with the Shopify Plus finding. Using
+          the real `payment_button` here instead of a hand-rolled second
+          button gets Shop Pay/Apple Pay/Google Pay for free and will
+          render the same accent-colored glow Shopify themes ship by default.
+        {%- endcomment -%}
+        <div class="product-page__purchase-row">
+          <form data-add-to-cart-form class="product-page__purchase-form">
+            <input type="hidden" name="id" value="{{ variant.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="btn btn--primary product-page__add">
+              {% render 'icon-cart' %} {{ 'products.product.add_to_cart' | t: default: 'Add to cart' }}
+            </button>
+          </form>
+          {%- form 'product', product, class: 'product-page__buy-now-form' -%}
+            <input type="hidden" name="id" value="{{ variant.id }}">
+            {{ form | payment_button }}
+          {%- endform -%}
+        </div>
+      {%- else -%}
+        <button type="button" class="btn btn--disabled btn--full" disabled>
+          {{ 'products.product.sold_out' | t: default: 'Out of stock' }}
+        </button>
+      {%- endif -%}
+
+      {%- if shop.enabled_payment_types.size > 0 -%}
+        <div class="product-page__payment-icons">
+          {%- for type in shop.enabled_payment_types -%}
+            {{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <p class="product-page__secure-note">
+        {{ 'products.product.secure_checkout' | t: default: 'Secure checkout with 256-bit encryption' }}
+      </p>
+    </div>
+  </div>
+
+  {%- if product.collections.first.products.size > 1 -%}
+    <div class="product-page__similar">
+      <h2>{{ 'products.product.similar_items' | t: default: 'Similar items' }}</h2>
+      <div class="product-grid">
+        {%- assign similar_count = 0 -%}
+        {%- for similar in product.collections.first.products -%}
+          {%- if similar.id != product.id and similar_count < 6 -%}
+            {% render 'product-card', product: similar %}
+            {%- assign similar_count = similar_count | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+</div>
+
+{% schema %}
+{
+  "name": "Product page",
+  "settings": []
+}
+{% endschema %}

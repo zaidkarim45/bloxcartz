@@ -1,0 +1,267 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "BloxCart",
+    "theme_version": "0.1.0",
+    "theme_author": "BloxCart",
+    "theme_documentation_url": "",
+    "theme_support_url": ""
+  },
+  {
+    "name": "Logo",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Displayed at 48x48px"
+      }
+    ]
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Backgrounds"
+      },
+      {
+        "type": "color",
+        "id": "color_bg_primary",
+        "label": "Page background",
+        "default": "#131C23"
+      },
+      {
+        "type": "color",
+        "id": "color_bg_card",
+        "label": "Card / panel background",
+        "default": "#18222A"
+      },
+      {
+        "type": "color",
+        "id": "color_border_subtle",
+        "label": "Border (subtle)",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "header",
+        "content": "Accent"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Accent (text/links)",
+        "default": "#B556F3"
+      },
+      {
+        "type": "color",
+        "id": "color_accent_button",
+        "label": "Accent (button fill)",
+        "default": "#9D41D9"
+      },
+      {
+        "type": "header",
+        "content": "Text"
+      },
+      {
+        "type": "color",
+        "id": "color_text_primary",
+        "label": "Primary text",
+        "default": "#FAFAFA"
+      },
+      {
+        "type": "color",
+        "id": "color_text_secondary",
+        "label": "Secondary text",
+        "default": "#8295A1"
+      },
+      {
+        "type": "header",
+        "content": "Commerce"
+      },
+      {
+        "type": "color",
+        "id": "color_price_current",
+        "label": "Current price",
+        "default": "#25EB67"
+      },
+      {
+        "type": "color",
+        "id": "color_price_strike_line",
+        "label": "Strikethrough line",
+        "default": "#EF4444"
+      },
+      {
+        "type": "color",
+        "id": "color_warning",
+        "label": "Warning / stock banner",
+        "default": "#F0A63C"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "BloxCart's live site self-hosts Geist, Poppins, Plus Jakarta Sans and Outfit — none are in Shopify's curated font picker. These are bundled as theme assets and applied via CSS custom properties rather than Shopify's font_picker, so they render pixel-identical instead of falling back to a licensed substitute."
+      },
+      {
+        "type": "select",
+        "id": "font_heading_role",
+        "label": "Heading font (see assets/fonts.css)",
+        "options": [
+          { "value": "geist", "label": "Geist" },
+          { "value": "plus-jakarta-sans", "label": "Plus Jakarta Sans" }
+        ],
+        "default": "geist"
+      },
+      {
+        "type": "select",
+        "id": "font_body_role",
+        "label": "Body font (see assets/fonts.css)",
+        "options": [
+          { "value": "geist", "label": "Geist" },
+          { "value": "poppins", "label": "Poppins" }
+        ],
+        "default": "geist"
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "label": "Page width",
+        "min": 1200,
+        "max": 1600,
+        "step": 50,
+        "unit": "px",
+        "default": 1400
+      },
+      {
+        "type": "range",
+        "id": "radius_base",
+        "label": "Corner radius (buttons, inputs)",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "unit": "px",
+        "default": 8
+      }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Social accounts"
+      },
+      {
+        "type": "text",
+        "id": "social_x_link",
+        "label": "X (Twitter)",
+        "default": "https://x.com/BloxCart"
+      },
+      {
+        "type": "text",
+        "id": "social_youtube_link",
+        "label": "YouTube",
+        "default": "https://www.youtube.com/@BloxCartYouTube"
+      },
+      {
+        "type": "text",
+        "id": "social_discord_link",
+        "label": "Discord",
+        "default": "https://discord.com/invite/bloxcart"
+      },
+      {
+        "type": "text",
+        "id": "social_tiktok_link",
+        "label": "TikTok",
+        "default": "https://www.tiktok.com/@bloxcart"
+      },
+      {
+        "type": "text",
+        "id": "social_trustpilot_link",
+        "label": "Trustpilot",
+        "default": "https://www.trustpilot.com/review/bloxcart.com"
+      }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Cart behavior",
+        "options": [
+          { "value": "drawer", "label": "Drawer (slide-in, matches live site)" },
+          { "value": "page", "label": "Dedicated cart page" }
+        ],
+        "default": "drawer"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_show_promo_code",
+        "label": "Show promo code field in cart",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Third-party scripts",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Confirmed live on bloxcart.com during Phase 0 extraction (2026-08-28): Crisp chat, Termly consent, Google Ads/GA4, TikTok Pixel, PostHog, Klaviyo. Fill in the real account IDs before launch — leave blank to disable that integration."
+      },
+      {
+        "type": "text",
+        "id": "crisp_website_id",
+        "label": "Crisp Website ID",
+        "info": "chat widget, client.crisp.chat"
+      },
+      {
+        "type": "text",
+        "id": "termly_uuid",
+        "label": "Termly resource-blocker UUID",
+        "info": "cookie consent banner"
+      },
+      {
+        "type": "text",
+        "id": "gtag_ads_id",
+        "label": "Google Ads conversion ID (AW-...)"
+      },
+      {
+        "type": "text",
+        "id": "ga4_measurement_id",
+        "label": "GA4 measurement ID (G-...)"
+      },
+      {
+        "type": "text",
+        "id": "tiktok_pixel_id",
+        "label": "TikTok Pixel ID"
+      },
+      {
+        "type": "text",
+        "id": "posthog_api_key",
+        "label": "PostHog project API key"
+      },
+      {
+        "type": "text",
+        "id": "klaviyo_public_key",
+        "label": "Klaviyo public API key"
+      }
+    ]
+  }
+]

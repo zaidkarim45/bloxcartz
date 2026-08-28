@@ -1,0 +1,26 @@
+{%- comment -%}
+  Renders a hex color for a given rarity tag value. Confirmed from Phase 0
+  (Murder Mystery 2 only): Godly #E7592C, Ancient #C46CFF, Unique #FE5050.
+  Every other game's rarity vocabulary was crawled (see
+  PHASE_0_EXTRACTION_NOTES.md) but its *colors* were not individually
+  sampled, so those fall back to the theme accent color below.
+
+  TODO (Phase 8 data import): move this to a `custom.rarity_color` metafield
+  set per product so merchandisers can adjust without a code deploy —
+  this snippet is a placeholder until that metafield exists.
+
+  Usage: {% render 'rarity-color', rarity: 'godly' %}
+{%- endcomment -%}
+{%- liquid
+  assign key = rarity | downcase
+  case key
+    when 'godly'
+      echo '#E7592C'
+    when 'ancient'
+      echo '#C46CFF'
+    when 'unique'
+      echo '#FE5050'
+    else
+      echo settings.color_accent
+  endcase
+-%}

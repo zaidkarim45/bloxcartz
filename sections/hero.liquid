@@ -1,0 +1,106 @@
+<section class="hero page-width">
+  <div class="hero__content">
+    <h1 class="hero__heading">
+      {{ section.settings.heading_line_1 }}
+      <span class="hero__heading-accent">{{ section.settings.heading_accent }}</span>{{ section.settings.heading_line_2_rest }}
+    </h1>
+    <p class="hero__subheading">{{ section.settings.subheading }}</p>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="hero__trust-badges">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'trust_badge' -%}
+            <div class="hero__trust-badge" {{ block.shopify_attributes }}>
+              {%- if block.settings.icon != blank -%}
+                <span class="hero__trust-badge-icon">{{ block.settings.icon }}</span>
+              {%- endif -%}
+              <span>
+                <strong>{{ block.settings.label }}</strong>
+                <small>{{ block.settings.sublabel }}</small>
+              </span>
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.cta_url != blank -%}
+      <a href="{{ section.settings.cta_url }}" class="btn btn--hero">{{ section.settings.cta_label }}</a>
+    {%- endif -%}
+  </div>
+
+  {%- if section.settings.illustration != blank -%}
+    <div class="hero__illustration">
+      {{ section.settings.illustration | image_url: width: 1200 | image_tag: alt: '', loading: 'eager', fetchpriority: 'high' }}
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading_line_1",
+      "label": "Heading, line 1",
+      "default": "Get your favourite"
+    },
+    {
+      "type": "text",
+      "id": "heading_accent",
+      "label": "Heading, accented phrase",
+      "default": "in-game"
+    },
+    {
+      "type": "text",
+      "id": "heading_line_2_rest",
+      "label": "Heading, rest of line 2",
+      "default": " items"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Buy game items, pets & more instantly with fast delivery and 100% secure checkout"
+    },
+    {
+      "type": "text",
+      "id": "cta_label",
+      "label": "CTA label",
+      "default": "Explore games"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "CTA link"
+    },
+    {
+      "type": "image_picker",
+      "id": "illustration",
+      "label": "Decorative illustration"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "trust_badge",
+      "name": "Trust badge",
+      "settings": [
+        { "type": "text", "id": "icon", "label": "Icon (emoji or short text)" },
+        { "type": "text", "id": "label", "label": "Label" },
+        { "type": "text", "id": "sublabel", "label": "Sublabel" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero",
+      "blocks": [
+        { "type": "trust_badge", "settings": { "icon": "✓", "label": "100%", "sublabel": "Secure" } },
+        { "type": "trust_badge", "settings": { "icon": "⚡", "label": "Instant", "sublabel": "Delivery" } },
+        { "type": "trust_badge", "settings": { "icon": "24", "label": "24/7", "sublabel": "Support" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

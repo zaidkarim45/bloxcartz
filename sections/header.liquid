@@ -1,0 +1,86 @@
+<header class="site-header">
+  <div class="page-width site-header__inner">
+
+    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }} home">
+      {%- if settings.logo != blank -%}
+        {{ settings.logo | image_url: width: 200 | image_tag: alt: shop.name, class: 'site-header__logo-img' }}
+      {%- else -%}
+        <span class="site-header__logo-text">{{ shop.name }}</span>
+      {%- endif -%}
+    </a>
+
+    <div class="site-header__game-select" data-game-select>
+      <button type="button" class="site-header__game-select-btn" aria-haspopup="listbox" aria-expanded="false">
+        {%- if collection and collection.handle != blank and section.settings.games_list contains collection -%}
+          {%- if collection.image -%}
+            {{ collection.image | image_url: width: 40 | image_tag: alt: collection.title, class: 'site-header__game-icon' }}
+          {%- endif -%}
+          <span>{{ collection.title }}</span>
+        {%- else -%}
+          <span class="site-header__game-select-placeholder">?</span>
+          <span>Select game</span>
+        {%- endif -%}
+        {% render 'icon-chevron-down' %}
+      </button>
+      <ul class="site-header__game-menu" role="listbox" hidden>
+        {%- for game in section.settings.games_list -%}
+          <li role="option">
+            <a href="{{ game.url }}">
+              {%- if game.image -%}
+                {{ game.image | image_url: width: 40 | image_tag: alt: game.title, loading: 'lazy' }}
+              {%- endif -%}
+              <span>{{ game.title }}</span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    <div class="site-header__actions">
+      {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+        <button type="button" class="site-header__locale" aria-haspopup="dialog">
+          <span>{{ localization.language.endonym_name | capitalize }}</span>
+          <span aria-hidden="true">/</span>
+          <span>{{ cart.currency.iso_code }}</span>
+        </button>
+      {%- endif -%}
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{{ routes.account_login_url }}" class="btn btn--outline site-header__login">
+          {{ 'customer.login_page.title' | t }}
+        </a>
+      {%- endif -%}
+
+      <button type="button" class="site-header__cart" data-cart-toggle aria-haspopup="dialog" aria-controls="CartDrawer">
+        {% render 'icon-cart' %}
+        <span class="site-header__cart-label">
+          <span class="site-header__cart-sublabel">{{ 'cart.general.for_checkout' | t: default: 'For checkout' }}</span>
+          <span data-cart-total>{{ cart.total_price | money }}</span>
+        </span>
+        {% render 'icon-chevron-down' %}
+        {%- if cart.item_count > 0 -%}
+          <span class="site-header__cart-count" data-cart-count>{{ cart.item_count }}</span>
+        {%- endif -%}
+      </button>
+
+      <button type="button" class="site-header__menu-toggle" data-mobile-menu-toggle aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "collection_list",
+      "id": "games_list",
+      "label": "Games shown in the game selector",
+      "info": "Order here controls the order shown in the dropdown and on /games."
+    }
+  ]
+}
+{% endschema %}

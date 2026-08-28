@@ -1,0 +1,79 @@
+{% comment %}
+  Confirmed live on bloxcart.com during Phase 0 (2026-08-28): Crisp chat,
+  Termly consent management wired to Google Consent Mode v2, Google Ads/GA4,
+  TikTok Pixel, PostHog, Klaviyo. IDs come from Theme settings > Third-party
+  scripts so they can be swapped without a code deploy.
+
+  TODO: pull the exact script-category mapping from the Termly dashboard
+  (which pixel is "advertising" vs "analytics" vs "essential") so gating
+  matches the live site precisely — this scaffold defaults every marketing
+  pixel to the same consent gate Phase 0 observed (denied by default,
+  granted on accept), which is directionally correct but not yet a byte-for-
+  byte match of their Termly config.
+{% endcomment %}
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage': 'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage': 'granted'
+  });
+</script>
+
+{%- if settings.termly_uuid != blank -%}
+  <script src="https://app.termly.io/resource-blocker/{{ settings.termly_uuid }}?autoBlock=off"></script>
+{%- endif -%}
+
+{%- if settings.gtag_ads_id != blank or settings.ga4_measurement_id != blank -%}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ settings.gtag_ads_id | default: settings.ga4_measurement_id }}"></script>
+  <script>
+    {%- if settings.gtag_ads_id != blank -%}
+    gtag('config', '{{ settings.gtag_ads_id }}');
+    {%- endif -%}
+    {%- if settings.ga4_measurement_id != blank -%}
+    gtag('config', '{{ settings.ga4_measurement_id }}');
+    {%- endif -%}
+  </script>
+{%- endif -%}
+
+{%- if settings.tiktok_pixel_id != blank -%}
+  <script>
+    !function (w, d, t) {
+      w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<e.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=i,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var o=document.createElement("script");o.type="text/javascript",o.async=!0,o.src=i+"?sdkid="+e+"&lib="+t;var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(o,a)};
+      ttq.load('{{ settings.tiktok_pixel_id }}');
+      ttq.page();
+    }(window, document, 'ttq');
+  </script>
+{%- endif -%}
+
+{%- if settings.posthog_api_key != blank -%}
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.uploaded=!0,t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('{{ settings.posthog_api_key }}', { api_host: 'https://bloxcart.com/ingest' });
+  </script>
+{%- endif -%}
+
+{%- if settings.klaviyo_public_key != blank -%}
+  <script async type="text/javascript" src="https://static.klaviyo.com/onsite/js/klaviyo.js?company_id={{ settings.klaviyo_public_key }}"></script>
+{%- endif -%}
+
+{%- if settings.crisp_website_id != blank -%}
+  <script>
+    window.$crisp = [];
+    window.CRISP_WEBSITE_ID = "{{ settings.crisp_website_id }}";
+    (function () {
+      var d = document.createElement("script");
+      d.src = "https://client.crisp.chat/l.js";
+      d.async = 1;
+      document.getElementsByTagName("head")[0].appendChild(d);
+    })();
+  </script>
+{%- endif -%}
+
+<script src="{{ 'theme.js' | asset_url }}" defer></script>

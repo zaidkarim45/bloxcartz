@@ -1,0 +1,90 @@
+{%- comment -%}
+  Flagged in Phase 0 notes: Shopify OS 2.0 themes don't ship an installable
+  PWA (custom manifest + service worker) the way the current Next.js app
+  does. This section replicates the *instructions UI* faithfully; the
+  underlying "add to home screen" browser behavior depends on the browser
+  reading a valid web app manifest (Shopify's `/manifest.webmanifest` is
+  built-in for the storefront, so basic install prompts should still work —
+  full offline-shell/already-signed-in parity will not).
+{%- endcomment -%}
+<div class="static-page page-width static-page--narrow">
+  <p class="static-page__eyebrow">{{ section.settings.eyebrow }}</p>
+  <h1>{{ section.settings.heading }}</h1>
+  <p class="static-page__intro">{{ section.settings.intro }}</p>
+
+  <ul class="install-benefits">
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'benefit' -%}
+        <li {{ block.shopify_attributes }}>{{ block.settings.text }}</li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+
+  <h2>{{ section.settings.how_to_heading }}</h2>
+
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'platform' -%}
+      <div class="install-platform" {{ block.shopify_attributes }}>
+        <h3>{{ block.settings.platform_name }}</h3>
+        <ol>
+          {%- for i in (1..3) -%}
+            {%- assign step_key = 'step_' | append: i -%}
+            {%- assign step_text = block.settings[step_key] -%}
+            {%- if step_text != blank -%}<li>{{ step_text }}</li>{%- endif -%}
+          {%- endfor -%}
+        </ol>
+        {%- if block.settings.note != blank -%}
+          <p class="install-platform__note">{{ block.settings.note }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+
+  <div class="static-page__cta-box">
+    <h3>{{ section.settings.closing_heading }}</h3>
+    <p>{{ section.settings.closing_text }}</p>
+    <a href="{{ routes.all_products_collection_url | default: '/collections' }}" class="btn btn--primary">{{ section.settings.closing_cta }}</a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Install app",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "GET THE APP" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Install BloxCart" },
+    { "type": "textarea", "id": "intro", "label": "Intro", "default": "BloxCart runs as an app on any device. Add it once and it opens from your home screen — full screen, no browser bar, and already signed in." },
+    { "type": "text", "id": "how_to_heading", "label": "\"How to install\" heading", "default": "How to install" },
+    { "type": "text", "id": "closing_heading", "label": "Closing heading", "default": "That is the whole setup" },
+    { "type": "textarea", "id": "closing_text", "label": "Closing text", "default": "Your cart and account stay exactly where they are. Open BloxCart from your home screen and keep going." },
+    { "type": "text", "id": "closing_cta", "label": "Closing CTA label", "default": "Browse games" }
+  ],
+  "blocks": [
+    { "type": "benefit", "name": "Benefit", "settings": [{ "type": "text", "id": "text", "label": "Text" }] },
+    {
+      "type": "platform",
+      "name": "Platform instructions",
+      "settings": [
+        { "type": "text", "id": "platform_name", "label": "Platform name" },
+        { "type": "text", "id": "step_1", "label": "Step 1" },
+        { "type": "text", "id": "step_2", "label": "Step 2" },
+        { "type": "text", "id": "step_3", "label": "Step 3" },
+        { "type": "text", "id": "note", "label": "Footnote" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Install app",
+      "blocks": [
+        { "type": "benefit", "settings": { "text": "Opens straight from your home screen" } },
+        { "type": "benefit", "settings": { "text": "Full screen, with no browser bar in the way" } },
+        { "type": "benefit", "settings": { "text": "No app store and nothing to download" } },
+        { "type": "platform", "settings": { "platform_name": "iPhone and iPad", "step_1": "Tap the Share button in Safari.", "step_2": "Scroll down and choose \"Add to Home Screen\".", "step_3": "Tap \"Add\". The icon appears with your other apps.", "note": "Use Safari. Other browsers on iOS cannot add to the Home Screen." } },
+        { "type": "platform", "settings": { "platform_name": "Android", "step_1": "Tap the three-dot menu in Chrome.", "step_2": "Choose \"Install app\" or \"Add to Home screen\".", "step_3": "Confirm with \"Install\".", "note": "Chrome often offers the install button above on its own." } },
+        { "type": "platform", "settings": { "platform_name": "Computer", "step_1": "Click the install icon at the right of the address bar.", "step_2": "Or open the browser menu and choose \"Install BloxCart\".", "step_3": "Confirm with \"Install\". It opens in its own window.", "note": "Chrome and Edge. Safari on Mac uses File → Add to Dock." } }
+      ]
+    }
+  ]
+}
+{% endschema %}
