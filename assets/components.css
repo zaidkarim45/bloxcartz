@@ -126,11 +126,13 @@
   border: 1px solid color-mix(in srgb, var(--color-border-subtle) 10%, transparent);
   border-radius: 0.75rem;
   overflow: hidden;
-  transition: transform 180ms ease, border-color 180ms ease;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 .card:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--color-border-subtle) 22%, transparent);
+  background: color-mix(in srgb, var(--color-bg-card) 88%, var(--color-bg-primary) 12%);
+  border-color: color-mix(in srgb, var(--color-border-subtle) 30%, transparent);
+  box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.55);
 }
 
 .product-card__accent-bar {

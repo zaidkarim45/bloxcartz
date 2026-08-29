@@ -64,7 +64,8 @@
       "availability": "Availability",
       "in_stock_only": "In stock only",
       "rarity": "Rarity",
-      "apply": "Apply"
+      "apply": "Apply",
+      "reset_all": "Reset all"
     },
     "tabs": {
       "all_items": "All items"
@@ -73,7 +74,8 @@
       "placeholder": "Search items"
     },
     "general": {
-      "no_matches": "No products match these filters."
+      "no_matches": "No products match these filters.",
+      "view_all": "View all"
     }
   },
   "customer": {

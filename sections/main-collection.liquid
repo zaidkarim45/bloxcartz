@@ -53,9 +53,17 @@
   assign in_stock_count = 0
 -%}
 {%- if category_filter == null or rarity_filter == null or availability_filter == null -%}
+  {%- comment -%}
+    Deliberately using the `where` filter (checks each product's `tags`
+    array for the value directly) rather than `where_exp` here -- `where`
+    takes the tag as a plain filter argument with no string-expression
+    parsing/scoping involved, so there's no dependency on how reliably an
+    outer-scope variable resolves inside a `where_exp` expression string.
+  {%- endcomment -%}
   {%- paginate collection.products by 250 -%}
     {%- liquid
       if availability_filter == null
+        assign in_stock_count = 0
         for p in collection.products
           if p.available
             assign in_stock_count = in_stock_count | plus: 1
@@ -63,15 +71,17 @@
         endfor
       endif
       if category_filter == null
+        assign category_counts = ''
         for tag in category_tags
-          assign matches = collection.products | where_exp: 'p', 'p.tags contains tag'
+          assign matches = collection.products | where: 'tags', tag
           assign category_counts = category_counts | append: matches.size | append: '||'
         endfor
         assign category_counts = category_counts | split: '||'
       endif
       if rarity_filter == null
+        assign rarity_counts = ''
         for tag in rarity_tags
-          assign matches = collection.products | where_exp: 'p', 'p.tags contains tag'
+          assign matches = collection.products | where: 'tags', tag
           assign rarity_counts = rarity_counts | append: matches.size | append: '||'
         endfor
         assign rarity_counts = rarity_counts | split: '||'
@@ -101,6 +111,7 @@
       <div class="collection-filters__header">
         <span>{{ 'collections.filters.title' | t: default: 'Filter' }}</span>
         <span class="badge">{{ collection.products_count }} {{ 'collections.filters.items' | t: default: 'items' }}</span>
+        <a href="{{ collection.url }}" class="collection-filters__reset">{{ 'collections.filters.reset_all' | t: default: 'Reset all' }}</a>
       </div>
 
       {%- if price_filter -%}
@@ -109,11 +120,11 @@
           <div class="collection-filters__price-inputs">
             <label>
               <span>{{ 'collections.filters.from' | t: default: 'From' }}</span>
-              <input type="number" name="{{ price_filter.min_value.param_name }}" value="{{ price_filter.min_value.value }}" placeholder="{{ price_filter.range_min | money_without_currency }}" data-price-from>
+              <input type="text" inputmode="decimal" name="{{ price_filter.min_value.param_name }}" value="{{ price_filter.min_value.value }}" placeholder="{{ price_filter.range_min | money }}" data-price-from data-raw="{{ price_filter.min_value.value | default: price_filter.range_min }}">
             </label>
             <label>
               <span>{{ 'collections.filters.to' | t: default: 'To' }}</span>
-              <input type="number" name="{{ price_filter.max_value.param_name }}" value="{{ price_filter.max_value.value }}" placeholder="{{ price_filter.range_max | money_without_currency }}" data-price-to>
+              <input type="text" inputmode="decimal" name="{{ price_filter.max_value.param_name }}" value="{{ price_filter.max_value.value }}" placeholder="{{ price_filter.range_max | money }}" data-price-to data-raw="{{ price_filter.max_value.value | default: price_filter.range_max }}">
             </label>
           </div>
           <div class="collection-filters__slider" data-price-slider data-min="{{ price_filter.range_min }}" data-max="{{ price_filter.range_max }}">
@@ -249,14 +260,14 @@
         {%- comment -%}
           "All items" view: sectioned category previews (matches bloxcart.com's
           own layout — see docs/catalog-audit.md) instead of one flat grid.
-          `where_exp` needs a wide-enough working set to find each category's
-          items, hence paginating by 250 (Shopify's max) rather than the
+          Filtering by tag needs a wide-enough working set to find each
+          category's items, hence paginating by 250 (Shopify's max) rather than the
           usual 24 — nothing here renders 250 cards, each section is capped
           to `section.settings.products_per_category`.
         {%- endcomment -%}
         {%- paginate collection.products by 250 -%}
           {%- for cat in category_filter.values -%}
-            {%- assign cat_products = collection.products | where_exp: 'p', 'p.tags contains cat.value' -%}
+            {%- assign cat_products = collection.products | where: 'tags', cat.value -%}
             {%- if cat_products.size > 0 -%}
               <div class="collection-section">
                 <div class="collection-section__header">
@@ -286,7 +297,7 @@
               {%- liquid
                 assign cat_value = tag | remove_first: 'category:'
                 assign cat_label = cat_value | replace: '-', ' ' | capitalize
-                assign cat_products = collection.products | where_exp: 'p', 'p.tags contains tag'
+                assign cat_products = collection.products | where: 'tags', tag
               -%}
               {%- if cat_products.size > 0 -%}
                 <div class="collection-section">

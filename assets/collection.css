@@ -35,9 +35,9 @@
   border-radius: 0;
   padding: 1.25rem 1.25rem 2rem;
   position: sticky;
-  top: 4rem;
+  top: 4.5rem;
   align-self: start;
-  height: calc(100vh - 4rem);
+  height: calc(100vh - 4.5rem);
   overflow-y: auto;
   box-sizing: border-box;
 }
@@ -54,6 +54,14 @@
   font-size: 0.9375rem;
   margin-bottom: 1rem;
 }
+.collection-filters__reset {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  transition: opacity 150ms ease;
+}
+.collection-filters__reset:hover { opacity: 0.75; }
 .collection-filters__header .badge {
   background: color-mix(in srgb, var(--color-accent-button) 22%, transparent);
   color: var(--color-accent);
@@ -356,7 +364,7 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14.25rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
   gap: 0.875rem;
 }
 
