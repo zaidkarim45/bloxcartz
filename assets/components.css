@@ -45,11 +45,12 @@
    "Add" button. Confirm exact gradient stops during visual QA against a
    screenshot diff once real content is in place. */
 .btn--hero {
-  height: 3.5rem;
+  height: 4rem;
+  min-width: 13.75rem;
   padding: 0 2rem;
   font-family: var(--font-plus-jakarta-sans);
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.125rem;
+  font-weight: 700;
   border-radius: var(--radius-base);
   background: linear-gradient(180deg, color-mix(in srgb, var(--color-accent) 85%, white 15%), var(--color-accent-button));
   box-shadow: 0 6px 0 0 color-mix(in srgb, var(--color-accent-button) 70%, black 30%);

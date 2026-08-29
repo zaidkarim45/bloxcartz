@@ -5,21 +5,26 @@
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 2rem;
-  padding-block: 3rem;
+  padding-block: 5.5rem 7rem;
+  min-height: 34rem;
 }
 
 .hero__heading {
-  font-size: 3rem;
-  line-height: 1.4;
-  font-weight: 700;
+  font-size: 3.5rem;
+  line-height: 1.15;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
 }
 .hero__heading-accent { color: var(--color-accent); }
 
 .hero__subheading {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   color: var(--color-text-secondary);
-  font-weight: 300;
-  max-width: 32rem;
+  font-weight: 400;
+  font-size: 1.0625rem;
+  max-width: 30rem;
+  line-height: 1.6;
 }
 
 .hero__trust-badges {

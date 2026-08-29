@@ -3,7 +3,7 @@
     "all-games": {
       "type": "game-grid-v2",
       "settings": {
-        "heading": "All games",
+        "heading": "All Games",
         "view_all_label": "",
         "view_all_url": ""
       }

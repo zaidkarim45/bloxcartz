@@ -20,8 +20,8 @@
     "all-games": {
       "type": "game-grid-v2",
       "settings": {
-        "heading": "All games",
-        "view_all_label": "Explore games",
+        "heading": "All Games",
+        "view_all_label": "Explore Games",
         "view_all_url": "/collections"
       }
     },
