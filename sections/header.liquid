@@ -76,17 +76,20 @@
               assign is_external = true
             endif
 
-            assign game_url = external_url
-            if coll and coll.products_count > 0
+            assign game_url = '#'
+            if is_external
+              assign game_url = external_url
+            endif
+            if coll.url != blank
               assign game_url = coll.url
             endif
 
             assign game_image = icon
-            if coll and coll.image
+            if coll.image != blank
               assign game_image = coll.image
             endif
 
-            if coll and coll.title != blank
+            if coll.title != blank
               assign game_title = coll.title
             endif
           -%}

@@ -90,17 +90,20 @@
           assign is_external = true
         endif
 
-        assign game_url = external_url
-        if coll and coll.products_count > 0
+        assign game_url = '#'
+        if is_external
+          assign game_url = external_url
+        endif
+        if coll.url != blank
           assign game_url = coll.url
         endif
 
         assign game_image = icon
-        if coll and coll.image
+        if coll.image != blank
           assign game_image = coll.image
         endif
 
-        if coll and coll.title != blank
+        if coll.title != blank
           assign game_title = coll.title
         endif
       -%}
@@ -120,7 +123,13 @@
       {%- if block.type == 'game' -%}
         {%- liquid
           assign game_title = block.settings.title
-          assign game_url = block.settings.external_url | default: block.settings.collection.url
+          assign game_url = '#'
+          if block.settings.external_url != blank
+            assign game_url = block.settings.external_url
+          endif
+          if block.settings.collection.url != blank
+            assign game_url = block.settings.collection.url
+          endif
           assign game_image = block.settings.image | default: block.settings.collection.featured_image
           assign external = false
           if block.settings.external_url != blank
