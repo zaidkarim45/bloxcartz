@@ -1,13 +1,22 @@
 {%- comment -%}
-  Renders a hex color for a given rarity tag value. Confirmed from Phase 0
-  (Murder Mystery 2 only): Godly #E7592C, Ancient #C46CFF, Unique #FE5050.
-  Every other game's rarity vocabulary was crawled (see
-  PHASE_0_EXTRACTION_NOTES.md) but its *colors* were not individually
-  sampled, so those fall back to the theme accent color below.
+  Renders a hex color for a given rarity tag value. Confirmed live across
+  all 8 games with an internal catalog (see docs/catalog-audit.md) by
+  reading each game's filter-sidebar rarity checkbox SVG fill color — the
+  same colors bloxcart.com itself uses for its accent bars. No two games
+  contradict each other on a shared rarity name (e.g. "common" is
+  #DCDCF9 everywhere it appears), so one flat lookup covers all of them;
+  MM2's Godly/Ancient/Unique are the only genuinely game-specific tiers.
 
-  TODO (Phase 8 data import): move this to a `custom.rarity_color` metafield
-  set per product so merchandisers can adjust without a code deploy —
-  this snippet is a placeholder until that metafield exists.
+  Note: on the source site, several rarity NAMES share the same color
+  within a game (Steal a Brainrot's "secret" and "og" are both #C0C0C0;
+  Blox Fruits' "uncommon"/"common" likewise) — that makes color -> name
+  lookups ambiguous, not this direction (name -> color), so it's safe here.
+  data/catalog.json only sets rarity_name where it was unambiguous;
+  ambiguous products simply don't pass a `rarity` param in here at all.
+
+  TODO (Phase 8 data import): move this to a `custom.rarity_color`
+  metafield per product so merchandisers can adjust without a code
+  deploy — this snippet is a stopgap until that metafield exists.
 
   Usage: {% render 'rarity-color', rarity: 'godly' %}
 {%- endcomment -%}
@@ -20,6 +29,26 @@
       echo '#C46CFF'
     when 'unique'
       echo '#FE5050'
+    when 'common'
+      echo '#DCDCF9'
+    when 'uncommon'
+      echo '#DCDCF9'
+    when 'rare'
+      echo '#4891FF'
+    when 'legendary'
+      echo '#68D74D'
+    when 'secret'
+      echo '#C0C0C0'
+    when 'og'
+      echo '#C0C0C0'
+    when 'mythical'
+      echo '#C0C0C0'
+    when 'mythic'
+      echo '#C0C0C0'
+    when 'super'
+      echo '#C0C0C0'
+    when 'exclusive'
+      echo '#C0C0C0'
     else
       echo settings.color_accent
   endcase

@@ -1,0 +1,146 @@
+[
+  {
+    "game_slug": "murder-mystery-2",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/murder-mystery-2-thumbnail.webp",
+    "local_path": "assets/catalog/games/murder-mystery-2-thumbnail.webp",
+    "size_bytes": 177135,
+    "status": "ok"
+  },
+  {
+    "game_slug": "murder-mystery-2",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/murder-mystery-2-icon.webp",
+    "local_path": "assets/catalog/games/murder-mystery-2-icon.webp",
+    "size_bytes": 6304,
+    "status": "ok"
+  },
+  {
+    "game_slug": "steal-a-brainrot",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/steal-a-brainrot-thumbnail.webp",
+    "local_path": "assets/catalog/games/steal-a-brainrot-thumbnail.webp",
+    "size_bytes": 99762,
+    "status": "ok"
+  },
+  {
+    "game_slug": "steal-a-brainrot",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/steal-a-brainrot-icon.webp",
+    "local_path": "assets/catalog/games/steal-a-brainrot-icon.webp",
+    "size_bytes": 54892,
+    "status": "ok"
+  },
+  {
+    "game_slug": "blox-fruits",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/blox-fruits-thumbnail.webp",
+    "local_path": "assets/catalog/games/blox-fruits-thumbnail.webp",
+    "size_bytes": 33128,
+    "status": "ok"
+  },
+  {
+    "game_slug": "blox-fruits",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/blox-fruits-icon.webp",
+    "local_path": "assets/catalog/games/blox-fruits-icon.webp",
+    "size_bytes": 36438,
+    "status": "ok"
+  },
+  {
+    "game_slug": "adopt-me",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/adopt-me-thumbnail.png",
+    "local_path": "assets/catalog/games/adopt-me-thumbnail.png",
+    "size_bytes": 34409,
+    "status": "ok"
+  },
+  {
+    "game_slug": "adopt-me",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/adopt-me-icon-1.webp",
+    "local_path": "assets/catalog/games/adopt-me-icon.webp",
+    "size_bytes": 15658,
+    "status": "ok"
+  },
+  {
+    "game_slug": "pet-simulator-99",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/pet-simulator-99-thumbnail-1.webp",
+    "local_path": "assets/catalog/games/pet-simulator-99-thumbnail.webp",
+    "size_bytes": 20820,
+    "status": "ok"
+  },
+  {
+    "game_slug": "pet-simulator-99",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/pet-simulator-99-icon-1.webp",
+    "local_path": "assets/catalog/games/pet-simulator-99-icon.webp",
+    "size_bytes": 106140,
+    "status": "ok"
+  },
+  {
+    "game_slug": "blade-ball",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/blade-ball-thumbnail.png",
+    "local_path": "assets/catalog/games/blade-ball-thumbnail.png",
+    "size_bytes": 878234,
+    "status": "ok"
+  },
+  {
+    "game_slug": "blade-ball",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/blade-ball-icon.webp",
+    "local_path": "assets/catalog/games/blade-ball-icon.webp",
+    "size_bytes": 45260,
+    "status": "ok"
+  },
+  {
+    "game_slug": "grow-a-garden-2",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/grow-a-garden-2-thumbnail.webp",
+    "local_path": "assets/catalog/games/grow-a-garden-2-thumbnail.webp",
+    "size_bytes": 30878,
+    "status": "ok"
+  },
+  {
+    "game_slug": "grow-a-garden-2",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/grow-a-garden-2-icon.webp",
+    "local_path": "assets/catalog/games/grow-a-garden-2-icon.webp",
+    "size_bytes": 30104,
+    "status": "ok"
+  },
+  {
+    "game_slug": "99-nights-in-the-forest",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/99-nights-in-the-forest-thumbnail.png",
+    "local_path": "assets/catalog/games/99-nights-in-the-forest-thumbnail.png",
+    "size_bytes": 80805,
+    "status": "ok"
+  },
+  {
+    "game_slug": "99-nights-in-the-forest",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/99-nights-in-the-forest-icon.webp",
+    "local_path": "assets/catalog/games/99-nights-in-the-forest-icon.webp",
+    "size_bytes": 16114,
+    "status": "ok"
+  },
+  {
+    "game_slug": "dress-to-impress",
+    "kind": "thumbnail",
+    "source_url": "https://media.bloxcart.com/payload-media/dress-to-impress-thumbnail.webp",
+    "local_path": "assets/catalog/games/dress-to-impress-thumbnail.webp",
+    "size_bytes": 83360,
+    "status": "ok"
+  },
+  {
+    "game_slug": "dress-to-impress",
+    "kind": "icon",
+    "source_url": "https://media.bloxcart.com/payload-media/dress-to-impress-icon.webp",
+    "local_path": "assets/catalog/games/dress-to-impress-icon.webp",
+    "size_bytes": 58522,
+    "status": "ok"
+  }
+]

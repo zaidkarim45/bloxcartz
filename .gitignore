@@ -3,3 +3,19 @@ node_modules/
 .env
 .shopifyignore.local
 *.log
+
+# Catalog migration staging assets — these are source material for Shopify
+# product/collection media uploads, NOT theme assets. Keeping ~250MB+ of
+# product photography out of the theme repo is deliberate (see
+# docs/catalog-audit.md, Step 8 of the migration request: the theme should
+# render Shopify product/media objects, not hardcoded files shipped in
+# assets/). data/catalog.json, product-image-map.json, and
+# shopify-products.csv (which ARE tracked) are enough to reproduce or
+# re-upload everything in these folders.
+/assets/catalog/raw/
+/assets/catalog/processed/
+/assets/catalog/games/
+data/_raw_structure.json
+data/_prices_raw.json
+data/_download_report.json
+data/_qc_report.json
