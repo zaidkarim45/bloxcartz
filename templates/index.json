@@ -41,7 +41,9 @@
     "trust-section": {
       "type": "trust-section",
       "settings": {
-        "heading": "Trusted By 150,000+ Happy Customers",
+        "heading_prefix": "Trusted By",
+        "heading_number": "150,000+",
+        "heading_suffix": "Happy Customers",
         "reviews_note": "New reviews are on the way",
         "subtext": "Thousands of orders delivered every week, with support standing by from checkout to delivery."
       }
