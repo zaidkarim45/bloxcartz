@@ -41,9 +41,14 @@
     </div>
   {%- endif -%}
 
+  <button type="button" class="collection-filters__toggle" data-filter-toggle aria-expanded="false" aria-controls="CollectionFilters">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="10" y1="18" x2="14" y2="18"></line></svg>
+    {{ 'collections.filters.title' | t: default: 'Filter' }}
+  </button>
+
   <div class="collection-page__layout">
 
-    <aside class="collection-filters" data-collection-filters>
+    <aside class="collection-filters" id="CollectionFilters" data-collection-filters>
       <form method="get" action="{{ collection.url }}" data-filter-form>
       <div class="collection-filters__header">
         <span>{{ 'collections.filters.title' | t: default: 'Filter' }}</span>
@@ -56,12 +61,18 @@
           <div class="collection-filters__price-inputs">
             <label>
               <span>{{ 'collections.filters.from' | t: default: 'From' }}</span>
-              <input type="number" name="{{ price_filter.min_value.param_name }}" value="{{ price_filter.min_value.value }}" placeholder="{{ price_filter.range_min | money_without_currency }}">
+              <input type="number" name="{{ price_filter.min_value.param_name }}" value="{{ price_filter.min_value.value }}" placeholder="{{ price_filter.range_min | money_without_currency }}" data-price-from>
             </label>
             <label>
               <span>{{ 'collections.filters.to' | t: default: 'To' }}</span>
-              <input type="number" name="{{ price_filter.max_value.param_name }}" value="{{ price_filter.max_value.value }}" placeholder="{{ price_filter.range_max | money_without_currency }}">
+              <input type="number" name="{{ price_filter.max_value.param_name }}" value="{{ price_filter.max_value.value }}" placeholder="{{ price_filter.range_max | money_without_currency }}" data-price-to>
             </label>
+          </div>
+          <div class="collection-filters__slider" data-price-slider data-min="{{ price_filter.range_min }}" data-max="{{ price_filter.range_max }}">
+            <div class="collection-filters__slider-track"></div>
+            <div class="collection-filters__slider-range" data-price-range></div>
+            <input type="range" min="{{ price_filter.range_min }}" max="{{ price_filter.range_max }}" value="{{ price_filter.min_value.value | default: price_filter.range_min }}" data-price-range-from>
+            <input type="range" min="{{ price_filter.range_min }}" max="{{ price_filter.range_max }}" value="{{ price_filter.max_value.value | default: price_filter.range_max }}" data-price-range-to>
           </div>
         </div>
       {%- endif -%}
@@ -71,9 +82,10 @@
           <h3>{{ 'collections.filters.availability' | t: default: 'Availability' }}</h3>
           {%- for value in availability_filter.values -%}
             <label class="collection-filters__checkbox">
-              <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}" {% if value.active %}checked{% endif %}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7 9 18l-5-5"></path></svg>
               <span>{{ 'collections.filters.in_stock_only' | t: default: 'In stock only' }}</span>
               <span class="collection-filters__count">({{ value.count }})</span>
+              <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}" {% if value.active %}checked{% endif %}>
             </label>
           {%- endfor -%}
         </div>
@@ -98,31 +110,33 @@
 
     <div class="collection-page__main">
 
-      <div class="collection-tabs" role="tablist">
-        <a href="{{ collection.url }}" class="pill-tab {% unless category_filter.active_values.size > 0 %}is-active{% endunless %}">
-          {{ 'collections.tabs.all_items' | t: default: 'All items' }}
-          <span class="collection-tabs__count">{{ collection.products_count }}</span>
-        </a>
-        {%- if category_filter -%}
-          {%- for value in category_filter.values -%}
-            <a href="{{ value.url_to_add }}" class="pill-tab {% if value.active %}is-active{% endif %}">
-              {{ value.label | capitalize }}
-              <span class="collection-tabs__count">{{ value.count }}</span>
-            </a>
-          {%- endfor -%}
-        {%- endif -%}
-      </div>
+      <div class="collection-page__controls">
+        <div class="collection-tabs" role="tablist">
+          <a href="{{ collection.url }}" class="pill-tab {% unless category_filter.active_values.size > 0 %}is-active{% endunless %}">
+            {{ 'collections.tabs.all_items' | t: default: 'All items' }}
+            <span class="collection-tabs__count">{{ collection.products_count }}</span>
+          </a>
+          {%- if category_filter -%}
+            {%- for value in category_filter.values -%}
+              <a href="{{ value.url_to_add }}" class="pill-tab {% if value.active %}is-active{% endif %}">
+                {{ value.label | capitalize }}
+                <span class="collection-tabs__count">{{ value.count }}</span>
+              </a>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
 
-      <div class="collection-page__toolbar">
-        <form role="search" class="collection-page__search">
-          <input type="search" name="q" placeholder="{{ 'collections.search.placeholder' | t: default: 'Search items' }}">
-        </form>
+        <div class="collection-page__toolbar">
+          <form role="search" class="collection-page__search">
+            <input type="search" name="q" placeholder="{{ 'collections.search.placeholder' | t: default: 'Search items' }}">
+          </form>
 
-        <select name="sort_by" class="collection-page__sort" data-sort-select>
-          {%- for option in collection.sort_options -%}
-            <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>{{ option.name }}</option>
-          {%- endfor -%}
-        </select>
+          <select name="sort_by" class="collection-page__sort" data-sort-select>
+            {%- for option in collection.sort_options -%}
+              <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>{{ option.name }}</option>
+            {%- endfor -%}
+          </select>
+        </div>
       </div>
 
       {%- assign showing_all = true -%}
@@ -144,7 +158,8 @@
             {%- if cat_products.size > 0 -%}
               <div class="collection-section">
                 <div class="collection-section__header">
-                  <h2>{{ cat.label | capitalize }} <span class="collection-section__count">{{ cat.count }}</span></h2>
+                  <h2>{{ cat.label | capitalize }}</h2>
+                  <span class="collection-section__count">{{ cat.count }}</span>
                   <a href="{{ cat.url_to_add }}" class="collection-section__view-all">{{ 'collections.general.view_all' | t: default: 'View all' }}</a>
                 </div>
                 <div class="product-grid">

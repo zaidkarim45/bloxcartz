@@ -8,7 +8,7 @@
   display: flex;
   align-items: center;
   background: var(--color-bg-card);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
 }
 
 .site-header__inner {
@@ -36,7 +36,7 @@
   height: 2.5rem;
   padding: 0 0.75rem;
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   border-radius: var(--radius-base);
   color: var(--color-text-primary);
   font-size: 0.875rem;
@@ -50,7 +50,7 @@
   max-height: 24rem;
   overflow-y: auto;
   background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   border-radius: var(--radius-base);
   list-style: none;
   margin: 0;
@@ -81,7 +81,7 @@
   height: 2.5rem;
   padding: 0 0.75rem;
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   border-radius: var(--radius-base);
   color: var(--color-text-primary);
   font-size: 0.875rem;
@@ -149,7 +149,7 @@
 
 .site-footer {
   background: var(--color-bg-card);
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   padding-block: 3rem 2rem;
   margin-top: 4rem;
 }
@@ -212,7 +212,7 @@
   align-items: center;
   gap: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   color: var(--color-text-secondary);
   font-size: 0.8125rem;
 }
@@ -254,7 +254,7 @@
   bottom: 0;
   width: min(24rem, 100vw);
   background: var(--color-bg-card);
-  border-left: 1px solid var(--color-border-subtle);
+  border-left: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
@@ -267,7 +267,7 @@
   align-items: center;
   gap: 0.625rem;
   padding: 1.25rem;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
 }
 .cart-drawer__header h2 { font-size: 1rem; }
 .cart-drawer__clear { margin-left: auto; background: none; border: none; color: var(--color-accent); font-size: 0.8125rem; }
@@ -291,12 +291,12 @@
 .cart-drawer__qty button { background: none; border: none; color: var(--color-text-primary); }
 .cart-drawer__line-total { font-size: 0.875rem; font-weight: 600; }
 
-.cart-drawer__footer { border-top: 1px solid var(--color-border-subtle); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.cart-drawer__footer { border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
 .cart-drawer__promo { display: flex; gap: 0.5rem; }
 .cart-drawer__promo input {
   flex: 1;
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-subtle);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   border-radius: var(--radius-base);
   padding: 0 0.75rem;
   color: var(--color-text-primary);
