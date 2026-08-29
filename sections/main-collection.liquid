@@ -307,7 +307,25 @@
         {%- endcomment -%}
         {%- paginate collection.products by 250 -%}
           {%- for cat in category_filter.values -%}
-            {%- assign cat_products = collection.products | where_exp: 'p', 'p.tags contains cat.value' -%}
+            {%- comment -%}
+              cat.value (Shopify's native filter value) is not guaranteed to
+              be the literal product tag -- for a colon-style tag filter
+              (category:guns) it's typically just the stripped value
+              (guns), same ambiguity the tab-bar count logic above already
+              hedges against. Resolve the real tag first via that same
+              hedge, then match products against it, so this view can't
+              diverge from what the filters/counts consider a match.
+            {%- endcomment -%}
+            {%- liquid
+              assign cat_tag = ''
+              for tag in category_tags
+                assign tag_stripped = tag | remove_first: 'category:'
+                if tag == cat.value or tag_stripped == cat.value
+                  assign cat_tag = tag
+                endif
+              endfor
+              assign cat_products = collection.products | where_exp: 'p', 'p.tags contains cat_tag'
+            -%}
             {%- if cat_products.size > 0 -%}
               {%- assign sections_rendered = sections_rendered | plus: 1 -%}
               <div class="collection-section">
