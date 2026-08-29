@@ -4,11 +4,11 @@
   position: sticky;
   top: 0;
   z-index: 50;
-  height: 4rem;
+  height: 4.5rem;
   display: flex;
   align-items: center;
-  background: var(--color-bg-card);
-  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
+  background: color-mix(in srgb, var(--color-bg-card) 88%, white 12%);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 14%, transparent);
 }
 
 .site-header__inner {

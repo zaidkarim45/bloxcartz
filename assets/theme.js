@@ -115,7 +115,14 @@
     var debounceTimer;
     filterForm.addEventListener("input", function (e) {
       window.clearTimeout(debounceTimer);
-      var delay = e.target.type === "number" ? 500 : 0;
+      // Range sliders fire native `input` events continuously while
+      // dragging -- without a debounce here that means a near-continuous
+      // stream of full page submissions mid-drag, which is what actually
+      // made the slider feel jerky/laggy. Same idea for the price text
+      // inputs: don't resubmit on every keystroke.
+      var isContinuous = e.target.type === "number" || e.target.type === "range" ||
+        e.target.hasAttribute("data-price-from") || e.target.hasAttribute("data-price-to");
+      var delay = isContinuous ? 500 : 0;
       debounceTimer = window.setTimeout(function () {
         filterForm.requestSubmit ? filterForm.requestSubmit() : filterForm.submit();
       }, delay);
@@ -132,7 +139,25 @@
     });
   }
 
-  /* ---- Price range slider (syncs with the From/To number inputs) ---- */
+  /* ---- Price range slider (syncs with the From/To text inputs) ---- */
+  var currencyFormatter = null;
+  try {
+    currencyFormatter = new Intl.NumberFormat(document.documentElement.lang || "en", {
+      style: "currency",
+      currency: (window.Shopify && Shopify.currency && Shopify.currency.active) || "USD"
+    });
+  } catch (e) {
+    currencyFormatter = null;
+  }
+  function formatPrice(value) {
+    if (currencyFormatter) return currencyFormatter.format(value);
+    return "$" + value.toFixed(2);
+  }
+  function parsePrice(raw) {
+    var n = parseFloat(String(raw).replace(/[^0-9.]/g, ""));
+    return isNaN(n) ? null : n;
+  }
+
   document.querySelectorAll("[data-price-slider]").forEach(function (slider) {
     var rangeFrom = slider.querySelector("[data-price-range-from]");
     var rangeTo = slider.querySelector("[data-price-range-to]");
@@ -150,11 +175,28 @@
       var span = max - min || 1;
       track.style.left = (((lo - min) / span) * 100) + "%";
       track.style.right = (100 - ((hi - min) / span) * 100) + "%";
+      // Whichever thumb is closer to the midpoint of the two values needs
+      // top z-index, otherwise a click near two close-together handles can
+      // grab the wrong one and "jump" it across the track.
+      var mid = (parseFloat(rangeFrom.value) + parseFloat(rangeTo.value)) / 2;
+      if (parseFloat(rangeFrom.value) > mid - 0.0001) {
+        rangeFrom.style.zIndex = 2;
+        rangeTo.style.zIndex = 1;
+      } else {
+        rangeFrom.style.zIndex = 1;
+        rangeTo.style.zIndex = 2;
+      }
+    }
+
+    function displayFormatted(input, value) {
+      if (document.activeElement !== input) input.value = formatPrice(value);
     }
 
     function syncFromRange() {
-      if (numberFrom) numberFrom.value = Math.min(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
-      if (numberTo) numberTo.value = Math.max(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
+      var lo = Math.min(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
+      var hi = Math.max(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
+      if (numberFrom) displayFormatted(numberFrom, lo);
+      if (numberTo) displayFormatted(numberTo, hi);
       paint();
     }
 
@@ -167,19 +209,39 @@
       if (filterForm) filterForm.dispatchEvent(new Event("input", { bubbles: true }));
     });
 
-    if (numberFrom) {
-      numberFrom.addEventListener("input", function () {
-        rangeFrom.value = numberFrom.value || min;
+    // Number inputs: show a plain editable number on focus, a formatted
+    // currency string on blur, and keep them clamped to [min, max] with
+    // From never exceeding To (and vice versa).
+    [
+      { input: numberFrom, range: rangeFrom, other: rangeTo, isFrom: true },
+      { input: numberTo, range: rangeTo, other: rangeFrom, isFrom: false }
+    ].forEach(function (cfg) {
+      if (!cfg.input) return;
+      cfg.input.addEventListener("focus", function () {
+        var n = parsePrice(cfg.input.value);
+        cfg.input.value = n === null ? "" : n;
+      });
+      cfg.input.addEventListener("input", function () {
+        var n = parsePrice(cfg.input.value);
+        if (n === null) return;
+        cfg.range.value = Math.min(Math.max(n, min), max);
         paint();
       });
-    }
-    if (numberTo) {
-      numberTo.addEventListener("input", function () {
-        rangeTo.value = numberTo.value || max;
+      cfg.input.addEventListener("blur", function () {
+        var n = parsePrice(cfg.input.value);
+        if (n === null) n = parseFloat(cfg.range.value);
+        n = Math.min(Math.max(n, min), max);
+        if (cfg.isFrom && n > parseFloat(cfg.other.value)) n = parseFloat(cfg.other.value);
+        if (!cfg.isFrom && n < parseFloat(cfg.other.value)) n = parseFloat(cfg.other.value);
+        cfg.range.value = n;
+        cfg.input.value = formatPrice(n);
         paint();
+        if (filterForm) filterForm.dispatchEvent(new Event("input", { bubbles: true }));
       });
-    }
+    });
 
+    if (numberFrom) numberFrom.value = formatPrice(parseFloat(rangeFrom.value));
+    if (numberTo) numberTo.value = formatPrice(parseFloat(rangeTo.value));
     paint();
   });
 
