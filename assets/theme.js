@@ -149,13 +149,22 @@
   } catch (e) {
     currencyFormatter = null;
   }
-  function formatPrice(value) {
-    if (currencyFormatter) return currencyFormatter.format(value);
-    return "$" + value.toFixed(2);
+  // Shopify's price-filter range/value objects (like every other money
+  // value in Liquid: variant.price, cart totals, etc.) are expressed in
+  // the shop's smallest currency unit (cents), not decimal dollars. The
+  // range/number inputs below all operate on that same raw cents number
+  // (so their min/max/value attributes line up with what Liquid rendered
+  // and what the filter form expects back) -- these two helpers are the
+  // ONLY place that ever converts between cents and a displayed dollar
+  // amount, so there is exactly one place a unit mistake could happen.
+  function formatPriceFromCents(cents) {
+    var dollars = cents / 100;
+    if (currencyFormatter) return currencyFormatter.format(dollars);
+    return "$" + dollars.toFixed(2);
   }
-  function parsePrice(raw) {
+  function parseDollarsToCents(raw) {
     var n = parseFloat(String(raw).replace(/[^0-9.]/g, ""));
-    return isNaN(n) ? null : n;
+    return isNaN(n) ? null : Math.round(n * 100);
   }
 
   document.querySelectorAll("[data-price-slider]").forEach(function (slider) {
@@ -188,8 +197,8 @@
       }
     }
 
-    function displayFormatted(input, value) {
-      if (document.activeElement !== input) input.value = formatPrice(value);
+    function displayFormatted(input, cents) {
+      if (document.activeElement !== input) input.value = formatPriceFromCents(cents);
     }
 
     function syncFromRange() {
@@ -218,30 +227,33 @@
     ].forEach(function (cfg) {
       if (!cfg.input) return;
       cfg.input.addEventListener("focus", function () {
-        var n = parsePrice(cfg.input.value);
-        cfg.input.value = n === null ? "" : n;
+        // Show a plain editable dollar number, derived straight from the
+        // authoritative cents value on the range input (not by re-parsing
+        // the formatted string), so there's no drift between what's shown
+        // and what's actually selected.
+        cfg.input.value = (parseFloat(cfg.range.value) / 100).toFixed(2);
       });
       cfg.input.addEventListener("input", function () {
-        var n = parsePrice(cfg.input.value);
-        if (n === null) return;
-        cfg.range.value = Math.min(Math.max(n, min), max);
+        var cents = parseDollarsToCents(cfg.input.value);
+        if (cents === null) return;
+        cfg.range.value = Math.min(Math.max(cents, min), max);
         paint();
       });
       cfg.input.addEventListener("blur", function () {
-        var n = parsePrice(cfg.input.value);
-        if (n === null) n = parseFloat(cfg.range.value);
-        n = Math.min(Math.max(n, min), max);
-        if (cfg.isFrom && n > parseFloat(cfg.other.value)) n = parseFloat(cfg.other.value);
-        if (!cfg.isFrom && n < parseFloat(cfg.other.value)) n = parseFloat(cfg.other.value);
-        cfg.range.value = n;
-        cfg.input.value = formatPrice(n);
+        var cents = parseDollarsToCents(cfg.input.value);
+        if (cents === null) cents = parseFloat(cfg.range.value);
+        cents = Math.min(Math.max(cents, min), max);
+        if (cfg.isFrom && cents > parseFloat(cfg.other.value)) cents = parseFloat(cfg.other.value);
+        if (!cfg.isFrom && cents < parseFloat(cfg.other.value)) cents = parseFloat(cfg.other.value);
+        cfg.range.value = cents;
+        cfg.input.value = formatPriceFromCents(cents);
         paint();
         if (filterForm) filterForm.dispatchEvent(new Event("input", { bubbles: true }));
       });
     });
 
-    if (numberFrom) numberFrom.value = formatPrice(parseFloat(rangeFrom.value));
-    if (numberTo) numberTo.value = formatPrice(parseFloat(rangeTo.value));
+    if (numberFrom) numberFrom.value = formatPriceFromCents(parseFloat(rangeFrom.value));
+    if (numberTo) numberTo.value = formatPriceFromCents(parseFloat(rangeTo.value));
     paint();
   });
 

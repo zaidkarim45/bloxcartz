@@ -54,11 +54,13 @@
 -%}
 {%- if category_filter == null or rarity_filter == null or availability_filter == null -%}
   {%- comment -%}
-    Deliberately using the `where` filter (checks each product's `tags`
-    array for the value directly) rather than `where_exp` here -- `where`
-    takes the tag as a plain filter argument with no string-expression
-    parsing/scoping involved, so there's no dependency on how reliably an
-    outer-scope variable resolves inside a `where_exp` expression string.
+    Counts here deliberately use a plain nested for/if loop instead of any
+    single-shot array filter (`where`/`where_exp`) -- that's the only
+    mechanism with zero dependency on filter-specific semantics (array
+    containment support, expression-string variable scoping, etc.) that
+    turned out to behave inconsistently on the live store. A for/if loop
+    over `product.tags contains tag` is basic Liquid control flow with
+    nothing left to go wrong.
   {%- endcomment -%}
   {%- paginate collection.products by 250 -%}
     {%- liquid
@@ -73,16 +75,26 @@
       if category_filter == null
         assign category_counts = ''
         for tag in category_tags
-          assign matches = collection.products | where: 'tags', tag
-          assign category_counts = category_counts | append: matches.size | append: '||'
+          assign tag_count = 0
+          for p in collection.products
+            if p.tags contains tag
+              assign tag_count = tag_count | plus: 1
+            endif
+          endfor
+          assign category_counts = category_counts | append: tag_count | append: '||'
         endfor
         assign category_counts = category_counts | split: '||'
       endif
       if rarity_filter == null
         assign rarity_counts = ''
         for tag in rarity_tags
-          assign matches = collection.products | where: 'tags', tag
-          assign rarity_counts = rarity_counts | append: matches.size | append: '||'
+          assign tag_count = 0
+          for p in collection.products
+            if p.tags contains tag
+              assign tag_count = tag_count | plus: 1
+            endif
+          endfor
+          assign rarity_counts = rarity_counts | append: tag_count | append: '||'
         endfor
         assign rarity_counts = rarity_counts | split: '||'
       endif
@@ -256,6 +268,8 @@
       {%- if category_filter.active_values.size > 0 -%}{%- assign showing_all = false -%}{%- endif -%}
       {%- if current_tags.size > 0 -%}{%- assign showing_all = false -%}{%- endif -%}
 
+      {%- assign sections_rendered = 0 -%}
+
       {%- if showing_all and category_filter -%}
         {%- comment -%}
           "All items" view: sectioned category previews (matches bloxcart.com's
@@ -267,8 +281,9 @@
         {%- endcomment -%}
         {%- paginate collection.products by 250 -%}
           {%- for cat in category_filter.values -%}
-            {%- assign cat_products = collection.products | where: 'tags', cat.value -%}
+            {%- assign cat_products = collection.products | where_exp: 'p', 'p.tags contains cat.value' -%}
             {%- if cat_products.size > 0 -%}
+              {%- assign sections_rendered = sections_rendered | plus: 1 -%}
               <div class="collection-section">
                 <div class="collection-section__header">
                   <span class="collection-section__icon">{% render 'category-icon', category: cat.value %}</span>
@@ -297,9 +312,10 @@
               {%- liquid
                 assign cat_value = tag | remove_first: 'category:'
                 assign cat_label = cat_value | replace: '-', ' ' | capitalize
-                assign cat_products = collection.products | where: 'tags', tag
+                assign cat_products = collection.products | where_exp: 'p', 'p.tags contains tag'
               -%}
               {%- if cat_products.size > 0 -%}
+                {%- assign sections_rendered = sections_rendered | plus: 1 -%}
                 <div class="collection-section">
                   <div class="collection-section__header">
                     <span class="collection-section__icon">{% render 'category-icon', category: cat_value %}</span>
@@ -317,7 +333,32 @@
             {%- endunless -%}
           {%- endfor -%}
         {%- endpaginate -%}
-      {%- else -%}
+      {%- endif -%}
+
+      {%- comment -%}
+        Safety net: if "All items" was selected but the sectioned view above
+        produced zero sections (stale/misconfigured category tags, no
+        category data at all, etc.), never leave the page showing nothing --
+        fall back to the plain unfiltered grid so every product is still
+        visible and usable.
+      {%- endcomment -%}
+      {%- if showing_all and sections_rendered == 0 -%}
+        {%- paginate collection.products by 24 -%}
+          <div class="product-grid">
+            {%- for product in collection.products -%}
+              {% render 'product-card', product: product %}
+            {%- else -%}
+              <p class="collection-page__empty">{{ 'collections.general.no_matches' | t: default: 'No products match these filters.' }}</p>
+            {%- endfor -%}
+          </div>
+
+          {%- if paginate.pages > 1 -%}
+            <nav class="collection-page__pagination">
+              {{ paginate | default_pagination }}
+            </nav>
+          {%- endif -%}
+        {%- endpaginate -%}
+      {%- elsif showing_all == false -%}
         {%- paginate collection.products by 24 -%}
           <div class="product-grid">
             {%- for product in collection.products -%}
