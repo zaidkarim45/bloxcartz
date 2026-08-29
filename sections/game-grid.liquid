@@ -25,8 +25,11 @@
   </div>
 
   <div class="game-grid">
+    DEBUG-A
     {%- assign game_slugs = 'murder-mystery-2,steal-a-brainrot,blox-fruits,adopt-me,pet-simulator-99,blade-ball,grow-a-garden-2,99-nights-in-the-forest,dress-to-impress' | split: ',' -%}
+    DEBUG-B-{{ game_slugs.size }}
     {%- for slug in game_slugs -%}
+      DEBUG-C-{{ slug }}
       {%- liquid
         case slug
           when 'murder-mystery-2'
