@@ -313,8 +313,16 @@
               (category:guns) it's typically just the stripped value
               (guns), same ambiguity the tab-bar count logic above already
               hedges against. Resolve the real tag first via that same
-              hedge, then match products against it, so this view can't
-              diverge from what the filters/counts consider a match.
+              hedge.
+
+              Matching itself is a manual for/if loop, NOT where_exp --
+              see the comment above the count computation near the top of
+              this file: where_exp/where were already found to behave
+              inconsistently on this store for exactly this kind of tag
+              match (it was returning the same near-unfiltered set for
+              every category here, which is what put knives in the Guns
+              section). The plain for/if loop is the same technique this
+              file already trusts for counts.
             {%- endcomment -%}
             {%- liquid
               assign cat_tag = ''
@@ -324,9 +332,15 @@
                   assign cat_tag = tag
                 endif
               endfor
-              assign cat_products = collection.products | where_exp: 'p', 'p.tags contains cat_tag'
+
+              assign cat_product_count = 0
+              for product in collection.products
+                if product.tags contains cat_tag
+                  assign cat_product_count = cat_product_count | plus: 1
+                endif
+              endfor
             -%}
-            {%- if cat_products.size > 0 -%}
+            {%- if cat_product_count > 0 -%}
               {%- assign sections_rendered = sections_rendered | plus: 1 -%}
               <div class="collection-section">
                 <div class="collection-section__header">
@@ -336,8 +350,13 @@
                   <a href="{{ cat.url_to_add }}" class="collection-section__view-all">{{ 'collections.general.view_all' | t: default: 'View all' }}</a>
                 </div>
                 <div class="product-grid">
-                  {%- for product in cat_products limit: section.settings.products_per_category -%}
-                    {% render 'product-card', product: product %}
+                  {%- liquid assign cards_rendered = 0 -%}
+                  {%- for product in collection.products -%}
+                    {%- if product.tags contains cat_tag -%}
+                      {% render 'product-card', product: product %}
+                      {%- assign cards_rendered = cards_rendered | plus: 1 -%}
+                      {%- if cards_rendered >= section.settings.products_per_category -%}{%- break -%}{%- endif -%}
+                    {%- endif -%}
                   {%- endfor -%}
                 </div>
               </div>
@@ -353,23 +372,38 @@
         {%- paginate collection.products by 250 -%}
           {%- for tag in category_tags -%}
             {%- unless tag == blank -%}
+              {%- comment -%}
+                Manual for/if match, not where_exp -- see the comment on
+                the native-filter branch above for why.
+              {%- endcomment -%}
               {%- liquid
                 assign cat_value = tag | remove_first: 'category:'
                 assign cat_label = cat_value | replace: '-', ' ' | capitalize
-                assign cat_products = collection.products | where_exp: 'p', 'p.tags contains tag'
+
+                assign cat_product_count = 0
+                for product in collection.products
+                  if product.tags contains tag
+                    assign cat_product_count = cat_product_count | plus: 1
+                  endif
+                endfor
               -%}
-              {%- if cat_products.size > 0 -%}
+              {%- if cat_product_count > 0 -%}
                 {%- assign sections_rendered = sections_rendered | plus: 1 -%}
                 <div class="collection-section">
                   <div class="collection-section__header">
                     <span class="collection-section__icon">{% render 'category-icon', category: cat_value %}</span>
                     <h2>{{ cat_label }}</h2>
-                    <span class="collection-section__count">{{ cat_products.size }}</span>
+                    <span class="collection-section__count">{{ cat_product_count }}</span>
                     <a href="{{ collection.url }}/{{ tag | handleize }}" class="collection-section__view-all">{{ 'collections.general.view_all' | t: default: 'View all' }}</a>
                   </div>
                   <div class="product-grid">
-                    {%- for product in cat_products limit: section.settings.products_per_category -%}
-                      {% render 'product-card', product: product %}
+                    {%- liquid assign cards_rendered = 0 -%}
+                    {%- for product in collection.products -%}
+                      {%- if product.tags contains tag -%}
+                        {% render 'product-card', product: product %}
+                        {%- assign cards_rendered = cards_rendered | plus: 1 -%}
+                        {%- if cards_rendered >= section.settings.products_per_category -%}{%- break -%}{%- endif -%}
+                      {%- endif -%}
                     {%- endfor -%}
                   </div>
                 </div>
