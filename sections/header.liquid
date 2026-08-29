@@ -29,7 +29,12 @@
         {%- endif -%}
         {% render 'icon-chevron-down' %}
       </button>
-      <ul class="site-header__game-menu" role="listbox" hidden>
+      <div class="site-header__game-menu" hidden>
+        <div class="site-header__game-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="search" placeholder="Search games" data-game-search aria-label="Search games">
+        </div>
+        <ul class="site-header__game-list" role="listbox">
         {%- assign game_slugs = 'murder-mystery-2,steal-a-brainrot,blox-fruits,adopt-me,pet-simulator-99,blade-ball,grow-a-garden-2,99-nights-in-the-forest,dress-to-impress' | split: ',' -%}
         {%- for slug in game_slugs -%}
           {%- liquid
@@ -104,16 +109,19 @@
               assign img_src = game_image.src
             endif
           -%}
-          <li role="option">
+          <li role="option" data-game-name="{{ game_title | downcase }}">
             <a href="{{ game_url }}" {% if is_external %}target="_blank" rel="noopener sponsored"{% endif %}>
               {%- if img_src != blank -%}
                 <img src="{{ img_src }}" alt="{{ game_title }}" loading="lazy">
               {%- endif -%}
               <span>{{ game_title }}</span>
+              {% render 'icon-chevron-down' %}
             </a>
           </li>
         {%- endfor -%}
-      </ul>
+        </ul>
+        <p class="site-header__game-empty" hidden>No games found.</p>
+      </div>
     </div>
 
     <div class="site-header__actions">
@@ -132,7 +140,8 @@
       {%- endif -%}
 
       <button type="button" class="site-header__cart" data-cart-toggle aria-haspopup="dialog" aria-controls="CartDrawer">
-        {% render 'icon-cart' %}
+        <span class="site-header__cart-shine" aria-hidden="true"></span>
+        <span class="site-header__cart-icon">{% render 'icon-cart' %}</span>
         <span class="site-header__cart-label">
           <span class="site-header__cart-sublabel">{{ 'cart.general.for_checkout' | t: default: 'For checkout' }}</span>
           <span data-cart-total>{{ cart.total_price | money }}</span>

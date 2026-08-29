@@ -6,17 +6,49 @@
     var btn = root.querySelector(".site-header__game-select-btn");
     var menu = root.querySelector(".site-header__game-menu");
     if (!btn || !menu) return;
+
+    // Uses opacity/transform (not the `hidden` attribute) for open/close
+    // so the CSS transition can actually animate it.
+    menu.hidden = false;
+
+    function closeMenu() {
+      btn.setAttribute("aria-expanded", "false");
+      menu.classList.remove("is-open");
+    }
+    function openMenu() {
+      btn.setAttribute("aria-expanded", "true");
+      menu.classList.add("is-open");
+      var search = menu.querySelector("[data-game-search]");
+      if (search) search.focus();
+    }
+
     btn.addEventListener("click", function () {
       var open = btn.getAttribute("aria-expanded") === "true";
-      btn.setAttribute("aria-expanded", String(!open));
-      menu.hidden = open;
+      if (open) closeMenu(); else openMenu();
     });
     document.addEventListener("click", function (e) {
-      if (!root.contains(e.target)) {
-        btn.setAttribute("aria-expanded", "false");
-        menu.hidden = true;
-      }
+      if (!root.contains(e.target)) closeMenu();
     });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeMenu();
+    });
+
+    var search = menu.querySelector("[data-game-search]");
+    var items = menu.querySelectorAll(".site-header__game-list li");
+    var empty = menu.querySelector(".site-header__game-empty");
+    if (search) {
+      search.addEventListener("click", function (e) { e.stopPropagation(); });
+      search.addEventListener("input", function () {
+        var q = search.value.trim().toLowerCase();
+        var anyVisible = false;
+        items.forEach(function (li) {
+          var match = (li.getAttribute("data-game-name") || "").indexOf(q) !== -1;
+          li.hidden = !match;
+          if (match) anyVisible = true;
+        });
+        if (empty) empty.hidden = anyVisible;
+      });
+    }
   });
 
   /* ---- Header: mobile menu toggle ---- */
