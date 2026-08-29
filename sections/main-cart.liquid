@@ -28,7 +28,7 @@
           <div class="cart-drawer__line-total">{{ item.final_line_price | money }}</div>
         </div>
       {%- endfor -%}
-      <div class="cart-drawer__total">
+      <div class="cart-drawer__row cart-drawer__row--total">
         <span>{{ 'cart.general.total' | t: default: 'Total' }}</span>
         <span data-cart-total>{{ cart.total_price | money }}</span>
       </div>

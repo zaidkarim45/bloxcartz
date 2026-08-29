@@ -1,0 +1,113 @@
+{%- comment -%}
+  Global cart drawer. Rendered once from layout/theme.liquid via
+  {% section 'cart-drawer' %} (not {% render %}) specifically so the Ajax
+  Cart API's `sections` param (on cart/add.js, cart/change.js,
+  cart/update.js, cart/clear.js) and the `?section_id=cart-drawer` Section
+  Rendering endpoint can both re-fetch this exact markup after every
+  mutation. assets/theme.js swaps the returned HTML into
+  `.cart-drawer__panel` wholesale, so subtotal/discount/total always come
+  straight from Liquid's `money` filter against the live `cart` object --
+  no client-side cents math, so no way for it to ever render $NaN.
+{%- endcomment -%}
+<div id="CartDrawer" class="cart-drawer" data-cart-drawer hidden>
+  <div class="cart-drawer__backdrop" data-cart-close></div>
+  <div class="cart-drawer__panel" role="dialog" aria-modal="true" aria-label="{{ 'cart.general.title' | t: default: 'Cart' }}">
+
+    <div class="cart-drawer__header">
+      <span class="cart-drawer__icon">{% render 'icon-cart' %}</span>
+      <h2>
+        {{ 'cart.general.title' | t: default: 'Cart' }}
+        <span class="cart-drawer__count" data-cart-count>{{ cart.item_count }}</span>
+      </h2>
+      {%- if cart.item_count > 0 -%}
+        <button type="button" class="cart-drawer__clear" data-cart-clear>{{ 'cart.general.clear' | t: default: 'Clear cart' }}</button>
+      {%- endif -%}
+      <button type="button" class="cart-drawer__close" data-cart-close aria-label="{{ 'cart.general.close' | t: default: 'Close cart' }}">
+        {% render 'icon-close' %}
+      </button>
+    </div>
+
+    <div class="cart-drawer__items" data-cart-items>
+      {%- if cart.item_count == 0 -%}
+        <div class="cart-drawer__empty" data-cart-empty>
+          <span class="cart-drawer__empty-illustration" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="19" cy="21" r="1"></circle>
+              <path d="M2.5 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"></path>
+            </svg>
+          </span>
+          <p class="cart-drawer__empty-title">{{ 'cart.general.empty_title' | t: default: 'Your cart is empty.' }}</p>
+          <p class="cart-drawer__empty-copy">{{ 'cart.general.empty_copy' | t: default: "Looks like you haven't added anything yet. Find your favourite in-game items and grab them here." }}</p>
+          <a href="{{ routes.all_products_collection_url | default: '/collections' }}" class="btn btn--primary">{{ 'cart.general.browse_items' | t: default: 'Browse items' }}</a>
+        </div>
+      {%- else -%}
+        <div class="cart-drawer__lines" data-cart-lines>
+          {%- for item in cart.items -%}
+            {% render 'cart-drawer-line', item: item %}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="cart-drawer__footer">
+      {%- if settings.cart_show_promo_code -%}
+        <form class="cart-drawer__promo" data-promo-form novalidate>
+          <div class="cart-drawer__promo-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.8 0L3 13.8V3h10.8l6.8 6.8a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
+            <input type="text" name="discount" data-promo-input autocomplete="off" placeholder="{{ 'cart.general.promo_code_placeholder' | t: default: 'Enter promo code' }}" {% if cart.item_count == 0 %}disabled{% endif %}>
+          </div>
+          <button type="submit" class="cart-drawer__promo-btn" data-promo-submit {% if cart.item_count == 0 %}disabled{% endif %}>
+            <span class="cart-drawer__promo-btn-label">{{ 'cart.general.apply' | t: default: 'Apply' }}</span>
+            <span class="cart-drawer__promo-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+        <p
+          class="cart-drawer__promo-message"
+          data-promo-message
+          data-msg-success="{{ 'cart.general.promo_applied' | t: default: 'Promo code applied!' | escape }}"
+          data-msg-invalid="{{ 'cart.general.promo_invalid' | t: default: 'That code is not valid or eligible right now.' | escape }}"
+          data-msg-error="{{ 'cart.general.promo_error' | t: default: 'Something went wrong. Please try again.' | escape }}"
+          hidden
+        ></p>
+      {%- endif -%}
+
+      <div class="cart-drawer__summary">
+        <div class="cart-drawer__row">
+          <span>{{ 'cart.general.subtotal' | t: default: 'Subtotal' }}</span>
+          <span data-cart-subtotal>{{ cart.items_subtotal_price | money }}</span>
+        </div>
+        <div class="cart-drawer__row cart-drawer__row--discount" data-cart-discount-row {% if cart.total_discount <= 0 %}hidden{% endif %}>
+          <span>
+            {{ 'cart.general.discount' | t: default: 'Discount' }}
+            {%- if cart.cart_level_discount_applications.size > 0 -%}
+              &middot; {{ cart.cart_level_discount_applications.first.title }}
+            {%- endif -%}
+          </span>
+          <span data-cart-discount>&minus;{{ cart.total_discount | money }}</span>
+        </div>
+        <div class="cart-drawer__divider" role="presentation"></div>
+        <div class="cart-drawer__row cart-drawer__row--total">
+          <span>{{ 'cart.general.total' | t: default: 'Total' }}</span>
+          <span data-cart-total>{{ cart.total_price | money }}</span>
+        </div>
+      </div>
+
+      <form action="{{ routes.cart_url }}" method="post">
+        <button type="submit" name="checkout" class="cart-drawer__checkout-btn" data-checkout-btn {% if cart.item_count == 0 %}disabled{% endif %}>
+          <span class="cart-drawer__checkout-shine" aria-hidden="true"></span>
+          {{ 'cart.general.checkout' | t: default: 'Checkout' }}
+          <span data-checkout-total>{{ cart.total_price | money }}</span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Cart drawer",
+  "settings": []
+}
+{% endschema %}

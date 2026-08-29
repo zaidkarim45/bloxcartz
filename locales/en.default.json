@@ -14,13 +14,24 @@
       "title": "Cart",
       "clear": "Clear cart",
       "empty": "Your cart is empty",
+      "empty_title": "Your cart is empty.",
+      "empty_copy": "Looks like you haven't added anything yet. Find your favourite in-game items and grab them here.",
+      "browse_items": "Browse items",
       "for_checkout": "For checkout",
       "promo_code_placeholder": "Enter promo code",
       "apply": "Apply",
       "subtotal": "Subtotal",
+      "discount": "Discount",
       "total": "Total",
       "checkout": "Checkout",
-      "continue_shopping": "Continue shopping"
+      "continue_shopping": "Continue shopping",
+      "close": "Close cart",
+      "remove": "Remove",
+      "increase_quantity": "Increase quantity",
+      "decrease_quantity": "Decrease quantity",
+      "promo_applied": "Promo code applied!",
+      "promo_invalid": "That code isn't valid or eligible right now.",
+      "promo_error": "Something went wrong. Please try again."
     }
   },
   "claim": {

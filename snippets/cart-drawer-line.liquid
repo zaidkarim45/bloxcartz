@@ -1,0 +1,55 @@
+{%- comment -%}
+  Single cart-drawer line item. Split out so the section template stays
+  readable; re-rendered wholesale every time sections/cart-drawer.liquid is
+  fetched via the Ajax Cart `sections` param, so it never needs its own
+  client-side templating.
+
+  Usage: {% render 'cart-drawer-line', item: item %}
+{%- endcomment -%}
+{%- liquid
+  assign cat_tag = ''
+  for tag in item.product.tags
+    if tag contains 'category:'
+      assign cat_tag = tag | remove_first: 'category:'
+      break
+    endif
+  endfor
+-%}
+<div class="cart-drawer__line" data-cart-line data-line-key="{{ item.key }}">
+  <a href="{{ item.url }}" class="cart-drawer__line-image">
+    {{ item.image | image_url: width: 160 | image_tag: alt: item.title, loading: 'lazy' }}
+  </a>
+
+  <div class="cart-drawer__line-details">
+    <a href="{{ item.url }}" class="cart-drawer__line-title">
+      {%- if cat_tag != blank -%}
+        <span class="cart-drawer__line-icon">{% render 'category-icon', category: cat_tag %}</span>
+      {%- endif -%}
+      {{ item.product.title }}
+    </a>
+    <div class="price">
+      <span class="price__current">{{ item.final_price | money }}</span>
+      {%- if item.original_price > item.final_price -%}
+        <span class="price__compare">
+          <span class="price__compare-line"><span></span></span>
+          {{ item.original_price | money }}
+        </span>
+      {%- endif -%}
+    </div>
+    <div class="cart-drawer__qty" data-qty-stepper data-qty="{{ item.quantity }}">
+      <button type="button" class="cart-drawer__qty-btn" data-qty-remove aria-label="{{ 'cart.general.decrease_quantity' | t: default: 'Decrease quantity' }}">
+        <svg class="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M18 7l-.9 12.1a2 2 0 0 1-2 1.9H8.9a2 2 0 0 1-2-1.9L6 7"/></svg>
+        <svg class="icon-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <span class="cart-drawer__qty-value" data-qty-value>{{ item.quantity }}</span>
+      <button type="button" class="cart-drawer__qty-btn cart-drawer__qty-btn--plus" data-qty-increase aria-label="{{ 'cart.general.increase_quantity' | t: default: 'Increase quantity' }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <button type="button" class="cart-drawer__line-remove" data-line-remove aria-label="{{ 'cart.general.remove' | t: default: 'Remove' }} {{ item.product.title }}">
+    {% render 'icon-close' %}
+  </button>
+  <div class="cart-drawer__line-total" data-line-total>{{ item.final_line_price | money }}</div>
+</div>

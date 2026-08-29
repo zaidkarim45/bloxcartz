@@ -149,9 +149,7 @@
           <span data-cart-total>{{ cart.total_price | money }}</span>
         </span>
         {% render 'icon-chevron-down' %}
-        {%- if cart.item_count > 0 -%}
-          <span class="site-header__cart-count" data-cart-count>{{ cart.item_count }}</span>
-        {%- endif -%}
+        <span class="site-header__cart-count" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
       </button>
 
       <button type="button" class="site-header__menu-toggle" data-mobile-menu-toggle aria-label="Open menu" aria-expanded="false">

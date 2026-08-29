@@ -92,52 +92,220 @@
     if (e.key === "Escape") closeCartDrawer();
   });
 
-  /* ---- Cart mutations (Shopify Ajax Cart API) ---- */
+  /* ---- Cart mutations (Shopify Ajax Cart API) ----
+     Every mutation asks Shopify to re-render sections/cart-drawer.liquid
+     server-side (the `sections` param on cart/add.js, cart/change.js,
+     cart/update.js and cart/clear.js) and swaps that HTML wholesale into
+     `.cart-drawer__panel`. Subtotal/discount/total in that markup always
+     come straight from Liquid's `money` filter against the real `cart`
+     object, so there is no client-side cents arithmetic left anywhere in
+     this flow -- the old `$NaN` bug had no code path left to occur from.
+     Click/submit handlers below are delegated on `document` (rather than
+     bound to specific nodes) precisely because this innerHTML swap
+     replaces every element inside the panel on each update. */
 
-  function refreshCartUI(cart) {
-    document.querySelectorAll("[data-cart-count]").forEach(function (el) {
-      el.textContent = cart.item_count;
-    });
-    document.querySelectorAll("[data-cart-total], [data-cart-subtotal]").forEach(function (el) {
-      el.textContent = formatMoney(cart.total_price);
-    });
+  function shopifyRoot() {
+    return (window.Shopify && Shopify.routes && Shopify.routes.root) || "/";
   }
 
-  function formatMoney(cents) {
-    return (cents / 100).toLocaleString(document.documentElement.lang || "en", {
-      style: "currency",
-      currency: (window.Shopify && Shopify.currency && Shopify.currency.active) || "USD"
-    });
+  function cartSectionUrl() {
+    return shopifyRoot().replace(/\/$/, "") + "/?section_id=cart-drawer";
   }
 
-  function postCartChange(body) {
-    return fetch(window.Shopify && Shopify.routes ? Shopify.routes.root + "cart/change.js" : "/cart/change.js", {
+  function cartRequest(endpoint, body) {
+    return fetch(shopifyRoot() + endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(body)
-    }).then(function (r) { return r.json(); });
+      body: JSON.stringify(body || {})
+    }).then(function (r) {
+      if (!r.ok) return r.json().then(function (err) { throw err; });
+      return r.json();
+    });
   }
 
+  // Swaps freshly-rendered section markup into the live drawer, then syncs
+  // the header's cart pill from that same markup -- copying its already
+  // Liquid-rendered count/`money` text rather than recomputing either
+  // client-side, so the header pill can't drift into $NaN or a stale count.
+  // (The `cart` argument is only ever used as a fallback for item count,
+  // since not every caller has a full cart object handy.)
+  function applyCartUpdate(cart, sectionHtml) {
+    if (!drawer || !sectionHtml) return;
+    var panel = drawer.querySelector(".cart-drawer__panel");
+    var doc = new DOMParser().parseFromString(sectionHtml, "text/html");
+    var newPanel = doc.querySelector(".cart-drawer__panel");
+    if (!panel || !newPanel) return;
+    panel.innerHTML = newPanel.innerHTML;
+
+    var freshCount = panel.querySelector(".cart-drawer__count");
+    var itemCount = freshCount
+      ? parseInt(freshCount.textContent, 10) || 0
+      : (cart && typeof cart.item_count === "number" ? cart.item_count : 0);
+    document.querySelectorAll(".site-header [data-cart-count]").forEach(function (el) {
+      el.textContent = itemCount;
+      el.hidden = itemCount === 0;
+    });
+    var freshTotal = panel.querySelector("[data-cart-total]");
+    if (freshTotal) {
+      document.querySelectorAll(".site-header [data-cart-total]").forEach(function (el) {
+        el.textContent = freshTotal.textContent;
+      });
+    }
+  }
+
+  function refreshCartSection() {
+    return fetch(cartSectionUrl(), { headers: { Accept: "text/html" } })
+      .then(function (r) { return r.text(); })
+      .then(function (html) {
+        return fetch(shopifyRoot() + "cart.js").then(function (r) { return r.json(); }).then(function (cart) {
+          applyCartUpdate(cart, html);
+          return cart;
+        });
+      });
+  }
+
+  function changeLineQuantity(key, quantity) {
+    return cartRequest("cart/change.js", { id: key, quantity: quantity, sections: "cart-drawer" }).then(function (cart) {
+      applyCartUpdate(cart, cart.sections && cart.sections["cart-drawer"]);
+      return cart;
+    });
+  }
+
+  function clearCart() {
+    return cartRequest("cart/clear.js", { sections: "cart-drawer" }).then(function (cart) {
+      applyCartUpdate(cart, cart.sections && cart.sections["cart-drawer"]);
+      return cart;
+    });
+  }
+
+  // Shopify's Ajax Cart API has no dedicated "validate this discount code"
+  // endpoint -- /discount/{code} is the only storefront route that applies
+  // one, and it's a redirect responder rather than JSON. Fetching it
+  // (fetch follows the redirect internally, so the browser never
+  // navigates) applies the code to the cart's checkout session if it's
+  // valid and silently no-ops if it isn't; a follow-up cart/update.js call
+  // re-renders the section and hands back the authoritative cart object so
+  // we can tell which one happened by checking whether the entered code
+  // shows up in cart_level_discount_applications.
+  function applyPromoCode(code) {
+    var url = shopifyRoot() + "discount/" + encodeURIComponent(code) + "?redirect=" + encodeURIComponent(shopifyRoot() + "cart");
+    return fetch(url, { method: "GET", redirect: "follow", credentials: "same-origin" })
+      .then(function () { return cartRequest("cart/update.js", { sections: "cart-drawer" }); })
+      .then(function (cart) {
+        applyCartUpdate(cart, cart.sections && cart.sections["cart-drawer"]);
+        var applications = cart.cart_level_discount_applications || [];
+        var normalized = code.trim().toLowerCase();
+        var applied = applications.some(function (d) {
+          return (d.title || "").trim().toLowerCase() === normalized;
+        });
+        return applied;
+      });
+  }
+
+  function setPromoMessage(el, text, type) {
+    if (!el) return;
+    el.textContent = text || "";
+    el.hidden = !text;
+    el.classList.remove("is-success", "is-error");
+    if (type) el.classList.add("is-" + type);
+  }
+
+  document.addEventListener("submit", function (e) {
+    var form = e.target.closest("[data-promo-form]");
+    if (!form) return;
+    e.preventDefault();
+    if (form.hasAttribute("data-pending")) return;
+
+    var input = form.querySelector("[data-promo-input]");
+    var code = input && input.value.trim();
+    if (!code) return;
+
+    form.setAttribute("data-pending", "true");
+    form.classList.add("is-loading");
+    form.querySelectorAll("input, button").forEach(function (el) { el.disabled = true; });
+
+    applyPromoCode(code)
+      .then(function (applied) {
+        var messageEl = drawer.querySelector("[data-promo-message]");
+        var freshInput = drawer.querySelector("[data-promo-input]");
+        if (applied) {
+          if (freshInput) freshInput.value = "";
+          setPromoMessage(messageEl, messageEl && messageEl.dataset.msgSuccess, "success");
+        } else {
+          setPromoMessage(messageEl, messageEl && messageEl.dataset.msgInvalid, "error");
+          if (freshInput) {
+            freshInput.classList.add("is-error");
+            window.setTimeout(function () { freshInput.classList.remove("is-error"); }, 400);
+          }
+        }
+      })
+      .catch(function () {
+        var messageEl = drawer.querySelector("[data-promo-message]");
+        setPromoMessage(messageEl, messageEl && messageEl.dataset.msgError, "error");
+      })
+      .then(function () {
+        var freshForm = drawer.querySelector("[data-promo-form]");
+        if (freshForm) {
+          freshForm.removeAttribute("data-pending");
+          freshForm.classList.remove("is-loading");
+          freshForm.querySelectorAll("input, button").forEach(function (el) { el.disabled = false; });
+        }
+      });
+  });
+
   document.addEventListener("click", function (e) {
-    var increase = e.target.closest("[data-qty-increase]");
-    var remove = e.target.closest("[data-qty-remove]");
-    var target = increase || remove;
+    var clearBtn = e.target.closest("[data-cart-clear]");
+    if (clearBtn) {
+      if (clearBtn.hasAttribute("data-pending")) return;
+      clearBtn.setAttribute("data-pending", "true");
+      clearBtn.disabled = true;
+      clearCart().catch(function () {
+        clearBtn.removeAttribute("data-pending");
+        clearBtn.disabled = false;
+        refreshCartSection();
+      });
+      return;
+    }
+
+    var increaseBtn = e.target.closest("[data-qty-increase]");
+    var decreaseBtn = e.target.closest("[data-qty-remove]");
+    var removeBtn = e.target.closest("[data-line-remove]");
+    var target = increaseBtn || decreaseBtn || removeBtn;
     if (!target) return;
 
     var line = target.closest("[data-cart-line]");
-    if (!line) return;
+    if (!line || line.hasAttribute("data-pending")) return;
+
     var key = line.getAttribute("data-line-key");
     var qtyEl = line.querySelector("[data-qty-value]");
     var currentQty = qtyEl ? parseInt(qtyEl.textContent, 10) || 0 : 0;
-    var newQty = increase ? currentQty + 1 : 0;
+    var newQty = removeBtn ? 0 : (increaseBtn ? currentQty + 1 : Math.max(currentQty - 1, 0));
 
-    postCartChange({ id: key, quantity: newQty }).then(function (cart) {
-      if (newQty === 0) {
-        line.remove();
-      } else if (qtyEl) {
-        qtyEl.textContent = newQty;
-      }
-      refreshCartUI(cart);
+    line.setAttribute("data-pending", "true");
+
+    if (newQty === 0) {
+      line.classList.add("is-removing");
+      window.setTimeout(function () {
+        changeLineQuantity(key, 0).catch(function () {
+          line.classList.remove("is-removing");
+          line.removeAttribute("data-pending");
+        });
+      }, 200);
+      return;
+    }
+
+    line.classList.add("is-busy");
+    if (qtyEl) {
+      qtyEl.textContent = newQty;
+      qtyEl.classList.add("is-pulsing");
+      window.setTimeout(function () { qtyEl.classList.remove("is-pulsing"); }, 220);
+    }
+    var stepper = line.querySelector("[data-qty-stepper]");
+    if (stepper) stepper.setAttribute("data-qty", newQty);
+
+    changeLineQuantity(key, newQty).catch(function () {
+      line.classList.remove("is-busy");
+      line.removeAttribute("data-pending");
     });
   });
 
@@ -339,20 +507,29 @@
   document.querySelectorAll("form[data-add-to-cart-form]").forEach(function (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      if (form.hasAttribute("data-pending")) return;
+      var submitBtn = form.querySelector('[type="submit"]');
+      form.setAttribute("data-pending", "true");
+      if (submitBtn) submitBtn.disabled = true;
+
       var formData = new FormData(form);
-      fetch((window.Shopify && Shopify.routes ? Shopify.routes.root : "/") + "cart/add.js", {
+      formData.append("sections", "cart-drawer");
+      fetch(shopifyRoot() + "cart/add.js", {
         method: "POST",
         headers: { Accept: "application/json" },
         body: formData
       })
         .then(function (r) { return r.json(); })
-        .then(function () {
-          return fetch((window.Shopify && Shopify.routes ? Shopify.routes.root : "/") + "cart.js");
+        .then(function (result) {
+          if (result && !result.status) {
+            applyCartUpdate(result, result.sections && result.sections["cart-drawer"]);
+            openCartDrawer();
+          }
         })
-        .then(function (r) { return r.json(); })
-        .then(function (cart) {
-          refreshCartUI(cart);
-          openCartDrawer();
+        .catch(function () {})
+        .then(function () {
+          form.removeAttribute("data-pending");
+          if (submitBtn) submitBtn.disabled = false;
         });
     });
   });
