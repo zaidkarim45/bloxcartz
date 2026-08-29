@@ -3,4 +3,8 @@
 # assets/catalog/* holds product-catalog migration staging files (raw and
 # processed images, per-game marketing art), not real theme assets, and
 # Shopify rejects any file nested in a subfolder under assets/ anyway.
-assets/catalog/
+assets/catalog/*
+assets/catalog/**/*
+assets/catalog/raw/*
+assets/catalog/processed/*
+assets/catalog/games/*
