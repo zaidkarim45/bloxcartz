@@ -134,9 +134,11 @@
       {%- endif -%}
 
       {%- if shop.customer_accounts_enabled -%}
-        <a href="{{ routes.account_login_url }}" class="btn btn--outline site-header__login">
+        <a href="{{ routes.account_login_url }}" class="btn btn--primary site-header__login">
+          <svg class="site-header__login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
           {{ 'customer.login_page.title' | t }}
         </a>
+        <span class="site-header__divider" aria-hidden="true"></span>
       {%- endif -%}
 
       <button type="button" class="site-header__cart" data-cart-toggle aria-haspopup="dialog" aria-controls="CartDrawer">
