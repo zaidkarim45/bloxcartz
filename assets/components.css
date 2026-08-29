@@ -111,6 +111,7 @@
   transition: background-color 180ms ease, color 180ms ease;
 }
 .pill-tab:hover { color: var(--color-text-primary); }
+.pill-tab svg { flex-shrink: 0; width: 0.875rem; height: 0.875rem; }
 .pill-tab:active { transform: scale(0.97); }
 .pill-tab[aria-pressed="true"],
 .pill-tab.is-active {
@@ -150,7 +151,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  height: 9.75rem;
+  height: 11.5rem;
 }
 .product-card__image { max-height: 100%; max-width: 100%; object-fit: contain; }
 

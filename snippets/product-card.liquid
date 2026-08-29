@@ -31,7 +31,7 @@
     assign display_title = display_title | strip
   endif
 -%}
-<div class="product-card card" style="--rarity-color: {% render 'rarity-color', rarity: rarity_tag %};">
+<div class="product-card card" data-in-stock="{{ in_stock }}" style="--rarity-color: {% render 'rarity-color', rarity: rarity_tag %};">
   {%- if rarity_tag != blank -%}
     <span class="product-card__accent-bar" aria-hidden="true"></span>
   {%- endif -%}

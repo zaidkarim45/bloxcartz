@@ -30,7 +30,55 @@
       assign availability_filter = filter
     endif
   endfor
+
+  # Fallback facets, used only for whichever of category/rarity/availability
+  # collection.filters didn't provide (see file header). Both are modeled as
+  # plain product tags already, so this reads real catalog data rather than
+  # inventing anything -- see snippets/category-icon.liquid + rarity-color.
+  assign category_tags = ''
+  assign rarity_tags = ''
+  for tag in collection.all_tags
+    if tag contains 'category:'
+      assign category_tags = category_tags | append: tag | append: '||'
+    endif
+    if tag contains 'rarity:'
+      assign rarity_tags = rarity_tags | append: tag | append: '||'
+    endif
+  endfor
+  assign category_tags = category_tags | split: '||'
+  assign rarity_tags = rarity_tags | split: '||'
+
+  assign category_counts = ''
+  assign rarity_counts = ''
+  assign in_stock_count = 0
 -%}
+{%- if category_filter == null or rarity_filter == null or availability_filter == null -%}
+  {%- paginate collection.products by 250 -%}
+    {%- liquid
+      if availability_filter == null
+        for p in collection.products
+          if p.available
+            assign in_stock_count = in_stock_count | plus: 1
+          endif
+        endfor
+      endif
+      if category_filter == null
+        for tag in category_tags
+          assign matches = collection.products | where_exp: 'p', 'p.tags contains tag'
+          assign category_counts = category_counts | append: matches.size | append: '||'
+        endfor
+        assign category_counts = category_counts | split: '||'
+      endif
+      if rarity_filter == null
+        for tag in rarity_tags
+          assign matches = collection.products | where_exp: 'p', 'p.tags contains tag'
+          assign rarity_counts = rarity_counts | append: matches.size | append: '||'
+        endfor
+        assign rarity_counts = rarity_counts | split: '||'
+      endif
+    -%}
+  {%- endpaginate -%}
+{%- endif -%}
 
 <div class="collection-page page-width">
   <h1 class="visually-hidden">{{ collection.title }}</h1>
@@ -89,6 +137,16 @@
             </label>
           {%- endfor -%}
         </div>
+      {%- else -%}
+        <div class="collection-filters__group">
+          <h3>{{ 'collections.filters.availability' | t: default: 'Availability' }}</h3>
+          <label class="collection-filters__checkbox">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7 9 18l-5-5"></path></svg>
+            <span>{{ 'collections.filters.in_stock_only' | t: default: 'In stock only' }}</span>
+            <span class="collection-filters__count">({{ in_stock_count }})</span>
+            <input type="checkbox" data-instock-toggle>
+          </label>
+        </div>
       {%- endif -%}
 
       {%- if rarity_filter -%}
@@ -101,6 +159,28 @@
               <span>{{ value.label | capitalize }}</span>
               <span class="collection-filters__count">({{ value.count }})</span>
             </label>
+          {%- endfor -%}
+        </div>
+      {%- elsif rarity_tags.size > 0 -%}
+        <div class="collection-filters__group">
+          <h3>{{ 'collections.filters.rarity' | t: default: 'Rarity' }}</h3>
+          {%- for tag in rarity_tags -%}
+            {%- unless tag == blank -%}
+              {%- liquid
+                assign rarity_value = tag | remove_first: 'rarity:'
+                assign rarity_active = false
+                if current_tags contains tag
+                  assign rarity_active = true
+                endif
+                assign tag_url = collection.url | append: '/' | append: tag | handleize
+              -%}
+              <a href="{{ tag_url }}" class="collection-filters__checkbox {% if rarity_active %}is-active{% endif %}">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="{% render 'rarity-color', rarity: rarity_value %}" class="shrink-0 size-5"><path d="M18.5 3.7l2.9 3.3c.7.8.7 1.9.1 2.7L13.7 20.2c-.9 1.1-2.6 1.1-3.4 0L2.4 9.8c-.6-.8-.6-2 .1-2.7l2.9-3.3C5.9 3.3 6.5 3 7 3h10c.6 0 1.1.3 1.5.7z"/></svg>
+                <span>{{ rarity_value | capitalize }}</span>
+                <span class="collection-filters__count">({{ rarity_counts[forloop.index0] }})</span>
+                <span class="collection-filters__fake-checkbox" aria-hidden="true"></span>
+              </a>
+            {%- endunless -%}
           {%- endfor -%}
         </div>
       {%- endif -%}
@@ -119,9 +199,29 @@
           {%- if category_filter -%}
             {%- for value in category_filter.values -%}
               <a href="{{ value.url_to_add }}" class="pill-tab {% if value.active %}is-active{% endif %}">
+                {% render 'category-icon', category: value.value %}
                 {{ value.label | capitalize }}
                 <span class="collection-tabs__count">{{ value.count }}</span>
               </a>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for tag in category_tags -%}
+              {%- unless tag == blank -%}
+                {%- liquid
+                  assign cat_value = tag | remove_first: 'category:'
+                  assign cat_label = cat_value | replace: '-', ' ' | capitalize
+                  assign cat_active = false
+                  if current_tags contains tag
+                    assign cat_active = true
+                  endif
+                  assign tag_url = collection.url | append: '/' | append: tag | handleize
+                -%}
+                <a href="{{ tag_url }}" class="pill-tab {% if cat_active %}is-active{% endif %}">
+                  {% render 'category-icon', category: cat_value %}
+                  {{ cat_label }}
+                  <span class="collection-tabs__count">{{ category_counts[forloop.index0] }}</span>
+                </a>
+              {%- endunless -%}
             {%- endfor -%}
           {%- endif -%}
         </div>
@@ -158,6 +258,7 @@
             {%- if cat_products.size > 0 -%}
               <div class="collection-section">
                 <div class="collection-section__header">
+                  <span class="collection-section__icon">{% render 'category-icon', category: cat.value %}</span>
                   <h2>{{ cat.label | capitalize }}</h2>
                   <span class="collection-section__count">{{ cat.count }}</span>
                   <a href="{{ cat.url_to_add }}" class="collection-section__view-all">{{ 'collections.general.view_all' | t: default: 'View all' }}</a>
@@ -169,6 +270,38 @@
                 </div>
               </div>
             {%- endif -%}
+          {%- endfor -%}
+        {%- endpaginate -%}
+      {%- elsif showing_all and category_tags.size > 0 -%}
+        {%- comment -%}
+          Same sectioned "all items" view as above, built from the plain
+          category:{slug} tag fallback when Search & Discovery isn't
+          configured for this collection.
+        {%- endcomment -%}
+        {%- paginate collection.products by 250 -%}
+          {%- for tag in category_tags -%}
+            {%- unless tag == blank -%}
+              {%- liquid
+                assign cat_value = tag | remove_first: 'category:'
+                assign cat_label = cat_value | replace: '-', ' ' | capitalize
+                assign cat_products = collection.products | where_exp: 'p', 'p.tags contains tag'
+              -%}
+              {%- if cat_products.size > 0 -%}
+                <div class="collection-section">
+                  <div class="collection-section__header">
+                    <span class="collection-section__icon">{% render 'category-icon', category: cat_value %}</span>
+                    <h2>{{ cat_label }}</h2>
+                    <span class="collection-section__count">{{ cat_products.size }}</span>
+                    <a href="{{ collection.url }}/{{ tag | handleize }}" class="collection-section__view-all">{{ 'collections.general.view_all' | t: default: 'View all' }}</a>
+                  </div>
+                  <div class="product-grid">
+                    {%- for product in cat_products limit: section.settings.products_per_category -%}
+                      {% render 'product-card', product: product %}
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            {%- endunless -%}
           {%- endfor -%}
         {%- endpaginate -%}
       {%- else -%}
