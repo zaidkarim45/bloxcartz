@@ -110,6 +110,15 @@
   });
 
   /* ---- Collection filters + sort ---- */
+  // A full page navigation (native Shopify filtering, not an SPA) can't
+  // animate the incoming content, but fading the outgoing content out
+  // right before it happens is enough to make switching filters/tabs
+  // feel like a transition instead of an abrupt flash.
+  var collectionMain = document.querySelector(".collection-page__main");
+  function beginNavigating() {
+    if (collectionMain) collectionMain.classList.add("is-navigating");
+  }
+
   var filterForm = document.querySelector("[data-filter-form]");
   if (filterForm) {
     var debounceTimer;
@@ -124,10 +133,17 @@
         e.target.hasAttribute("data-price-from") || e.target.hasAttribute("data-price-to");
       var delay = isContinuous ? 500 : 0;
       debounceTimer = window.setTimeout(function () {
+        beginNavigating();
         filterForm.requestSubmit ? filterForm.requestSubmit() : filterForm.submit();
       }, delay);
     });
   }
+
+  document.querySelectorAll(".pill-tab, .collection-filters__reset, .collection-section__view-all").forEach(function (el) {
+    el.addEventListener("click", beginNavigating);
+  });
+  var collectionSearchForm = document.querySelector(".collection-page__search");
+  if (collectionSearchForm) collectionSearchForm.addEventListener("submit", beginNavigating);
 
   /* ---- Mobile filter drawer ---- */
   var filterToggle = document.querySelector("[data-filter-toggle]");
@@ -280,6 +296,7 @@
   var sortSelect = document.querySelector("[data-sort-select]");
   if (sortSelect) {
     sortSelect.addEventListener("change", function () {
+      beginNavigating();
       var url = new URL(window.location.href);
       url.searchParams.set("sort_by", sortSelect.value);
       window.location.href = url.toString();
