@@ -1,0 +1,6 @@
+# shopify theme push reads the local filesystem directly and does NOT
+# respect .gitignore -- this file is Shopify CLI's own equivalent.
+# assets/catalog/* holds product-catalog migration staging files (raw and
+# processed images, per-game marketing art), not real theme assets, and
+# Shopify rejects any file nested in a subfolder under assets/ anyway.
+assets/catalog/
