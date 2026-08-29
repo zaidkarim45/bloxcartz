@@ -31,10 +31,10 @@
     endif
   endfor
 
-  # Fallback facets, used only for whichever of category/rarity/availability
-  # collection.filters didn't provide (see file header). Both are modeled as
-  # plain product tags already, so this reads real catalog data rather than
-  # inventing anything -- see snippets/category-icon.liquid + rarity-color.
+  # Fallback facets, used whenever collection.filters doesn't provide a
+  # given facet (see file header). Both are modeled as plain product tags
+  # already, so this reads real catalog data rather than inventing
+  # anything -- see snippets/category-icon.liquid + rarity-color.
   assign category_tags = ''
   assign rarity_tags = ''
   for tag in collection.all_tags
@@ -51,65 +51,67 @@
   assign category_counts = ''
   assign rarity_counts = ''
   assign in_stock_count = 0
+
+  # `collection` (and therefore `collection.products`) reflects whatever
+  # filters/tags are ALREADY active on the current URL -- counting against
+  # it means every count shrinks or zeroes out the moment ANY filter is
+  # applied, which is the bug: selecting one category made every rarity
+  # count read 0, because collection.products had already been narrowed
+  # to just that category's products. `collections[collection.handle]` is
+  # a fresh, independent lookup of the same collection that is NOT scoped
+  # by the current request's filters, so it's the correct base set for
+  # counts that should stay constant (matching the whole game's catalog)
+  # regardless of what's currently selected.
+  assign base_collection = collections[collection.handle]
 -%}
-{%- if category_filter == null or rarity_filter == null or availability_filter == null -%}
-  {%- comment -%}
-    Counts here deliberately use a plain nested for/if loop instead of any
-    single-shot array filter (`where`/`where_exp`) -- that's the only
-    mechanism with zero dependency on filter-specific semantics (array
-    containment support, expression-string variable scoping, etc.) that
-    turned out to behave inconsistently on the live store. A for/if loop
-    over `product.tags contains tag` is basic Liquid control flow with
-    nothing left to go wrong.
-  {%- endcomment -%}
-  {%- paginate collection.products by 250 -%}
-    {%- liquid
-      if availability_filter == null
-        assign in_stock_count = 0
-        for p in collection.products
-          if p.available
-            assign in_stock_count = in_stock_count | plus: 1
-          endif
-        endfor
+{%- comment -%}
+  Counts deliberately use a plain nested for/if loop instead of any
+  single-shot array filter (`where`/`where_exp`) -- that's the only
+  mechanism with zero dependency on filter-specific semantics (array
+  containment support, expression-string variable scoping, etc.) that
+  turned out to behave inconsistently on the live store. A for/if loop
+  over `product.tags contains tag` is basic Liquid control flow with
+  nothing left to go wrong. Always computed (not just when the native
+  filter is missing) so the displayed number next to a native checkbox
+  can be overridden with this stable, always-whole-catalog count too.
+{%- endcomment -%}
+{%- paginate base_collection.products by 250 -%}
+  {%- liquid
+    assign in_stock_count = 0
+    for p in base_collection.products
+      if p.available
+        assign in_stock_count = in_stock_count | plus: 1
       endif
-      if category_filter == null
-        assign category_counts = ''
-        for tag in category_tags
-          assign tag_count = 0
-          for p in collection.products
-            if p.tags contains tag
-              assign tag_count = tag_count | plus: 1
-            endif
-          endfor
-          assign category_counts = category_counts | append: tag_count | append: '||'
-        endfor
-        assign category_counts = category_counts | split: '||'
-      endif
-      if rarity_filter == null
-        assign rarity_counts = ''
-        for tag in rarity_tags
-          assign tag_count = 0
-          for p in collection.products
-            if p.tags contains tag
-              assign tag_count = tag_count | plus: 1
-            endif
-          endfor
-          assign rarity_counts = rarity_counts | append: tag_count | append: '||'
-        endfor
-        assign rarity_counts = rarity_counts | split: '||'
-      endif
-    -%}
-  {%- endpaginate -%}
-{%- endif -%}
+    endfor
 
-<div class="collection-page page-width">
+    assign category_counts = ''
+    for tag in category_tags
+      assign tag_count = 0
+      for p in base_collection.products
+        if p.tags contains tag
+          assign tag_count = tag_count | plus: 1
+        endif
+      endfor
+      assign category_counts = category_counts | append: tag_count | append: '||'
+    endfor
+    assign category_counts = category_counts | split: '||'
+
+    assign rarity_counts = ''
+    for tag in rarity_tags
+      assign tag_count = 0
+      for p in base_collection.products
+        if p.tags contains tag
+          assign tag_count = tag_count | plus: 1
+        endif
+      endfor
+      assign rarity_counts = rarity_counts | append: tag_count | append: '||'
+    endfor
+    assign rarity_counts = rarity_counts | split: '||'
+  -%}
+{%- endpaginate -%}
+
+<div class="collection-page">
   <h1 class="visually-hidden">{{ collection.title }}</h1>
-
-  {%- if collection.metafields.custom.stock_warning != blank -%}
-    <div class="alert--warning collection-page__banner">
-      {{ collection.metafields.custom.stock_warning }}
-    </div>
-  {%- endif -%}
 
   <button type="button" class="collection-filters__toggle" data-filter-toggle aria-expanded="false" aria-controls="CollectionFilters">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="10" y1="18" x2="14" y2="18"></line></svg>
@@ -155,7 +157,7 @@
             <label class="collection-filters__checkbox">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7 9 18l-5-5"></path></svg>
               <span>{{ 'collections.filters.in_stock_only' | t: default: 'In stock only' }}</span>
-              <span class="collection-filters__count">({{ value.count }})</span>
+              <span class="collection-filters__count">({{ in_stock_count }})</span>
               <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}" {% if value.active %}checked{% endif %}>
             </label>
           {%- endfor -%}
@@ -176,11 +178,20 @@
         <div class="collection-filters__group">
           <h3>{{ 'collections.filters.rarity' | t: default: 'Rarity' }}</h3>
           {%- for value in rarity_filter.values -%}
+            {%- liquid
+              assign static_count = value.count
+              for t in rarity_tags
+                assign t_stripped = t | remove_first: 'rarity:'
+                if t == value.value or t_stripped == value.value
+                  assign static_count = rarity_counts[forloop.index0]
+                endif
+              endfor
+            -%}
             <label class="collection-filters__checkbox" for="rarity-{{ value.value | handleize }}" id="rarity-{{ value.value | handleize }}-label">
               <input type="checkbox" id="rarity-{{ value.value | handleize }}" name="{{ value.param_name }}" value="{{ value.value }}" {% if value.active %}checked{% endif %}>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="{% render 'rarity-color', rarity: value.label %}" class="shrink-0 size-5"><path d="M18.5 3.7l2.9 3.3c.7.8.7 1.9.1 2.7L13.7 20.2c-.9 1.1-2.6 1.1-3.4 0L2.4 9.8c-.6-.8-.6-2 .1-2.7l2.9-3.3C5.9 3.3 6.5 3 7 3h10c.6 0 1.1.3 1.5.7z"/></svg>
               <span>{{ value.label | capitalize }}</span>
-              <span class="collection-filters__count">({{ value.count }})</span>
+              <span class="collection-filters__count">({{ static_count }})</span>
             </label>
           {%- endfor -%}
         </div>
@@ -222,10 +233,19 @@
           </a>
           {%- if category_filter -%}
             {%- for value in category_filter.values -%}
+              {%- liquid
+                assign static_count = value.count
+                for t in category_tags
+                  assign t_stripped = t | remove_first: 'category:'
+                  if t == value.value or t_stripped == value.value
+                    assign static_count = category_counts[forloop.index0]
+                  endif
+                endfor
+              -%}
               <a href="{{ value.url_to_add }}" class="pill-tab {% if value.active %}is-active{% endif %}">
                 {% render 'category-icon', category: value.value %}
                 {{ value.label | capitalize }}
-                <span class="collection-tabs__count">{{ value.count }}</span>
+                <span class="collection-tabs__count">{{ static_count }}</span>
               </a>
             {%- endfor -%}
           {%- else -%}
@@ -263,6 +283,12 @@
           </select>
         </div>
       </div>
+
+      {%- if collection.metafields.custom.stock_warning != blank -%}
+        <div class="alert--warning collection-page__banner">
+          {{ collection.metafields.custom.stock_warning }}
+        </div>
+      {%- endif -%}
 
       {%- assign showing_all = true -%}
       {%- if category_filter.active_values.size > 0 -%}{%- assign showing_all = false -%}{%- endif -%}
