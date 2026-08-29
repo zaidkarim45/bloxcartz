@@ -4,9 +4,9 @@
 
   game_image can be either a real Shopify image object (from
   collection.image, once a merchant uploads one) or a plain external URL
-  string (the registry's bloxcart.com fallback icon, see
-  snippets/game-registry.liquid) — `image_url` only works on the former,
-  so both are handled explicitly rather than assuming one shape.
+  string (bloxcart.com's own hotlinked fallback icon, see the slug/icon
+  list in sections/game-grid.liquid) — `image_url` only works on the
+  former, so both are handled explicitly rather than assuming one shape.
 {%- endcomment -%}
 <article class="game-card" style="--gradient-start: {{ gradient_start | default: '#8B5CF6' }}; --gradient-end: {{ gradient_end | default: '#4C1D95' }};">
   <h3 class="visually-hidden">{{ game_title }}</h3>

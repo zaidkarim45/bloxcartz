@@ -1,12 +1,17 @@
 {%- comment -%}
   Auto-resolves the 9 games against real Shopify collections (matched by
   handle == game slug) rather than requiring a merchant to manually pick a
-  collection per block — see snippets/game-registry.liquid. Once a
-  collection has its own image uploaded in Admin, that takes over from the
-  registry's hotlinked fallback icon automatically (collection.image wins).
+  collection per block. Once a collection has its own image uploaded in
+  Admin, that takes over from the hotlinked fallback icon automatically
+  (coll.image wins over the hardcoded icon URL below).
+
+  Deliberately plain `case`/`assign` here instead of building a JSON
+  registry + `parse_json` — that pattern silently failed on live Shopify
+  (the whole section dropped with no visible error), so this sticks to
+  well-established Liquid the storefront is guaranteed to execute. The
+  same slug list is duplicated in sections/header.liquid for its game
+  dropdown — keep both in sync if a game is added/removed/renamed.
 {%- endcomment -%}
-{%- capture games_json -%}{% render 'game-registry' %}{%- endcapture -%}
-{%- assign games = games_json | parse_json -%}
 
 <section class="game-grid-section page-width">
   <div class="game-grid-section__header">
@@ -20,28 +25,81 @@
   </div>
 
   <div class="game-grid">
-    {%- for game in games -%}
+    {%- for slug in 'murder-mystery-2,steal-a-brainrot,blox-fruits,adopt-me,pet-simulator-99,blade-ball,grow-a-garden-2,99-nights-in-the-forest,dress-to-impress' split: ',' -%}
       {%- liquid
-        assign coll = collections[game.slug]
+        case slug
+          when 'murder-mystery-2'
+            assign game_title = 'Murder Mystery 2'
+            assign gradient_start = '#B91C1C'
+            assign gradient_end = '#450A0A'
+            assign icon = 'https://media.bloxcart.com/payload-media/murder-mystery-2-thumbnail.webp'
+            assign external_url = ''
+          when 'steal-a-brainrot'
+            assign game_title = 'Steal a Brainrot'
+            assign gradient_start = '#7C3AED'
+            assign gradient_end = '#2E1065'
+            assign icon = 'https://media.bloxcart.com/payload-media/steal-a-brainrot-thumbnail.webp'
+            assign external_url = ''
+          when 'blox-fruits'
+            assign game_title = 'Blox Fruits'
+            assign gradient_start = '#EA580C'
+            assign gradient_end = '#431407'
+            assign icon = 'https://media.bloxcart.com/payload-media/blox-fruits-thumbnail.webp'
+            assign external_url = ''
+          when 'adopt-me'
+            assign game_title = 'Adopt Me'
+            assign gradient_start = '#DB2777'
+            assign gradient_end = '#500724'
+            assign icon = 'https://media.bloxcart.com/payload-media/adopt-me-thumbnail.png'
+            assign external_url = 'https://neonpets.com/discount/CART?utm_source=bloxcart&utm_medium=referral'
+          when 'pet-simulator-99'
+            assign game_title = 'Pet Simulator 99'
+            assign gradient_start = '#0D9488'
+            assign gradient_end = '#042F2E'
+            assign icon = 'https://media.bloxcart.com/payload-media/pet-simulator-99-thumbnail-1.webp'
+            assign external_url = ''
+          when 'blade-ball'
+            assign game_title = 'Blade Ball'
+            assign gradient_start = '#334155'
+            assign gradient_end = '#0F172A'
+            assign icon = 'https://media.bloxcart.com/payload-media/blade-ball-thumbnail.png'
+            assign external_url = ''
+          when 'grow-a-garden-2'
+            assign game_title = 'Grow a Garden 2'
+            assign gradient_start = '#16A34A'
+            assign gradient_end = '#052E16'
+            assign icon = 'https://media.bloxcart.com/payload-media/grow-a-garden-2-thumbnail.webp'
+            assign external_url = ''
+          when '99-nights-in-the-forest'
+            assign game_title = '99 Nights in the Forest'
+            assign gradient_start = '#166534'
+            assign gradient_end = '#052E16'
+            assign icon = 'https://media.bloxcart.com/payload-media/99-nights-in-the-forest-thumbnail.png'
+            assign external_url = ''
+          when 'dress-to-impress'
+            assign game_title = 'Dress to Impress'
+            assign gradient_start = '#BE185D'
+            assign gradient_end = '#500724'
+            assign icon = 'https://media.bloxcart.com/payload-media/dress-to-impress-thumbnail.webp'
+            assign external_url = ''
+        endcase
+
+        assign coll = collections[slug]
         assign is_external = false
-        if game.external_url != blank
+        if external_url != blank
           assign is_external = true
         endif
 
+        assign game_url = external_url
         if coll and coll.products_count > 0
-          assign game_url = coll.url
-        elsif is_external
-          assign game_url = game.external_url
-        else
           assign game_url = coll.url
         endif
 
-        assign game_image = game.icon
+        assign game_image = icon
         if coll and coll.image
           assign game_image = coll.image
         endif
 
-        assign game_title = game.title
         if coll and coll.title != blank
           assign game_title = coll.title
         endif
@@ -50,8 +108,8 @@
         game_title: game_title,
         game_url: game_url,
         game_image: game_image,
-        gradient_start: game.gradient_start,
-        gradient_end: game.gradient_end,
+        gradient_start: gradient_start,
+        gradient_end: gradient_end,
         limited_stock: false,
         external: is_external
       %}

@@ -10,13 +10,11 @@
     </a>
 
     {%- comment -%}
-      Auto-resolved against real collections (see snippets/game-registry.liquid)
-      so the dropdown works as soon as the 9 game collections exist — no
-      manual theme-editor list configuration needed.
+      Same slug/gradient/icon list as sections/game-grid.liquid, kept
+      inline rather than shared via a data snippet — see that file's
+      header comment for why (parse_json + capture silently dropped the
+      whole section on live Shopify). Keep both lists in sync.
     {%- endcomment -%}
-    {%- capture games_json -%}{% render 'game-registry' %}{%- endcapture -%}
-    {%- assign games = games_json | parse_json -%}
-
     <div class="site-header__game-select" data-game-select>
       <button type="button" class="site-header__game-select-btn" aria-haspopup="listbox" aria-expanded="false">
         {%- if collection and collection.handle != blank -%}
@@ -31,33 +29,73 @@
         {% render 'icon-chevron-down' %}
       </button>
       <ul class="site-header__game-menu" role="listbox" hidden>
-        {%- for game in games -%}
+        {%- for slug in 'murder-mystery-2,steal-a-brainrot,blox-fruits,adopt-me,pet-simulator-99,blade-ball,grow-a-garden-2,99-nights-in-the-forest,dress-to-impress' split: ',' -%}
           {%- liquid
-            assign coll = collections[game.slug]
+            case slug
+              when 'murder-mystery-2'
+                assign game_title = 'Murder Mystery 2'
+                assign icon = 'https://media.bloxcart.com/payload-media/murder-mystery-2-icon.webp'
+                assign external_url = ''
+              when 'steal-a-brainrot'
+                assign game_title = 'Steal a Brainrot'
+                assign icon = 'https://media.bloxcart.com/payload-media/steal-a-brainrot-icon.webp'
+                assign external_url = ''
+              when 'blox-fruits'
+                assign game_title = 'Blox Fruits'
+                assign icon = 'https://media.bloxcart.com/payload-media/blox-fruits-icon.webp'
+                assign external_url = ''
+              when 'adopt-me'
+                assign game_title = 'Adopt Me'
+                assign icon = 'https://media.bloxcart.com/payload-media/adopt-me-icon-1.webp'
+                assign external_url = 'https://neonpets.com/discount/CART?utm_source=bloxcart&utm_medium=referral'
+              when 'pet-simulator-99'
+                assign game_title = 'Pet Simulator 99'
+                assign icon = 'https://media.bloxcart.com/payload-media/pet-simulator-99-icon-1.webp'
+                assign external_url = ''
+              when 'blade-ball'
+                assign game_title = 'Blade Ball'
+                assign icon = 'https://media.bloxcart.com/payload-media/blade-ball-icon.webp'
+                assign external_url = ''
+              when 'grow-a-garden-2'
+                assign game_title = 'Grow a Garden 2'
+                assign icon = 'https://media.bloxcart.com/payload-media/grow-a-garden-2-icon.webp'
+                assign external_url = ''
+              when '99-nights-in-the-forest'
+                assign game_title = '99 Nights in the Forest'
+                assign icon = 'https://media.bloxcart.com/payload-media/99-nights-in-the-forest-icon.webp'
+                assign external_url = ''
+              when 'dress-to-impress'
+                assign game_title = 'Dress to Impress'
+                assign icon = 'https://media.bloxcart.com/payload-media/dress-to-impress-icon.webp'
+                assign external_url = ''
+            endcase
+
+            assign coll = collections[slug]
             assign is_external = false
-            if game.external_url != blank
+            if external_url != blank
               assign is_external = true
             endif
+
+            assign game_url = external_url
             if coll and coll.products_count > 0
               assign game_url = coll.url
-            elsif is_external
-              assign game_url = game.external_url
-            else
-              assign game_url = coll.url
             endif
-            assign game_image = game.icon
+
+            assign game_image = icon
             if coll and coll.image
               assign game_image = coll.image
             endif
-            assign game_title = game.title
+
             if coll and coll.title != blank
               assign game_title = coll.title
             endif
           -%}
           <li role="option">
             <a href="{{ game_url }}" {% if is_external %}target="_blank" rel="noopener sponsored"{% endif %}>
-              {%- if game_image -%}
+              {%- if game_image.src -%}
                 {{ game_image | image_url: width: 40 | image_tag: alt: game_title, loading: 'lazy' }}
+              {%- elsif game_image != blank -%}
+                <img src="{{ game_image }}" alt="{{ game_title }}" loading="lazy">
               {%- endif -%}
               <span>{{ game_title }}</span>
             </a>
