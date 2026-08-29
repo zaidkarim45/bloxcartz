@@ -1,19 +1,28 @@
 <footer class="site-footer">
   <div class="page-width site-footer__inner">
 
+    <a href="{{ routes.root_url }}" class="site-footer__logo" aria-label="{{ shop.name }} home">
+      {%- if settings.logo != blank -%}
+        {{ settings.logo | image_url: width: 200 | image_tag: alt: shop.name, class: 'site-footer__logo-img' }}
+      {%- else -%}
+        <img src="https://bloxcart.com/assets/logo.webp" alt="{{ shop.name }}" class="site-footer__logo-img" width="28" height="28">
+        <span class="site-footer__logo-text">{{ shop.name }}</span>
+      {%- endif -%}
+    </a>
+
     <div class="site-footer__social">
       <span class="site-footer__social-label">Follow us:</span>
       {%- if settings.social_x_link != blank -%}
-        <a href="{{ settings.social_x_link }}" aria-label="X (Twitter)" target="_blank" rel="noopener">X (Twitter)</a>
+        <a href="{{ settings.social_x_link }}" class="site-footer__social-icon" aria-label="X (Twitter)" target="_blank" rel="noopener">{% render 'icon-social', platform: 'x' %}</a>
       {%- endif -%}
       {%- if settings.social_youtube_link != blank -%}
-        <a href="{{ settings.social_youtube_link }}" aria-label="YouTube" target="_blank" rel="noopener">YouTube</a>
+        <a href="{{ settings.social_youtube_link }}" class="site-footer__social-icon" aria-label="YouTube" target="_blank" rel="noopener">{% render 'icon-social', platform: 'youtube' %}</a>
       {%- endif -%}
       {%- if settings.social_discord_link != blank -%}
-        <a href="{{ settings.social_discord_link }}" aria-label="Discord" target="_blank" rel="noopener">Discord</a>
+        <a href="{{ settings.social_discord_link }}" class="site-footer__social-icon" aria-label="Discord" target="_blank" rel="noopener">{% render 'icon-social', platform: 'discord' %}</a>
       {%- endif -%}
       {%- if settings.social_tiktok_link != blank -%}
-        <a href="{{ settings.social_tiktok_link }}" aria-label="TikTok" target="_blank" rel="noopener">TikTok</a>
+        <a href="{{ settings.social_tiktok_link }}" class="site-footer__social-icon" aria-label="TikTok" target="_blank" rel="noopener">{% render 'icon-social', platform: 'tiktok' %}</a>
       {%- endif -%}
     </div>
 
