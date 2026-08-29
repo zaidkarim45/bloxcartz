@@ -43,7 +43,7 @@
 }
 .collection-page__main {
   min-width: 0;
-  padding: 1.25rem 1.5rem 0;
+  padding: 1.25rem clamp(1.25rem, 3vw, 2.5rem) 0 1.5rem;
   box-sizing: border-box;
 }
 .collection-filters__header {
@@ -188,43 +188,50 @@
 .collection-filters__checkbox {
   display: flex;
   align-items: center;
-  gap: 0.5625rem;
-  padding-block: 0.375rem;
+  gap: 0.625rem;
+  padding: 0.5rem 0.5rem;
+  margin-inline: -0.5rem;
+  border-radius: 0.625rem;
   cursor: pointer;
   font-size: 0.8125rem;
   color: var(--color-text-primary);
+  transition: background-color 150ms ease;
 }
-.collection-filters__checkbox svg { flex-shrink: 0; width: 1.0625rem; height: 1.0625rem; }
+.collection-filters__checkbox:hover { background: color-mix(in srgb, var(--color-bg-primary) 60%, transparent); }
+.collection-filters__checkbox svg { flex-shrink: 0; width: 1.125rem; height: 1.125rem; }
 .collection-filters__count { margin-left: auto; color: var(--color-text-secondary); font-size: 0.75rem; }
 
-/* Custom checkbox: hide native box, render a small square that fills on check */
+/* Custom checkbox: hide native box, render a bubbly rounded-square that
+   pops with a little scale-bounce and a soft accent glow when checked. */
 .collection-filters__checkbox input[type="checkbox"] {
   appearance: none;
   flex-shrink: 0;
-  width: 1.0625rem;
-  height: 1.0625rem;
+  width: 1.375rem;
+  height: 1.375rem;
   margin: 0;
-  border-radius: 0.3125rem;
-  border: 1.5px solid color-mix(in srgb, var(--color-border-subtle) 20%, transparent);
+  border-radius: 0.5rem;
+  border: 1.5px solid color-mix(in srgb, var(--color-border-subtle) 22%, transparent);
   background: color-mix(in srgb, var(--color-bg-primary) 70%, black 10%);
   display: grid;
   place-content: center;
   cursor: pointer;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
   order: 3;
 }
 .collection-filters__checkbox input[type="checkbox"]::before {
   content: "";
-  width: 0.625rem;
-  height: 0.625rem;
+  width: 0.75rem;
+  height: 0.75rem;
   transform: scale(0);
-  transition: transform 150ms ease;
+  transition: transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
   background: #fff;
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 45% 68%);
 }
 .collection-filters__checkbox input[type="checkbox"]:checked {
   background: var(--color-accent-button);
   border-color: var(--color-accent-button);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-button) 22%, transparent);
+  transform: scale(1.06);
 }
 .collection-filters__checkbox input[type="checkbox"]:checked::before { transform: scale(1); }
 .collection-filters__count { order: 2; }
@@ -236,16 +243,18 @@
 .collection-filters__fake-checkbox {
   order: 3;
   flex-shrink: 0;
-  width: 1.0625rem;
-  height: 1.0625rem;
-  border-radius: 0.3125rem;
-  border: 1.5px solid color-mix(in srgb, var(--color-border-subtle) 20%, transparent);
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 0.5rem;
+  border: 1.5px solid color-mix(in srgb, var(--color-border-subtle) 22%, transparent);
   background: color-mix(in srgb, var(--color-bg-primary) 70%, black 10%);
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .collection-filters__checkbox.is-active .collection-filters__fake-checkbox {
   background: var(--color-accent-button);
   border-color: var(--color-accent-button);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-button) 22%, transparent);
+  transform: scale(1.06);
 }
 
 /* ---- Category tabs + toolbar surface ---- */
@@ -392,7 +401,7 @@
     gap: 0.5rem;
     height: 2.375rem;
     padding: 0 0.875rem;
-    margin-bottom: 1rem;
+    margin: 0 clamp(1.25rem, 4vw, 2rem) 1rem;
     background: color-mix(in srgb, var(--color-bg-card) 55%, var(--color-bg-primary));
     border: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
     border-radius: 0.5625rem;
