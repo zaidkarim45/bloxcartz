@@ -18,7 +18,7 @@
       }
     },
     "game-grid": {
-      "type": "game-grid",
+      "type": "game-grid-v2",
       "settings": {
         "heading": "All games",
         "view_all_label": "Explore games",

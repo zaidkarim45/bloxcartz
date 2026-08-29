@@ -157,29 +157,76 @@
 
 {% schema %}
 {
-  "name": "Game grid",
+  "name": "Game grid v2",
   "settings": [
-    { "type": "text", "id": "heading", "label": "Heading", "default": "All games" },
-    { "type": "text", "id": "view_all_label", "label": "View all label", "default": "Explore games" },
-    { "type": "url", "id": "view_all_url", "label": "View all link" }
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "All games"
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "View all label",
+      "default": "Explore games"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "View all link"
+    }
   ],
   "blocks": [
     {
       "type": "game",
       "name": "Extra game (beyond the standard 9)",
       "settings": [
-        { "type": "text", "id": "title", "label": "Title" },
-        { "type": "collection", "id": "collection", "label": "Collection" },
-        { "type": "url", "id": "external_url", "label": "External URL (overrides collection link)" },
-        { "type": "image_picker", "id": "image", "label": "Card image (overrides collection image)" },
-        { "type": "color", "id": "gradient_start", "label": "Gradient start", "default": "#8B5CF6" },
-        { "type": "color", "id": "gradient_end", "label": "Gradient end", "default": "#4C1D95" },
-        { "type": "checkbox", "id": "limited_stock", "label": "Show \"Limited Stock\" badge", "default": false }
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "url",
+          "id": "external_url",
+          "label": "External URL (overrides collection link)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Card image (overrides collection image)"
+        },
+        {
+          "type": "color",
+          "id": "gradient_start",
+          "label": "Gradient start",
+          "default": "#8B5CF6"
+        },
+        {
+          "type": "color",
+          "id": "gradient_end",
+          "label": "Gradient end",
+          "default": "#4C1D95"
+        },
+        {
+          "type": "checkbox",
+          "id": "limited_stock",
+          "label": "Show \"Limited Stock\" badge",
+          "default": false
+        }
       ]
     }
   ],
   "presets": [
-    { "name": "Game grid" }
+    {
+      "name": "Game grid"
+    }
   ]
 }
 {% endschema %}
