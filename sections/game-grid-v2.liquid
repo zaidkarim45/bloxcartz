@@ -15,14 +15,21 @@
   dropdown — keep both in sync if a game is added/removed/renamed.
 {%- endcomment -%}
 
-<section class="game-grid-section page-width">
+<section class="game-grid-section">
+  <div class="game-grid-section__inner">
   <div class="game-grid-section__header">
-    <h2>{{ section.settings.heading }}</h2>
-    <form role="search" action="{{ routes.search_url }}" class="game-grid-section__search">
-      <input type="search" name="q" placeholder="{{ 'general.search.placeholder' | t: default: 'Search game' }}">
-    </form>
+    <div class="game-grid-section__header-left">
+      <h2>{{ section.settings.heading }}</h2>
+      <form role="search" action="{{ routes.search_url }}" class="game-grid-section__search">
+        <svg class="game-grid-section__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="search" name="q" placeholder="{{ 'general.search.placeholder' | t: default: 'Search game' }}">
+      </form>
+    </div>
     {%- if section.settings.view_all_url != blank -%}
-      <a href="{{ section.settings.view_all_url }}" class="game-grid-section__view-all">{{ section.settings.view_all_label }}</a>
+      <a href="{{ section.settings.view_all_url }}" class="game-grid-section__view-all">
+        <span>{{ section.settings.view_all_label }}</span>
+        <svg class="game-grid-section__view-all-arrow" viewBox="0 0 64 10" fill="none" aria-hidden="true"><path d="M1 5 H56 M50 1 L58 5 L50 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
     {%- endif -%}
   </div>
 
@@ -33,58 +40,67 @@
         case slug
           when 'murder-mystery-2'
             assign game_title = 'Murder Mystery 2'
-            assign gradient_start = '#B91C1C'
-            assign gradient_end = '#450A0A'
+            assign gradient_start = '#7A1F1F'
+            assign gradient_end = '#2B0A0A'
             assign icon = 'https://media.bloxcart.com/payload-media/murder-mystery-2-thumbnail.webp'
             assign external_url = ''
+            assign limited_stock = true
           when 'steal-a-brainrot'
             assign game_title = 'Steal a Brainrot'
-            assign gradient_start = '#7C3AED'
+            assign gradient_start = '#5B21B6'
             assign gradient_end = '#2E1065'
             assign icon = 'https://media.bloxcart.com/payload-media/steal-a-brainrot-thumbnail.webp'
             assign external_url = ''
+            assign limited_stock = false
           when 'blox-fruits'
             assign game_title = 'Blox Fruits'
-            assign gradient_start = '#EA580C'
-            assign gradient_end = '#431407'
+            assign gradient_start = '#9A4B1E'
+            assign gradient_end = '#3B1C08'
             assign icon = 'https://media.bloxcart.com/payload-media/blox-fruits-thumbnail.webp'
             assign external_url = ''
+            assign limited_stock = false
           when 'adopt-me'
             assign game_title = 'Adopt Me'
-            assign gradient_start = '#DB2777'
-            assign gradient_end = '#500724'
+            assign gradient_start = '#8B5D6B'
+            assign gradient_end = '#3A1E27'
             assign icon = 'https://media.bloxcart.com/payload-media/adopt-me-thumbnail.png'
             assign external_url = 'https://neonpets.com/discount/CART?utm_source=bloxcart&utm_medium=referral'
+            assign limited_stock = false
           when 'pet-simulator-99'
             assign game_title = 'Pet Simulator 99'
-            assign gradient_start = '#0D9488'
+            assign gradient_start = '#0F6B63'
             assign gradient_end = '#042F2E'
             assign icon = 'https://media.bloxcart.com/payload-media/pet-simulator-99-thumbnail-1.webp'
             assign external_url = ''
+            assign limited_stock = false
           when 'blade-ball'
             assign game_title = 'Blade Ball'
-            assign gradient_start = '#334155'
-            assign gradient_end = '#0F172A'
+            assign gradient_start = '#7A1F2E'
+            assign gradient_end = '#2B0A10'
             assign icon = 'https://media.bloxcart.com/payload-media/blade-ball-thumbnail.png'
             assign external_url = ''
+            assign limited_stock = false
           when 'grow-a-garden-2'
             assign game_title = 'Grow a Garden 2'
-            assign gradient_start = '#16A34A'
+            assign gradient_start = '#1F6B3A'
             assign gradient_end = '#052E16'
             assign icon = 'https://media.bloxcart.com/payload-media/grow-a-garden-2-thumbnail.webp'
             assign external_url = ''
+            assign limited_stock = false
           when '99-nights-in-the-forest'
             assign game_title = '99 Nights in the Forest'
-            assign gradient_start = '#166534'
-            assign gradient_end = '#052E16'
+            assign gradient_start = '#1C2B1F'
+            assign gradient_end = '#0A120C'
             assign icon = 'https://media.bloxcart.com/payload-media/99-nights-in-the-forest-thumbnail.png'
             assign external_url = ''
+            assign limited_stock = false
           when 'dress-to-impress'
             assign game_title = 'Dress to Impress'
-            assign gradient_start = '#BE185D'
-            assign gradient_end = '#500724'
+            assign gradient_start = '#8A1856'
+            assign gradient_end = '#3A0A24'
             assign icon = 'https://media.bloxcart.com/payload-media/dress-to-impress-thumbnail.webp'
             assign external_url = ''
+            assign limited_stock = false
         endcase
 
         assign coll = collections[slug]
@@ -116,7 +132,7 @@
         game_image: game_image,
         gradient_start: gradient_start,
         gradient_end: gradient_end,
-        limited_stock: false,
+        limited_stock: limited_stock,
         external: is_external
       %}
     {%- endfor -%}
@@ -152,6 +168,7 @@
         </div>
       {%- endif -%}
     {%- endfor -%}
+  </div>
   </div>
 </section>
 
