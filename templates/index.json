@@ -17,7 +17,7 @@
         "cta_url": "/collections"
       }
     },
-    "game-grid": {
+    "all-games": {
       "type": "game-grid-v2",
       "settings": {
         "heading": "All games",
@@ -47,5 +47,5 @@
       }
     }
   },
-  "order": ["hero", "game-grid", "how-it-works", "trust-section"]
+  "order": ["hero", "all-games", "how-it-works", "trust-section"]
 }

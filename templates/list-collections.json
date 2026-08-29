@@ -1,6 +1,6 @@
 {
   "sections": {
-    "game-grid": {
+    "all-games": {
       "type": "game-grid-v2",
       "settings": {
         "heading": "All games",
@@ -9,5 +9,5 @@
       }
     }
   },
-  "order": ["game-grid"]
+  "order": ["all-games"]
 }
