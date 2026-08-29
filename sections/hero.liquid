@@ -29,11 +29,29 @@
     {%- endif -%}
   </div>
 
-  {%- if section.settings.illustration != blank -%}
-    <div class="hero__illustration">
+  <div class="hero__illustration">
+    {%- if section.settings.illustration != blank -%}
       {{ section.settings.illustration | image_url: width: 1200 | image_tag: alt: '', loading: 'eager', fetchpriority: 'high' }}
-    </div>
-  {%- endif -%}
+    {%- else -%}
+      {%- comment -%}
+        Fallback composition until a merchant uploads a custom illustration:
+        two real catalog items (not stock/AI art) floating on glow
+        platforms, matching the reference site's hero layout.
+      {%- endcomment -%}
+      <div class="hero__floater hero__floater--a">
+        <img src="https://cdn.shopify.com/s/files/1/0815/2068/9482/files/40.1.png?v=1715367785" alt="" loading="eager" fetchpriority="high">
+        <span class="hero__floater-glow"></span>
+      </div>
+      <div class="hero__floater hero__floater--b">
+        <img src="https://cdn.shopify.com/s/files/1/0815/2068/9482/files/latest_dcf10cb9-6853-42c7-a93b-ae82f8bb121c.png?v=1761689961" alt="" loading="eager">
+        <span class="hero__floater-glow hero__floater-glow--blue"></span>
+      </div>
+      <span class="hero__sparkle" style="top: 8%; left: 5%;"></span>
+      <span class="hero__sparkle" style="top: 20%; right: 8%;"></span>
+      <span class="hero__sparkle" style="bottom: 30%; left: 2%;"></span>
+      <span class="hero__sparkle" style="bottom: 10%; right: 15%;"></span>
+    {%- endif -%}
+  </div>
 </section>
 
 {% schema %}
