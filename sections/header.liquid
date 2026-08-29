@@ -9,9 +9,17 @@
       {%- endif -%}
     </a>
 
+    {%- comment -%}
+      Auto-resolved against real collections (see snippets/game-registry.liquid)
+      so the dropdown works as soon as the 9 game collections exist — no
+      manual theme-editor list configuration needed.
+    {%- endcomment -%}
+    {%- capture games_json -%}{% render 'game-registry' %}{%- endcapture -%}
+    {%- assign games = games_json | parse_json -%}
+
     <div class="site-header__game-select" data-game-select>
       <button type="button" class="site-header__game-select-btn" aria-haspopup="listbox" aria-expanded="false">
-        {%- if collection and collection.handle != blank and section.settings.games_list contains collection -%}
+        {%- if collection and collection.handle != blank -%}
           {%- if collection.image -%}
             {{ collection.image | image_url: width: 40 | image_tag: alt: collection.title, class: 'site-header__game-icon' }}
           {%- endif -%}
@@ -23,13 +31,35 @@
         {% render 'icon-chevron-down' %}
       </button>
       <ul class="site-header__game-menu" role="listbox" hidden>
-        {%- for game in section.settings.games_list -%}
+        {%- for game in games -%}
+          {%- liquid
+            assign coll = collections[game.slug]
+            assign is_external = false
+            if game.external_url != blank
+              assign is_external = true
+            endif
+            if coll and coll.products_count > 0
+              assign game_url = coll.url
+            elsif is_external
+              assign game_url = game.external_url
+            else
+              assign game_url = coll.url
+            endif
+            assign game_image = game.icon
+            if coll and coll.image
+              assign game_image = coll.image
+            endif
+            assign game_title = game.title
+            if coll and coll.title != blank
+              assign game_title = coll.title
+            endif
+          -%}
           <li role="option">
-            <a href="{{ game.url }}">
-              {%- if game.image -%}
-                {{ game.image | image_url: width: 40 | image_tag: alt: game.title, loading: 'lazy' }}
+            <a href="{{ game_url }}" {% if is_external %}target="_blank" rel="noopener sponsored"{% endif %}>
+              {%- if game_image -%}
+                {{ game_image | image_url: width: 40 | image_tag: alt: game_title, loading: 'lazy' }}
               {%- endif -%}
-              <span>{{ game.title }}</span>
+              <span>{{ game_title }}</span>
             </a>
           </li>
         {%- endfor -%}
@@ -74,13 +104,6 @@
 {% schema %}
 {
   "name": "Header",
-  "settings": [
-    {
-      "type": "collection_list",
-      "id": "games_list",
-      "label": "Games shown in the game selector",
-      "info": "Order here controls the order shown in the dropdown and on /games."
-    }
-  ]
+  "settings": []
 }
 {% endschema %}

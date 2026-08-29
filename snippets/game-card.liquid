@@ -1,14 +1,25 @@
 {%- comment -%}
   Accepts: game_title, game_url, game_image, gradient_start, gradient_end,
   limited_stock (bool), external (bool)
+
+  game_image can be either a real Shopify image object (from
+  collection.image, once a merchant uploads one) or a plain external URL
+  string (the registry's bloxcart.com fallback icon, see
+  snippets/game-registry.liquid) — `image_url` only works on the former,
+  so both are handled explicitly rather than assuming one shape.
 {%- endcomment -%}
 <article class="game-card" style="--gradient-start: {{ gradient_start | default: '#8B5CF6' }}; --gradient-end: {{ gradient_end | default: '#4C1D95' }};">
   <h3 class="visually-hidden">{{ game_title }}</h3>
   <a href="{{ game_url }}" class="game-card__link" aria-label="{{ 'products.game.view_products' | t: default: 'View products' }}: {{ game_title }}" {% if external %}target="_blank" rel="noopener sponsored"{% endif %}>
-    <span class="game-card__watermark" aria-hidden="true"></span>
     {%- if game_image != blank -%}
-      {{ game_image | image_url: width: 400 | image_tag: alt: game_title, loading: 'lazy', class: 'game-card__image' }}
+      {%- if game_image.src -%}
+        {{ game_image | image_url: width: 600 | image_tag: alt: game_title, loading: 'lazy', class: 'game-card__image' }}
+      {%- else -%}
+        <img src="{{ game_image }}" alt="{{ game_title }}" loading="lazy" class="game-card__image">
+      {%- endif -%}
     {%- endif -%}
+    <span class="game-card__scrim" aria-hidden="true"></span>
+    <span class="game-card__watermark" aria-hidden="true"></span>
     <span class="game-card__title">{{ game_title }}</span>
     {%- if limited_stock -%}
       <span class="game-card__badge">

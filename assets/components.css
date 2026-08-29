@@ -107,7 +107,13 @@
   font-size: 0.875rem;
   font-weight: 500;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: background-color 180ms ease, color 180ms ease, transform 120ms ease;
 }
+.pill-tab:hover {
+  color: var(--color-text-primary);
+  transform: translateY(-1px);
+}
+.pill-tab:active { transform: translateY(0) scale(0.97); }
 .pill-tab[aria-pressed="true"],
 .pill-tab.is-active {
   background: var(--color-accent-button);
@@ -121,6 +127,14 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: calc(var(--radius-base) * 1.5);
   overflow: hidden;
+  transition: transform 220ms var(--ease-settle, cubic-bezier(0.22, 1, 0.36, 1)),
+              border-color 220ms ease,
+              box-shadow 220ms ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  box-shadow: 0 12px 24px -12px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 .product-card__accent-bar {
@@ -129,7 +143,14 @@
   margin-inline: auto;
   border-radius: 0 0 999px 999px;
   background: var(--rarity-color, var(--color-accent));
+  transition: width 220ms ease;
 }
+.card:hover .product-card__accent-bar { width: 6rem; }
+
+.product-card__image {
+  transition: transform 260ms ease;
+}
+.card:hover .product-card__image { transform: scale(1.06); }
 
 .product-card__image-wrap {
   background: var(--color-bg-card);

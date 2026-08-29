@@ -19,51 +19,6 @@
     },
     "game-grid": {
       "type": "game-grid",
-      "blocks": {
-        "mm2": {
-          "type": "game",
-          "settings": { "title": "Murder Mystery 2", "gradient_start": "#B91C1C", "gradient_end": "#450A0A", "limited_stock": true }
-        },
-        "sab": {
-          "type": "game",
-          "settings": { "title": "Steal a Brainrot", "gradient_start": "#7C3AED", "gradient_end": "#2E1065", "limited_stock": false }
-        },
-        "bloxfruits": {
-          "type": "game",
-          "settings": { "title": "Blox Fruits", "gradient_start": "#EA580C", "gradient_end": "#431407", "limited_stock": false }
-        },
-        "adoptme": {
-          "type": "game",
-          "settings": {
-            "title": "Adopt Me",
-            "external_url": "https://neonpets.com/discount/CART?utm_source=bloxcart&utm_medium=referral",
-            "gradient_start": "#DB2777",
-            "gradient_end": "#500724",
-            "limited_stock": false
-          }
-        },
-        "petsim99": {
-          "type": "game",
-          "settings": { "title": "Pet Simulator 99", "gradient_start": "#0D9488", "gradient_end": "#042F2E", "limited_stock": false }
-        },
-        "bladeball": {
-          "type": "game",
-          "settings": { "title": "Blade Ball", "gradient_start": "#334155", "gradient_end": "#0F172A", "limited_stock": false }
-        },
-        "gag2": {
-          "type": "game",
-          "settings": { "title": "Grow a Garden 2", "gradient_start": "#16A34A", "gradient_end": "#052E16", "limited_stock": false }
-        },
-        "99nights": {
-          "type": "game",
-          "settings": { "title": "99 Nights in the Forest", "gradient_start": "#166534", "gradient_end": "#052E16", "limited_stock": false }
-        },
-        "dti": {
-          "type": "game",
-          "settings": { "title": "Dress to Impress", "gradient_start": "#BE185D", "gradient_end": "#500724", "limited_stock": false }
-        }
-      },
-      "block_order": ["mm2", "sab", "bloxfruits", "adoptme", "petsim99", "bladeball", "gag2", "99nights", "dti"],
       "settings": {
         "heading": "All games",
         "view_all_label": "Explore games",

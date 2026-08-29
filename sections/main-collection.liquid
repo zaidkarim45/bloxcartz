@@ -125,21 +125,54 @@
         </select>
       </div>
 
-      {%- paginate collection.products by 24 -%}
-        <div class="product-grid">
-          {%- for product in collection.products -%}
-            {% render 'product-card', product: product %}
-          {%- else -%}
-            <p class="collection-page__empty">{{ 'collections.general.no_matches' | t: default: 'No products match these filters.' }}</p>
-          {%- endfor -%}
-        </div>
+      {%- assign showing_all = true -%}
+      {%- if category_filter.active_values.size > 0 -%}{%- assign showing_all = false -%}{%- endif -%}
+      {%- if current_tags.size > 0 -%}{%- assign showing_all = false -%}{%- endif -%}
 
-        {%- if paginate.pages > 1 -%}
-          <nav class="collection-page__pagination">
-            {{ paginate | default_pagination }}
-          </nav>
-        {%- endif -%}
-      {%- endpaginate -%}
+      {%- if showing_all and category_filter -%}
+        {%- comment -%}
+          "All items" view: sectioned category previews (matches bloxcart.com's
+          own layout — see docs/catalog-audit.md) instead of one flat grid.
+          `where_exp` needs a wide-enough working set to find each category's
+          items, hence paginating by 250 (Shopify's max) rather than the
+          usual 24 — nothing here renders 250 cards, each section is capped
+          to `section.settings.products_per_category`.
+        {%- endcomment -%}
+        {%- paginate collection.products by 250 -%}
+          {%- for cat in category_filter.values -%}
+            {%- assign cat_products = collection.products | where_exp: 'p', 'p.tags contains cat.value' -%}
+            {%- if cat_products.size > 0 -%}
+              <div class="collection-section">
+                <div class="collection-section__header">
+                  <h2>{{ cat.label | capitalize }} <span class="collection-section__count">{{ cat.count }}</span></h2>
+                  <a href="{{ cat.url_to_add }}" class="collection-section__view-all">{{ 'collections.general.view_all' | t: default: 'View all' }}</a>
+                </div>
+                <div class="product-grid">
+                  {%- for product in cat_products limit: section.settings.products_per_category -%}
+                    {% render 'product-card', product: product %}
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endpaginate -%}
+      {%- else -%}
+        {%- paginate collection.products by 24 -%}
+          <div class="product-grid">
+            {%- for product in collection.products -%}
+              {% render 'product-card', product: product %}
+            {%- else -%}
+              <p class="collection-page__empty">{{ 'collections.general.no_matches' | t: default: 'No products match these filters.' }}</p>
+            {%- endfor -%}
+          </div>
+
+          {%- if paginate.pages > 1 -%}
+            <nav class="collection-page__pagination">
+              {{ paginate | default_pagination }}
+            </nav>
+          {%- endif -%}
+        {%- endpaginate -%}
+      {%- endif -%}
 
     </div>
   </div>
@@ -148,6 +181,16 @@
 {% schema %}
 {
   "name": "Collection page",
-  "settings": []
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_category",
+      "label": "Products shown per category section (on \"All items\")",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "default": 6
+    }
+  ]
 }
 {% endschema %}
