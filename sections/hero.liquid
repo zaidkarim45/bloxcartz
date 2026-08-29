@@ -11,7 +11,17 @@
         {%- for block in section.blocks -%}
           {%- if block.type == 'trust_badge' -%}
             <div class="hero__trust-badge" {{ block.shopify_attributes }}>
-              {%- if block.settings.icon != blank -%}
+              {%- if block.settings.icon == '✓' -%}
+                <span class="hero__trust-badge-icon hero__trust-badge-icon--check" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              {%- elsif block.settings.icon == '⚡' -%}
+                <span class="hero__trust-badge-icon hero__trust-badge-icon--bolt" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+                </span>
+              {%- elsif block.settings.icon == '24' -%}
+                <span class="hero__trust-badge-icon hero__trust-badge-icon--badge" aria-hidden="true">24</span>
+              {%- elsif block.settings.icon != blank -%}
                 <span class="hero__trust-badge-icon">{{ block.settings.icon }}</span>
               {%- endif -%}
               <span>
