@@ -92,13 +92,20 @@
             if coll.title != blank
               assign game_title = coll.title
             endif
+
+            # Not using image_url/image_tag filters here (see
+            # snippets/game-card.liquid) -- they throw a hard "invalid
+            # url input" error on anything not a recognized Shopify file
+            # reference, which was silently killing this whole section.
+            assign img_src = game_image
+            if game_image.src != blank
+              assign img_src = game_image.src
+            endif
           -%}
           <li role="option">
             <a href="{{ game_url }}" {% if is_external %}target="_blank" rel="noopener sponsored"{% endif %}>
-              {%- if game_image.src -%}
-                {{ game_image | image_url: width: 40 | image_tag: alt: game_title, loading: 'lazy' }}
-              {%- elsif game_image != blank -%}
-                <img src="{{ game_image }}" alt="{{ game_title }}" loading="lazy">
+              {%- if img_src != blank -%}
+                <img src="{{ img_src }}" alt="{{ game_title }}" loading="lazy">
               {%- endif -%}
               <span>{{ game_title }}</span>
             </a>

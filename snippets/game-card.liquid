@@ -5,18 +5,26 @@
   game_image can be either a real Shopify image object (from
   collection.image, once a merchant uploads one) or a plain external URL
   string (bloxcart.com's own hotlinked fallback icon, see the slug/icon
-  list in sections/game-grid.liquid) — `image_url` only works on the
-  former, so both are handled explicitly rather than assuming one shape.
+  list in sections/game-grid.liquid). Deliberately NOT using the
+  `image_url`/`image_tag` filters here — they throw a hard "invalid url
+  input" Liquid error (which silently kills the whole section on live
+  Shopify, no visible error to visitors) when given anything they don't
+  recognize as a proper Shopify file reference, and telling a plain
+  string apart from a real image object via `.src` duck-typing wasn't
+  reliable enough to trust. `.src` works as a plain property read on a
+  real Shopify image object without needing any filter at all.
 {%- endcomment -%}
+{%- liquid
+  assign img_src = game_image
+  if game_image.src != blank
+    assign img_src = game_image.src
+  endif
+-%}
 <article class="game-card" style="--gradient-start: {{ gradient_start | default: '#8B5CF6' }}; --gradient-end: {{ gradient_end | default: '#4C1D95' }};">
   <h3 class="visually-hidden">{{ game_title }}</h3>
   <a href="{{ game_url }}" class="game-card__link" aria-label="{{ 'products.game.view_products' | t: default: 'View products' }}: {{ game_title }}" {% if external %}target="_blank" rel="noopener sponsored"{% endif %}>
-    {%- if game_image != blank -%}
-      {%- if game_image.src -%}
-        {{ game_image | image_url: width: 600 | image_tag: alt: game_title, loading: 'lazy', class: 'game-card__image' }}
-      {%- else -%}
-        <img src="{{ game_image }}" alt="{{ game_title }}" loading="lazy" class="game-card__image">
-      {%- endif -%}
+    {%- if img_src != blank -%}
+      <img src="{{ img_src }}" alt="{{ game_title }}" loading="lazy" class="game-card__image">
     {%- endif -%}
     <span class="game-card__scrim" aria-hidden="true"></span>
     <span class="game-card__watermark" aria-hidden="true"></span>
