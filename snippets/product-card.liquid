@@ -8,6 +8,28 @@
   endfor
   assign variant = product.selected_or_first_available_variant
   assign in_stock = variant.available
+
+  # Some catalog imports set the product title to its raw handle/slug
+  # (e.g. "murder-mystery-2-heartblade-knife"). Only reformat for display
+  # when the title *is* the handleized slug -- a real human-authored title
+  # is left untouched.
+  assign display_title = product.title
+  assign slugged = product.title | handleize
+  if slugged == product.title
+    assign cleaned = product.title
+    assign game_prefix = collection.handle | append: '-'
+    if collection.handle != blank and cleaned contains game_prefix
+      assign cleaned = cleaned | remove_first: game_prefix
+    endif
+    assign cleaned = cleaned | replace: '-', ' '
+    assign words = cleaned | split: ' '
+    assign display_title = ''
+    for word in words
+      assign cap_word = word | capitalize
+      assign display_title = display_title | append: cap_word | append: ' '
+    endfor
+    assign display_title = display_title | strip
+  endif
 -%}
 <div class="product-card card" style="--rarity-color: {% render 'rarity-color', rarity: rarity_tag %};">
   {%- if rarity_tag != blank -%}
@@ -17,10 +39,10 @@
   <a href="{{ product.url }}" class="product-card__link">
     <div class="product-card__image-wrap">
       {%- if product.featured_image -%}
-        {{ product.featured_image | image_url: width: 300 | image_tag: alt: product.title, loading: 'lazy', class: 'product-card__image' }}
+        {{ product.featured_image | image_url: width: 300 | image_tag: alt: display_title, loading: 'lazy', class: 'product-card__image' }}
       {%- endif -%}
     </div>
-    <p class="product-card__title">{{ product.title }}</p>
+    <p class="product-card__title">{{ display_title }}</p>
     <div class="price">
       <span class="price__current">{{ variant.price | money }}</span>
       {%- if variant.compare_at_price > variant.price -%}

@@ -122,6 +122,67 @@
     });
   }
 
+  /* ---- Mobile filter drawer ---- */
+  var filterToggle = document.querySelector("[data-filter-toggle]");
+  var filterPanel = document.querySelector("[data-collection-filters]");
+  if (filterToggle && filterPanel) {
+    filterToggle.addEventListener("click", function () {
+      var open = filterPanel.classList.toggle("is-open");
+      filterToggle.setAttribute("aria-expanded", String(open));
+    });
+  }
+
+  /* ---- Price range slider (syncs with the From/To number inputs) ---- */
+  document.querySelectorAll("[data-price-slider]").forEach(function (slider) {
+    var rangeFrom = slider.querySelector("[data-price-range-from]");
+    var rangeTo = slider.querySelector("[data-price-range-to]");
+    var track = slider.querySelector("[data-price-range]");
+    var numberFrom = filterForm && filterForm.querySelector("[data-price-from]");
+    var numberTo = filterForm && filterForm.querySelector("[data-price-to]");
+    if (!rangeFrom || !rangeTo || !track) return;
+
+    var min = parseFloat(slider.dataset.min) || 0;
+    var max = parseFloat(slider.dataset.max) || 100;
+
+    function paint() {
+      var lo = Math.min(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
+      var hi = Math.max(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
+      var span = max - min || 1;
+      track.style.left = (((lo - min) / span) * 100) + "%";
+      track.style.right = (100 - ((hi - min) / span) * 100) + "%";
+    }
+
+    function syncFromRange() {
+      if (numberFrom) numberFrom.value = Math.min(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
+      if (numberTo) numberTo.value = Math.max(parseFloat(rangeFrom.value), parseFloat(rangeTo.value));
+      paint();
+    }
+
+    rangeFrom.addEventListener("input", syncFromRange);
+    rangeTo.addEventListener("input", syncFromRange);
+    rangeFrom.addEventListener("change", function () {
+      if (filterForm) filterForm.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    rangeTo.addEventListener("change", function () {
+      if (filterForm) filterForm.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
+    if (numberFrom) {
+      numberFrom.addEventListener("input", function () {
+        rangeFrom.value = numberFrom.value || min;
+        paint();
+      });
+    }
+    if (numberTo) {
+      numberTo.addEventListener("input", function () {
+        rangeTo.value = numberTo.value || max;
+        paint();
+      });
+    }
+
+    paint();
+  });
+
   var sortSelect = document.querySelector("[data-sort-select]");
   if (sortSelect) {
     sortSelect.addEventListener("change", function () {
