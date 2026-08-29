@@ -18,20 +18,33 @@
 
 .collection-page__layout {
   display: grid;
-  grid-template-columns: 15rem 1fr;
-  gap: 1.5rem;
-  align-items: start;
+  grid-template-columns: 14.5rem 1fr;
+  gap: 0;
+  align-items: stretch;
 }
 
-/* ---- Sidebar ---- */
+/* ---- Sidebar ----
+   A structural left column, not a floating card: no border-radius/box
+   border, background runs the full height of the layout row, and the
+   only separation from main content is a 1px right-side divider. */
 
 .collection-filters {
-  background: color-mix(in srgb, var(--color-bg-card) 55%, var(--color-bg-primary));
-  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 10%, transparent);
-  border-radius: 0.75rem;
-  padding: 1.125rem 1.125rem 1.375rem;
+  background: color-mix(in srgb, var(--color-bg-card) 45%, var(--color-bg-primary));
+  border: none;
+  border-right: 1px solid color-mix(in srgb, var(--color-border-subtle) 10%, transparent);
+  border-radius: 0;
+  padding: 1.25rem 1.25rem 2rem;
   position: sticky;
-  top: 5.5rem;
+  top: 4rem;
+  align-self: start;
+  height: calc(100vh - 4rem);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.collection-page__main {
+  min-width: 0;
+  padding: 1.25rem 1.5rem 0;
+  box-sizing: border-box;
 }
 .collection-filters__header {
   display: flex;
@@ -60,19 +73,43 @@
   margin-bottom: 0.75rem;
 }
 
-.collection-filters__price-inputs { display: flex; gap: 0.625rem; margin-bottom: 0.75rem; }
-.collection-filters__price-inputs label { flex: 1; display: flex; flex-direction: column; gap: 0.3125rem; }
-.collection-filters__price-inputs label span:first-child { font-size: 0.6875rem; color: var(--color-text-secondary); }
+.collection-filters__price-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+.collection-filters__price-inputs label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.collection-filters__price-inputs label span:first-child {
+  font-size: 0.6875rem;
+  color: var(--color-text-secondary);
+}
 .collection-filters__price-inputs input {
-  height: 2.125rem;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 3rem;
   padding: 0 0.625rem;
+  box-sizing: border-box;
   background: color-mix(in srgb, var(--color-bg-primary) 70%, black 10%);
   border: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
   border-radius: 0.5rem;
   color: var(--color-text-primary);
   font-size: 0.8125rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
   transition: border-color 150ms ease;
+}
+.collection-filters__price-inputs input::-webkit-outer-spin-button,
+.collection-filters__price-inputs input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 .collection-filters__price-inputs input:focus {
   outline: none;
@@ -86,12 +123,14 @@
   position: relative;
   height: 1.25rem;
   margin-bottom: 0.25rem;
+  padding-inline: 0.5rem;
+  box-sizing: border-box;
 }
 .collection-filters__slider-track {
   position: absolute;
   top: 50%;
-  left: 0;
-  right: 0;
+  left: 0.5rem;
+  right: 0.5rem;
   height: 3px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-border-subtle) 16%, transparent);
@@ -107,8 +146,8 @@
 }
 .collection-filters__slider input[type="range"] {
   position: absolute;
-  inset: 0;
-  width: 100%;
+  inset: 0 0.5rem;
+  width: calc(100% - 1rem);
   margin: 0;
   background: transparent;
   appearance: none;
@@ -182,7 +221,24 @@
 .collection-filters__checkbox input[type="checkbox"]:checked::before { transform: scale(1); }
 .collection-filters__count { order: 2; }
 .collection-filters__checkbox > svg,
-.collection-filters__checkbox > span:not(.collection-filters__count) { order: 1; }
+.collection-filters__checkbox > span:not(.collection-filters__count):not(.collection-filters__fake-checkbox) { order: 1; }
+
+/* Fallback rarity rows are <a> tags (no native filter form control to bind
+   a checkbox to) styled to look identical to the real checkbox above. */
+.collection-filters__fake-checkbox {
+  order: 3;
+  flex-shrink: 0;
+  width: 1.0625rem;
+  height: 1.0625rem;
+  border-radius: 0.3125rem;
+  border: 1.5px solid color-mix(in srgb, var(--color-border-subtle) 20%, transparent);
+  background: color-mix(in srgb, var(--color-bg-primary) 70%, black 10%);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.collection-filters__checkbox.is-active .collection-filters__fake-checkbox {
+  background: var(--color-accent-button);
+  border-color: var(--color-accent-button);
+}
 
 /* ---- Category tabs + toolbar surface ---- */
 
@@ -266,6 +322,16 @@
   align-items: center;
   gap: 0.5rem;
 }
+.collection-section__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, #FF5470 20%, transparent);
+  color: #FF5470;
+}
 .collection-section__count {
   font-size: 0.8125rem;
   font-weight: 500;
@@ -290,8 +356,8 @@
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
-  gap: 0.9375rem;
+  grid-template-columns: repeat(auto-fill, minmax(14.25rem, 1fr));
+  gap: 0.875rem;
 }
 
 .collection-page__empty { grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary); padding: 3rem 0; }
@@ -310,6 +376,7 @@
 
 @media (max-width: 900px) {
   .collection-page__layout { grid-template-columns: 1fr; }
+  .collection-page__main { padding-left: 0; }
 
   .collection-filters__toggle {
     display: inline-flex;

@@ -183,6 +183,26 @@
     paint();
   });
 
+  /* ---- Availability fallback filter (no Search & Discovery app) ----
+     Client-side only: hides out-of-stock product cards and any category
+     section left empty as a result. Real availability filtering still
+     goes through the native `availability_filter` form control above when
+     Search & Discovery provides one. */
+  var instockToggle = document.querySelector("[data-instock-toggle]");
+  if (instockToggle) {
+    instockToggle.addEventListener("change", function () {
+      var onlyInStock = instockToggle.checked;
+      document.querySelectorAll(".product-card").forEach(function (card) {
+        var inStock = card.getAttribute("data-in-stock") === "true";
+        card.hidden = onlyInStock && !inStock;
+      });
+      document.querySelectorAll(".collection-section").forEach(function (section) {
+        var visibleCards = section.querySelectorAll(".product-card:not([hidden])");
+        section.hidden = onlyInStock && visibleCards.length === 0;
+      });
+    });
+  }
+
   var sortSelect = document.querySelector("[data-sort-select]");
   if (sortSelect) {
     sortSelect.addEventListener("change", function () {
