@@ -21,7 +21,7 @@
     function buildUrl(page) {
       var params = new URLSearchParams(window.location.search);
       params.set("page", page);
-      params.set("section_id", "main");
+      params.set("section_id", grid.getAttribute("data-section-id"));
       return window.location.pathname + "?" + params.toString();
     }
 

@@ -450,6 +450,7 @@
         {%- paginate collection.products by 24 -%}
           <div class="product-grid"
             {%- if is_adopt_me %} id="ProductGrid" data-infinite-grid
+              data-section-id="{{ section.id }}"
               data-next-page="{{ paginate.current_page | plus: 1 }}"
               data-total-pages="{{ paginate.pages }}"
               data-total-count="{{ collection.products_count }}"
