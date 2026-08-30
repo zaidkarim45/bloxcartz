@@ -407,7 +407,11 @@
       if (resultsGrid) return resultsGrid;
       resultsGrid = document.createElement("div");
       resultsGrid.className = "product-grid collection-page__search-results";
-      resultsGrid.hidden = true;
+      // Plain `.hidden` doesn't work here: `.product-grid { display: grid }`
+      // is a normal author rule, and normal author rules always win over
+      // the UA stylesheet's `[hidden] { display: none }` regardless of
+      // specificity -- so the hidden attribute would be set but ignored.
+      resultsGrid.style.display = "none";
       collectionMainEl.appendChild(resultsGrid);
       return resultsGrid;
     }
@@ -448,8 +452,8 @@
       var normalOutput = collectionMainEl.querySelectorAll(":scope > .collection-section, :scope > .product-grid:not(.collection-page__search-results), :scope > .collection-page__pagination, :scope > .collection-page__empty, :scope > .collection-page__load-more");
 
       if (q === "") {
-        if (resultsGrid) resultsGrid.hidden = true;
-        normalOutput.forEach(function (el) { el.hidden = false; });
+        if (resultsGrid) resultsGrid.style.display = "none";
+        normalOutput.forEach(function (el) { el.style.display = ""; });
         return;
       }
 
@@ -460,9 +464,9 @@
           var matches = products.filter(function (p) {
             return p.title.toLowerCase().indexOf(needle) !== -1;
           });
-          normalOutput.forEach(function (el) { el.hidden = true; });
+          normalOutput.forEach(function (el) { el.style.display = "none"; });
           renderResults(matches, q);
-          getResultsGrid().hidden = false;
+          getResultsGrid().style.display = "";
         });
       }, 200);
     };

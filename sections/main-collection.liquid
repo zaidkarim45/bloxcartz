@@ -297,16 +297,17 @@
       {%- assign sections_rendered = 0 -%}
 
       {%- comment -%}
-        Adopt Me has 126+ products across only two tags (Pets/Potions), so the
-        sectioned "6 per category with a View all link" preview used by every
-        other collection would hide almost the whole catalog. It gets the flat,
-        progressively-loaded grid below instead — no other collection's layout
-        changes.
+        Adopt Me, Blox Fruits and Steal a Brainrot each have 100+ products
+        across only a couple of tags, so the sectioned "6 per category with
+        a View all link" preview used by every other collection would hide
+        almost the whole catalog. These three get the flat, progressively-
+        loaded grid below instead — no other collection's layout changes.
       {%- endcomment -%}
-      {%- assign is_adopt_me = false -%}
-      {%- if collection.handle == 'adopt-me' -%}{%- assign is_adopt_me = true -%}{%- endif -%}
+      {%- assign use_infinite_grid = false -%}
+      {%- assign infinite_grid_handles = 'adopt-me,blox-fruits,steal-a-brainrot' | split: ',' -%}
+      {%- if infinite_grid_handles contains collection.handle -%}{%- assign use_infinite_grid = true -%}{%- endif -%}
 
-      {%- if showing_all and category_filter and is_adopt_me == false -%}
+      {%- if showing_all and category_filter and use_infinite_grid == false -%}
         {%- comment -%}
           "All items" view: sectioned category previews (matches bloxcart.com's
           own layout — see docs/catalog-audit.md) instead of one flat grid.
@@ -373,7 +374,7 @@
             {%- endif -%}
           {%- endfor -%}
         {%- endpaginate -%}
-      {%- elsif showing_all and category_tags.size > 0 and is_adopt_me == false -%}
+      {%- elsif showing_all and category_tags.size > 0 and use_infinite_grid == false -%}
         {%- comment -%}
           Same sectioned "all items" view as above, built from the plain
           category:{slug} tag fallback when Search & Discovery isn't
@@ -430,7 +431,7 @@
         fall back to the plain unfiltered grid so every product is still
         visible and usable.
       {%- endcomment -%}
-      {%- if showing_all and sections_rendered == 0 and is_adopt_me == false -%}
+      {%- if showing_all and sections_rendered == 0 and use_infinite_grid == false -%}
         {%- paginate collection.products by 24 -%}
           <div class="product-grid">
             {%- for product in collection.products -%}
@@ -446,10 +447,10 @@
             </nav>
           {%- endif -%}
         {%- endpaginate -%}
-      {%- elsif showing_all == false or is_adopt_me -%}
+      {%- elsif showing_all == false or use_infinite_grid -%}
         {%- paginate collection.products by 24 -%}
           <div class="product-grid"
-            {%- if is_adopt_me %} id="ProductGrid" data-infinite-grid
+            {%- if use_infinite_grid %} id="ProductGrid" data-infinite-grid
               data-section-id="{{ section.id }}"
               data-next-page="{{ paginate.current_page | plus: 1 }}"
               data-total-pages="{{ paginate.pages }}"
@@ -462,7 +463,7 @@
             {%- endfor -%}
           </div>
 
-          {%- if is_adopt_me -%}
+          {%- if use_infinite_grid -%}
             {%- if paginate.pages > 1 -%}
               <div class="collection-page__load-more" data-load-more-wrap>
                 <p class="collection-page__progress" data-load-progress>
@@ -491,7 +492,7 @@
   </div>
 </div>
 
-{%- if is_adopt_me -%}
+{%- if use_infinite_grid -%}
   <script src="{{ 'collection-infinite.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
 
