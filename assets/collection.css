@@ -3,7 +3,7 @@
    (--color-bg-primary / --color-bg-card) rather than new hardcoded hexes,
    so a merchant's theme-settings color changes still propagate here. */
 
-.collection-page { padding-block: 1.75rem 4rem; }
+.collection-page { padding-block: 0.5rem 4rem; }
 
 .collection-page__banner {
   margin-bottom: 1.25rem;
@@ -33,17 +33,17 @@
   border: none;
   border-right: 1px solid color-mix(in srgb, var(--color-border-subtle) 10%, transparent);
   border-radius: 0;
-  padding: 1.25rem 1.25rem 2rem;
+  padding: 0.75rem 1.25rem 2rem;
   position: sticky;
-  top: 4.5rem;
+  top: 5rem;
   align-self: start;
-  height: calc(100vh - 4.5rem);
+  height: calc(100vh - 5rem);
   overflow-y: auto;
   box-sizing: border-box;
 }
 .collection-page__main {
   min-width: 0;
-  padding: 1.25rem clamp(1.25rem, 3vw, 2.5rem) 0 1.5rem;
+  padding: 0.75rem clamp(1.25rem, 3vw, 2.5rem) 0 1.5rem;
   box-sizing: border-box;
 }
 .collection-filters__header {
