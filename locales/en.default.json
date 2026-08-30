@@ -7,6 +7,9 @@
     },
     "breadcrumb": {
       "home": "Home"
+    },
+    "accessibility": {
+      "close": "Close"
     }
   },
   "cart": {
@@ -56,6 +59,8 @@
     "product": {
       "add": "Add",
       "sold_out": "Out of stock",
+      "select_variant": "Select variant",
+      "select_variant_prompt": "Select a variant",
       "bestseller": "Bestseller",
       "rarity": "Rarity",
       "in_stock": "In stock",

@@ -218,6 +218,167 @@
   background: var(--color-price-strike-line);
 }
 
+/* ---- Variant modal ----
+   Shared "pick a variant" popup (snippets/variant-modal.liquid), opened
+   from a product card when a product has more than one variant. Reuses
+   the .price / .price__current / .price__compare tokens above so its
+   price row is pixel-identical to every other price on the site, and
+   .btn/.btn--primary so the submit button's disabled/hover states come
+   free from the rules already defined above. */
+
+body.variant-modal-open { overflow: hidden; }
+
+.variant-modal[hidden] { display: none; }
+.variant-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.variant-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 9, 12, 0.7);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.variant-modal.is-open .variant-modal__backdrop { opacity: 1; }
+
+.variant-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 25rem;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--color-bg-card);
+  border: 1px solid color-mix(in srgb, var(--color-border-subtle) 14%, transparent);
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.6);
+  transform: scale(0.92) translateY(14px);
+  opacity: 0;
+  transition: transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease;
+}
+.variant-modal.is-open .variant-modal__panel {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.variant-modal__close {
+  position: absolute;
+  top: 0.875rem;
+  right: 0.875rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-bg-primary) 60%, transparent);
+  color: var(--color-text-secondary);
+  transition: background-color 150ms ease, color 150ms ease, transform 100ms ease;
+}
+.variant-modal__close:hover { background: color-mix(in srgb, white 10%, transparent); color: var(--color-text-primary); }
+.variant-modal__close:active { transform: scale(0.94); }
+.variant-modal__close svg { width: 1rem; height: 1rem; }
+
+.variant-modal__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  text-align: center;
+  padding: 2.25rem 1.5rem 1.25rem;
+}
+.variant-modal__hero img {
+  width: 7.5rem;
+  height: 7.5rem;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.35));
+}
+.variant-modal__hero h2 {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+.variant-modal__price { justify-content: center; }
+.variant-modal__price .price__current { font-size: 1.25rem; }
+
+.variant-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 10%, transparent);
+}
+.variant-modal__label {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.variant-modal__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+  gap: 0.625rem;
+}
+.variant-modal__option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 0.875rem;
+  border: 1.5px solid color-mix(in srgb, var(--color-border-subtle) 16%, transparent);
+  background: color-mix(in srgb, var(--color-bg-primary) 65%, black 10%);
+  transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+.variant-modal__option:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--color-accent) 45%, transparent); }
+.variant-modal__option:active { transform: scale(0.97); }
+.variant-modal__option.is-selected {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, var(--color-bg-primary));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent), 0 6px 16px -8px color-mix(in srgb, var(--color-accent) 60%, transparent);
+  animation: variant-option-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.variant-modal__option.is-unavailable { opacity: 0.45; }
+.variant-modal__option-name {
+  font-weight: 700;
+  font-size: 0.8125rem;
+  text-transform: capitalize;
+  color: var(--color-text-primary);
+}
+.variant-modal__option-price {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.variant-modal__option.is-selected .variant-modal__option-price { color: var(--color-accent); }
+
+@keyframes variant-option-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.variant-modal__submit { height: 2.75rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .variant-modal__backdrop,
+  .variant-modal__panel,
+  .variant-modal__option { transition: none; animation: none; }
+}
+
+@media (max-width: 480px) {
+  .variant-modal__panel { max-width: 100%; }
+}
+
 /* ---- Warning / stock banner ---- */
 
 .alert--warning {

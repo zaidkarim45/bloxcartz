@@ -54,7 +54,26 @@
     </div>
   </a>
 
-  {%- if in_stock -%}
+  {%- if product.variants.size > 1 -%}
+    {%- comment -%}
+      Multiple variants (e.g. Normal/Neon/Mega) -- blindly adding
+      selected_or_first_available_variant would silently pick whichever
+      variant happens to be first, without the customer ever choosing.
+      Opens the shared variant-modal.liquid instead so they pick for real.
+    {%- endcomment -%}
+    <button
+      type="button"
+      class="btn btn--primary btn--full product-card__cta"
+      data-variant-modal-trigger
+      data-product-title="{{ display_title | escape }}"
+      data-product-image="{{ product.featured_image | image_url: width: 600 }}"
+      data-product-price="{{ variant.price | money }}"
+      data-product-compare-price="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price | money }}{% endif %}"
+      data-variants="{{ product.variants | json | escape }}"
+    >
+      {% render 'icon-cart' %} {{ 'products.product.add' | t: default: 'Add' }}
+    </button>
+  {%- elsif in_stock -%}
     <form data-add-to-cart-form class="product-card__form">
       <input type="hidden" name="id" value="{{ variant.id }}">
       <input type="hidden" name="quantity" value="1">

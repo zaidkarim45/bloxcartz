@@ -1,0 +1,48 @@
+{%- comment -%}
+  Single shared "quick pick a variant" modal, populated by JS from
+  whichever product card's trigger button was clicked (see product-card.liquid
+  and the "Variant modal" section of theme.js) -- one instance reused for
+  every product, not one per card, so a collection page with 50+ products
+  doesn't render 50+ hidden modals.
+{%- endcomment -%}
+<div class="variant-modal" hidden data-variant-modal role="dialog" aria-modal="true" aria-labelledby="VariantModalTitle">
+  <div class="variant-modal__backdrop" data-variant-modal-close></div>
+  <div class="variant-modal__panel">
+    <button type="button" class="variant-modal__close" data-variant-modal-close aria-label="{{ 'general.accessibility.close' | t: default: 'Close' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+
+    <div class="variant-modal__hero">
+      <img data-variant-modal-image src="" alt="" loading="lazy" width="160" height="160">
+      <h2 id="VariantModalTitle" data-variant-modal-title></h2>
+      <div class="price variant-modal__price">
+        <span class="price__current" data-variant-modal-price></span>
+        <span class="price__compare" data-variant-modal-compare hidden>
+          <span class="price__compare-line"><span></span></span>
+          <span data-variant-modal-compare-value></span>
+        </span>
+      </div>
+    </div>
+
+    <div class="variant-modal__body">
+      <p class="variant-modal__label">{{ 'products.product.select_variant' | t: default: 'Select variant' }}</p>
+      <div class="variant-modal__options" data-variant-modal-options></div>
+
+      <form data-add-to-cart-form data-variant-modal-form>
+        <input type="hidden" name="id" value="" data-variant-modal-id-input>
+        <input type="hidden" name="quantity" value="1">
+        <button
+          type="submit"
+          class="btn btn--primary btn--full variant-modal__submit"
+          data-variant-modal-submit
+          data-label-add="{{ 'products.product.add' | t: default: 'Add' }}"
+          data-label-sold-out="{{ 'products.product.sold_out' | t: default: 'Out of stock' }}"
+          disabled
+        >
+          {% render 'icon-cart' %}
+          <span data-variant-modal-submit-label>{{ 'products.product.select_variant_prompt' | t: default: 'Select a variant' }}</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

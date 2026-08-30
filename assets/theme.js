@@ -544,4 +544,138 @@
         });
     });
   });
+
+  /* ---- Variant modal (product cards with multiple variants, e.g.
+     Normal/Neon/Mega) ----
+     One shared modal instance (snippets/variant-modal.liquid) reused for
+     every product card rather than one per card -- see that file's header
+     comment. Its <form data-add-to-cart-form> is already picked up by the
+     generic handler above; this block only has to populate the modal's
+     content and swap which variant that form's hidden `id` input points
+     at. Prices come from product.variants | json (raw cents, Shopify's own
+     API shape) and go through the same formatPriceFromCents() the price
+     slider above uses, so there's exactly one place currency formatting
+     can go wrong, not two. */
+  var variantModal = document.querySelector("[data-variant-modal]");
+  if (variantModal) {
+    var vmImage = variantModal.querySelector("[data-variant-modal-image]");
+    var vmTitle = variantModal.querySelector("[data-variant-modal-title]");
+    var vmPrice = variantModal.querySelector("[data-variant-modal-price]");
+    var vmCompare = variantModal.querySelector("[data-variant-modal-compare]");
+    var vmCompareValue = variantModal.querySelector("[data-variant-modal-compare-value]");
+    var vmOptions = variantModal.querySelector("[data-variant-modal-options]");
+    var vmForm = variantModal.querySelector("[data-variant-modal-form]");
+    var vmIdInput = variantModal.querySelector("[data-variant-modal-id-input]");
+    var vmSubmit = variantModal.querySelector("[data-variant-modal-submit]");
+    var vmSubmitLabel = variantModal.querySelector("[data-variant-modal-submit-label]");
+    var vmLabelAdd = (vmSubmit && vmSubmit.dataset.labelAdd) || "Add";
+    var vmLabelSoldOut = (vmSubmit && vmSubmit.dataset.labelSoldOut) || "Out of stock";
+    var vmLabelSelect = (vmSubmitLabel && vmSubmitLabel.textContent) || "Select a variant";
+
+    function openVariantModal() {
+      variantModal.hidden = false;
+      document.body.classList.add("variant-modal-open");
+      requestAnimationFrame(function () {
+        variantModal.classList.add("is-open");
+      });
+    }
+
+    function closeVariantModal() {
+      variantModal.classList.remove("is-open");
+      document.body.classList.remove("variant-modal-open");
+      window.setTimeout(function () {
+        variantModal.hidden = true;
+      }, 200);
+    }
+
+    function resetVariantModalSelection() {
+      vmOptions.querySelectorAll("[data-variant-option]").forEach(function (btn) {
+        btn.classList.remove("is-selected");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      vmIdInput.value = "";
+      vmSubmit.disabled = true;
+      vmSubmitLabel.textContent = vmLabelSelect;
+    }
+
+    function selectVariant(variant, button) {
+      vmOptions.querySelectorAll("[data-variant-option]").forEach(function (btn) {
+        var selected = btn === button;
+        btn.classList.toggle("is-selected", selected);
+        btn.setAttribute("aria-pressed", selected ? "true" : "false");
+      });
+      vmIdInput.value = variant.id;
+      if (variant.featured_image && variant.featured_image.src) {
+        vmImage.src = variant.featured_image.src;
+      }
+      vmSubmit.disabled = !variant.available;
+      vmSubmitLabel.textContent = variant.available ? vmLabelAdd : vmLabelSoldOut;
+    }
+
+    function buildVariantOption(variant) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "variant-modal__option";
+      btn.setAttribute("data-variant-option", "");
+      btn.setAttribute("aria-pressed", "false");
+      if (!variant.available) btn.classList.add("is-unavailable");
+
+      var name = document.createElement("span");
+      name.className = "variant-modal__option-name";
+      name.textContent = variant.title;
+
+      var price = document.createElement("span");
+      price.className = "variant-modal__option-price";
+      price.textContent = variant.available ? formatPriceFromCents(variant.price) : vmLabelSoldOut;
+
+      btn.appendChild(name);
+      btn.appendChild(price);
+      btn.addEventListener("click", function () {
+        selectVariant(variant, btn);
+      });
+      return btn;
+    }
+
+    document.querySelectorAll("[data-variant-modal-trigger]").forEach(function (trigger) {
+      trigger.addEventListener("click", function () {
+        var variants;
+        try {
+          variants = JSON.parse(trigger.dataset.variants || "[]");
+        } catch (e) {
+          variants = [];
+        }
+        if (!variants.length) return;
+
+        vmTitle.textContent = trigger.dataset.productTitle || "";
+        vmImage.src = trigger.dataset.productImage || "";
+        vmImage.alt = trigger.dataset.productTitle || "";
+        vmPrice.textContent = trigger.dataset.productPrice || "";
+        if (trigger.dataset.productComparePrice) {
+          vmCompareValue.textContent = trigger.dataset.productComparePrice;
+          vmCompare.hidden = false;
+        } else {
+          vmCompare.hidden = true;
+        }
+
+        vmOptions.innerHTML = "";
+        variants.forEach(function (variant) {
+          vmOptions.appendChild(buildVariantOption(variant));
+        });
+        resetVariantModalSelection();
+        openVariantModal();
+      });
+    });
+
+    variantModal.querySelectorAll("[data-variant-modal-close]").forEach(function (el) {
+      el.addEventListener("click", closeVariantModal);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !variantModal.hidden) closeVariantModal();
+    });
+    if (vmForm) {
+      vmForm.addEventListener("submit", function () {
+        closeVariantModal();
+      });
+    }
+  }
 })();
