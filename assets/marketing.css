@@ -1,12 +1,31 @@
 /* ---- Hero ---- */
 
 .hero {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 2rem;
   padding-block: 5.5rem 7rem;
   min-height: 34rem;
+}
+
+/* Homepage-only grid texture (this class doesn't exist outside the hero
+   section, so it never leaks onto product/collection pages even though
+   this stylesheet loads site-wide). Masked so it's only visible toward
+   the section's outer edges/corners -- the center stays clean/dark. */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--color-text-primary) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-text-primary) 3%, transparent) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 75% 75% at center, transparent 30%, black 95%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 75% at center, transparent 30%, black 95%);
 }
 
 .hero__heading {

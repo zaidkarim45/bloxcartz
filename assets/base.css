@@ -13,14 +13,7 @@ html {
 
 body {
   margin: 0;
-  background-color: var(--color-bg-primary);
-  /* Faint grid across the whole page -- kept to a single low-opacity
-     neutral line pattern (not tinted with the accent color) so it reads
-     as page texture, never competes with real content sitting on top. */
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--color-text-primary) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--color-text-primary) 5%, transparent) 1px, transparent 1px);
-  background-size: 42px 42px;
+  background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: 16px;
