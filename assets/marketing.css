@@ -101,8 +101,95 @@
 }
 .hero__illustration img { width: 100%; height: auto; }
 
+/* Soft ambient light pooling behind the floating items -- purely
+   decorative atmosphere, sits behind everything else in the hero. */
+.hero__illustration::before {
+  content: "";
+  position: absolute;
+  inset: -15% -8%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 28% 32%, color-mix(in srgb, var(--color-accent) 34%, transparent), transparent 55%),
+    radial-gradient(circle at 76% 58%, color-mix(in srgb, #4891ff 28%, transparent), transparent 55%);
+  filter: blur(36px);
+  opacity: 0.6;
+}
+
+.hero__geo {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.3;
+  border: 1px solid color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+}
+.hero__geo--ring {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  top: 2%;
+  left: 20%;
+  animation: hero-geo-drift 7s ease-in-out infinite;
+}
+.hero__geo--ring-blue {
+  width: 3.75rem;
+  height: 3.75rem;
+  border-radius: 50%;
+  border-color: color-mix(in srgb, #4891ff 55%, transparent);
+  top: 6%;
+  right: 14%;
+  animation: hero-geo-drift 8s ease-in-out infinite;
+  animation-delay: 1s;
+}
+.hero__geo--diamond {
+  width: 0.875rem;
+  height: 0.875rem;
+  top: 4%;
+  right: 30%;
+  transform: rotate(45deg);
+  animation: hero-geo-spin 12s linear infinite;
+}
+.hero__geo--square {
+  width: 1.5rem;
+  height: 1.5rem;
+  top: 62%;
+  left: 4%;
+  transform: rotate(20deg);
+  animation: hero-geo-drift 6.5s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+.hero__geo--cross {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: none;
+  top: 46%;
+  right: 2%;
+}
+.hero__geo--cross::before,
+.hero__geo--cross::after {
+  content: "";
+  position: absolute;
+  background: color-mix(in srgb, var(--color-text-primary) 45%, transparent);
+}
+.hero__geo--cross::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+.hero__geo--cross::after { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+
+@keyframes hero-geo-drift {
+  0%, 100% { transform: translateY(0) rotate(var(--geo-rotate, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--geo-rotate, 0deg)); }
+}
+@keyframes hero-geo-spin {
+  from { transform: rotate(45deg); }
+  to { transform: rotate(405deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__geo { animation: none; }
+}
+
 .hero__floater {
   position: absolute;
+  z-index: 1;
   width: 40%;
   filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.4));
   animation: hero-float 5s ease-in-out infinite;
@@ -111,6 +198,15 @@
   position: relative;
   z-index: 1;
   object-fit: contain;
+}
+.hero__floater::before {
+  content: "";
+  position: absolute;
+  inset: -14%;
+  z-index: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--color-text-primary) 22%, transparent);
+  opacity: 0.55;
 }
 .hero__floater--a {
   top: 8%;
