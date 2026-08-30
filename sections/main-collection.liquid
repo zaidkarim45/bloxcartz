@@ -272,7 +272,7 @@
         </div>
 
         <div class="collection-page__toolbar">
-          <form role="search" class="collection-page__search">
+          <form role="search" class="collection-page__search" data-collection-url="{{ collection.url }}">
             <input type="search" name="q" placeholder="{{ 'collections.search.placeholder' | t: default: 'Search items' }}">
           </form>
 

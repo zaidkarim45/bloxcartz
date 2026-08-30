@@ -354,51 +354,121 @@
     el.addEventListener("click", beginNavigating);
   });
   // The "Search items" box on a collection page has no server-side
-  // consumer for `q` (Shopify's native filter/search apps don't cover
-  // free-text title search inside a single collection), so this filters
-  // whatever product cards are already in the DOM instead of navigating.
-  // Runs against every `.product-grid` on the page, including ones inside
-  // a per-category `.collection-section` (hides the whole section when
-  // nothing in it matches) and the flat Adopt Me grid, which re-applies
-  // the same query whenever `collection-infinite.js` appends a fresh
-  // batch via the `products:appended` event.
+  // consumer for `q` -- Liquid has no access to arbitrary query params on
+  // a collection template, so this can't be a real filter/facet. Filtering
+  // whatever product cards are already in the DOM doesn't work either:
+  // the "All items" view only renders a handful of cards per category
+  // (`products_per_category`), so most of the collection is never in the
+  // DOM to search. Instead this fetches the collection's full product list
+  // once via Shopify's public `/products.json` endpoint and renders
+  // matches itself, so a search actually reaches every item.
   var collectionSearchForm = document.querySelector(".collection-page__search");
   if (collectionSearchForm) {
     var collectionSearchInput = collectionSearchForm.querySelector('input[type="search"]');
+    var collectionUrl = collectionSearchForm.getAttribute("data-collection-url");
+    var collectionMainEl = document.querySelector(".collection-page__main");
     collectionSearchForm.addEventListener("submit", function (e) { e.preventDefault(); });
 
-    var applyProductSearch = function () {
-      var q = (collectionSearchInput.value || "").trim().toLowerCase();
-      var grids = document.querySelectorAll(".collection-page__main .product-grid");
-      grids.forEach(function (grid) {
-        var anyVisible = false;
-        grid.querySelectorAll(".product-card").forEach(function (card) {
-          var link = card.querySelector("[data-product-title]");
-          var title = ((link && link.getAttribute("data-product-title")) || "").toLowerCase();
-          var match = q === "" || title.indexOf(q) !== -1;
-          card.hidden = !match;
-          if (match) anyVisible = true;
+    var productCache = null;
+    var productCachePromise = null;
+    function ensureProductCache() {
+      if (productCache) return Promise.resolve(productCache);
+      if (productCachePromise) return productCachePromise;
+      productCachePromise = fetch(collectionUrl + "/products.json?limit=250")
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          productCache = data.products || [];
+          return productCache;
+        })
+        .catch(function () {
+          productCachePromise = null;
+          return [];
         });
+      return productCachePromise;
+    }
 
-        var section = grid.closest(".collection-section");
-        if (section) {
-          section.hidden = q !== "" && !anyVisible;
-        } else {
-          var empty = grid.parentElement.querySelector(".collection-page__search-empty");
-          if (!empty) {
-            empty = document.createElement("p");
-            empty.className = "collection-page__empty collection-page__search-empty";
-            empty.textContent = "No items match your search.";
-            grid.insertAdjacentElement("afterend", empty);
-          }
-          empty.hidden = q === "" || anyVisible;
-        }
+    var moneyFormatter = null;
+    try {
+      moneyFormatter = new Intl.NumberFormat(document.documentElement.lang || "en", {
+        style: "currency",
+        currency: (window.Shopify && Shopify.currency && Shopify.currency.active) || "USD"
       });
+    } catch (e) {
+      moneyFormatter = null;
+    }
+    function formatDollars(amount) {
+      var n = parseFloat(amount);
+      if (moneyFormatter) return moneyFormatter.format(n);
+      return "$" + n.toFixed(2);
+    }
+
+    var resultsGrid = null;
+    function getResultsGrid() {
+      if (resultsGrid) return resultsGrid;
+      resultsGrid = document.createElement("div");
+      resultsGrid.className = "product-grid collection-page__search-results";
+      resultsGrid.hidden = true;
+      collectionMainEl.appendChild(resultsGrid);
+      return resultsGrid;
+    }
+
+    function renderResults(products, query) {
+      var grid = getResultsGrid();
+      grid.innerHTML = "";
+      if (products.length === 0) {
+        var empty = document.createElement("p");
+        empty.className = "collection-page__empty";
+        empty.textContent = "No items match “" + query + "”.";
+        grid.appendChild(empty);
+        return;
+      }
+      products.forEach(function (product) {
+        var variant = product.variants && product.variants[0];
+        if (!variant) return;
+        var image = product.images && product.images[0];
+        var card = document.createElement("div");
+        card.className = "product-card card";
+        card.innerHTML =
+          '<a class="product-card__link" href="/products/' + product.handle + '">' +
+            '<div class="product-card__image-wrap">' +
+              (image ? '<img class="product-card__image" src="' + image.src + '" alt="" loading="lazy">' : "") +
+            "</div>" +
+            '<p class="product-card__title"></p>' +
+            '<div class="price"><span class="price__current"></span></div>' +
+          "</a>";
+        card.querySelector(".product-card__title").textContent = product.title;
+        card.querySelector(".price__current").textContent = formatDollars(variant.price);
+        grid.appendChild(card);
+      });
+    }
+
+    var searchDebounce;
+    var applyProductSearch = function () {
+      var q = (collectionSearchInput.value || "").trim();
+      var normalOutput = collectionMainEl.querySelectorAll(":scope > .collection-section, :scope > .product-grid:not(.collection-page__search-results), :scope > .collection-page__pagination, :scope > .collection-page__empty, :scope > .collection-page__load-more");
+
+      if (q === "") {
+        if (resultsGrid) resultsGrid.hidden = true;
+        normalOutput.forEach(function (el) { el.hidden = false; });
+        return;
+      }
+
+      window.clearTimeout(searchDebounce);
+      searchDebounce = window.setTimeout(function () {
+        ensureProductCache().then(function (products) {
+          var needle = q.toLowerCase();
+          var matches = products.filter(function (p) {
+            return p.title.toLowerCase().indexOf(needle) !== -1;
+          });
+          normalOutput.forEach(function (el) { el.hidden = true; });
+          renderResults(matches, q);
+          getResultsGrid().hidden = false;
+        });
+      }, 200);
     };
 
-    if (collectionSearchInput) {
+    if (collectionSearchInput && collectionUrl) {
       collectionSearchInput.addEventListener("input", applyProductSearch);
-      document.addEventListener("products:appended", applyProductSearch);
     }
   }
 
