@@ -49,7 +49,19 @@
   color: var(--color-text-primary);
   font-size: 0.9375rem;
 }
-.site-header__game-icon { width: 1.5rem; height: 1.5rem; border-radius: 0.5rem; }
+.site-header__game-icon-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-text-primary) 6%, var(--color-bg-primary));
+  border: 1px solid color-mix(in srgb, var(--color-text-secondary) 22%, transparent);
+}
+.site-header__game-icon { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
 .site-header__game-menu {
   position: absolute;
   top: calc(100% + 0.625rem);

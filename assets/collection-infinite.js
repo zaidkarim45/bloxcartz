@@ -71,6 +71,7 @@
             wrap.classList.add("is-exhausted");
           }
           setLoading(false);
+          document.dispatchEvent(new CustomEvent("products:appended"));
         })
         .catch(function () {
           setLoading(false);

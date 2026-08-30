@@ -16,12 +16,44 @@
       header comment for why (parse_json + capture silently dropped the
       whole section on live Shopify). Keep both lists in sync.
     {%- endcomment -%}
+    {%- liquid
+      # Same fallback icon used per-slug in the list below -- computed here
+      # too so the trigger button shows a real icon tile even when the
+      # current collection has no image of its own uploaded yet (matches
+      # the always-a-box treatment every list row already gets).
+      assign current_game_icon = ''
+      case collection.handle
+        when 'murder-mystery-2'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/murder-mystery-2-icon.webp'
+        when 'steal-a-brainrot'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/steal-a-brainrot-icon.webp'
+        when 'blox-fruits'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/blox-fruits-icon.webp'
+        when 'adopt-me'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/adopt-me-icon-1.webp'
+        when 'pet-simulator-99'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/pet-simulator-99-icon-1.webp'
+        when 'blade-ball'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/blade-ball-icon.webp'
+        when 'grow-a-garden-2'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/grow-a-garden-2-icon.webp'
+        when '99-nights-in-the-forest'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/99-nights-in-the-forest-icon.webp'
+        when 'dress-to-impress'
+          assign current_game_icon = 'https://media.bloxcart.com/payload-media/dress-to-impress-icon.webp'
+      endcase
+      if collection.image != blank
+        assign current_game_icon = collection.image | image_url: width: 40
+      endif
+    -%}
     <div class="site-header__game-select" data-game-select>
       <button type="button" class="site-header__game-select-btn" aria-haspopup="listbox" aria-expanded="false">
         {%- if collection and collection.handle != blank -%}
-          {%- if collection.image -%}
-            {{ collection.image | image_url: width: 40 | image_tag: alt: collection.title, class: 'site-header__game-icon' }}
-          {%- endif -%}
+          <span class="site-header__game-icon-tile">
+            {%- if current_game_icon != blank -%}
+              <img src="{{ current_game_icon }}" alt="" class="site-header__game-icon" loading="eager">
+            {%- endif -%}
+          </span>
           <span>{{ collection.title }}</span>
         {%- else -%}
           <span class="site-header__game-select-placeholder">?</span>

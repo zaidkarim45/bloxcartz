@@ -353,8 +353,54 @@
   document.querySelectorAll(".pill-tab, .collection-filters__reset, .collection-section__view-all").forEach(function (el) {
     el.addEventListener("click", beginNavigating);
   });
+  // The "Search items" box on a collection page has no server-side
+  // consumer for `q` (Shopify's native filter/search apps don't cover
+  // free-text title search inside a single collection), so this filters
+  // whatever product cards are already in the DOM instead of navigating.
+  // Runs against every `.product-grid` on the page, including ones inside
+  // a per-category `.collection-section` (hides the whole section when
+  // nothing in it matches) and the flat Adopt Me grid, which re-applies
+  // the same query whenever `collection-infinite.js` appends a fresh
+  // batch via the `products:appended` event.
   var collectionSearchForm = document.querySelector(".collection-page__search");
-  if (collectionSearchForm) collectionSearchForm.addEventListener("submit", beginNavigating);
+  if (collectionSearchForm) {
+    var collectionSearchInput = collectionSearchForm.querySelector('input[type="search"]');
+    collectionSearchForm.addEventListener("submit", function (e) { e.preventDefault(); });
+
+    var applyProductSearch = function () {
+      var q = (collectionSearchInput.value || "").trim().toLowerCase();
+      var grids = document.querySelectorAll(".collection-page__main .product-grid");
+      grids.forEach(function (grid) {
+        var anyVisible = false;
+        grid.querySelectorAll(".product-card").forEach(function (card) {
+          var link = card.querySelector("[data-product-title]");
+          var title = ((link && link.getAttribute("data-product-title")) || "").toLowerCase();
+          var match = q === "" || title.indexOf(q) !== -1;
+          card.hidden = !match;
+          if (match) anyVisible = true;
+        });
+
+        var section = grid.closest(".collection-section");
+        if (section) {
+          section.hidden = q !== "" && !anyVisible;
+        } else {
+          var empty = grid.parentElement.querySelector(".collection-page__search-empty");
+          if (!empty) {
+            empty = document.createElement("p");
+            empty.className = "collection-page__empty collection-page__search-empty";
+            empty.textContent = "No items match your search.";
+            grid.insertAdjacentElement("afterend", empty);
+          }
+          empty.hidden = q === "" || anyVisible;
+        }
+      });
+    };
+
+    if (collectionSearchInput) {
+      collectionSearchInput.addEventListener("input", applyProductSearch);
+      document.addEventListener("products:appended", applyProductSearch);
+    }
+  }
 
   /* ---- Mobile filter drawer ---- */
   var filterToggle = document.querySelector("[data-filter-toggle]");
