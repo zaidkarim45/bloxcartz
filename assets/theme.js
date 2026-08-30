@@ -636,33 +636,70 @@
       return btn;
     }
 
+    function parseVariants(trigger) {
+      try {
+        return JSON.parse(trigger.dataset.variants || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function populateAndOpenModal(trigger, variants) {
+      vmTitle.textContent = trigger.dataset.productTitle || "";
+      vmImage.src = trigger.dataset.productImage || "";
+      vmImage.alt = trigger.dataset.productTitle || "";
+      vmPrice.textContent = trigger.dataset.productPrice || "";
+      if (trigger.dataset.productComparePrice) {
+        vmCompareValue.textContent = trigger.dataset.productComparePrice;
+        vmCompare.hidden = false;
+      } else {
+        vmCompare.hidden = true;
+      }
+
+      vmOptions.innerHTML = "";
+      variants.forEach(function (variant) {
+        vmOptions.appendChild(buildVariantOption(variant));
+      });
+      resetVariantModalSelection();
+      openVariantModal();
+    }
+
+    // The explicit "Add" button on a card only ever renders when the
+    // product actually has more than one variant (see product-card.liquid),
+    // so it can go straight to the modal with no branching.
     document.querySelectorAll("[data-variant-modal-trigger]").forEach(function (trigger) {
       trigger.addEventListener("click", function () {
-        var variants;
-        try {
-          variants = JSON.parse(trigger.dataset.variants || "[]");
-        } catch (e) {
-          variants = [];
-        }
+        var variants = parseVariants(trigger);
         if (!variants.length) return;
+        populateAndOpenModal(trigger, variants);
+      });
+    });
 
-        vmTitle.textContent = trigger.dataset.productTitle || "";
-        vmImage.src = trigger.dataset.productImage || "";
-        vmImage.alt = trigger.dataset.productTitle || "";
-        vmPrice.textContent = trigger.dataset.productPrice || "";
-        if (trigger.dataset.productComparePrice) {
-          vmCompareValue.textContent = trigger.dataset.productComparePrice;
-          vmCompare.hidden = false;
-        } else {
-          vmCompare.hidden = true;
+    // Card-wide activation: the image/title/price link does the same
+    // thing the "Add" button does -- open the modal for a multi-variant
+    // product, or add straight to cart for a single-variant one -- instead
+    // of navigating to the product page. Still a real <a href>, so a
+    // modifier-click (new tab), middle-click, or right-click still reaches
+    // the actual product page; only a plain left-click is intercepted.
+    document.querySelectorAll("[data-card-activate]").forEach(function (link) {
+      link.addEventListener("click", function (e) {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var variants = parseVariants(link);
+        if (!variants.length) return;
+        e.preventDefault();
+
+        if (variants.length > 1) {
+          populateAndOpenModal(link, variants);
+          return;
         }
 
-        vmOptions.innerHTML = "";
-        variants.forEach(function (variant) {
-          vmOptions.appendChild(buildVariantOption(variant));
-        });
-        resetVariantModalSelection();
-        openVariantModal();
+        var only = variants[0];
+        if (!only.available) return;
+        var card = link.closest(".product-card");
+        var form = card && card.querySelector("form[data-add-to-cart-form]");
+        if (form) {
+          form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
       });
     });
 

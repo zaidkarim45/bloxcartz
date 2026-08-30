@@ -36,7 +36,24 @@
     <span class="product-card__accent-bar" aria-hidden="true"></span>
   {%- endif -%}
 
-  <a href="{{ product.url }}" class="product-card__link">
+  {%- comment -%}
+    Card-wide activation: clicking the image/title/price does the exact
+    same thing the "Add" button below does (open the variant modal, or
+    add straight to cart) instead of navigating to the product page --
+    see the "Card-wide activation" section of theme.js. Still a real <a
+    href> so a middle-click/Ctrl-click/right-click "open in new tab" still
+    reaches the actual product page; only a plain left-click is intercepted.
+  {%- endcomment -%}
+  <a
+    href="{{ product.url }}"
+    class="product-card__link"
+    data-card-activate
+    data-product-title="{{ display_title | escape }}"
+    data-product-image="{{ product.featured_image | image_url: width: 600 }}"
+    data-product-price="{{ variant.price | money }}"
+    data-product-compare-price="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price | money }}{% endif %}"
+    data-variants="{{ product.variants | json | escape }}"
+  >
     <div class="product-card__image-wrap">
       {%- if product.featured_image -%}
         {{ product.featured_image | image_url: width: 300 | image_tag: alt: display_title, loading: 'lazy', class: 'product-card__image' }}
