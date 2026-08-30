@@ -323,6 +323,17 @@
   if (filterForm) {
     var debounceTimer;
     filterForm.addEventListener("input", function (e) {
+      // The client-side-only "in stock" fallback toggle (no `name`
+      // attribute -- it's not a real Shopify filter field) lives inside
+      // this same form for layout reasons. Its `change` handler below
+      // does the actual work by hiding/showing cards instantly; without
+      // this guard, the checkbox's bubbling `input` event would also hit
+      // this handler and trigger a full page reload right after, which
+      // both undoes that instant toggle and silently drops the "in
+      // stock" state entirely since there's no form field value for it
+      // to survive the reload as.
+      if (e.target.hasAttribute("data-instock-toggle")) return;
+
       window.clearTimeout(debounceTimer);
       // Range sliders fire native `input` events continuously while
       // dragging -- without a debounce here that means a near-continuous
