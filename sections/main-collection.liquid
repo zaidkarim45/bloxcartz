@@ -296,7 +296,17 @@
 
       {%- assign sections_rendered = 0 -%}
 
-      {%- if showing_all and category_filter -%}
+      {%- comment -%}
+        Adopt Me has 126+ products across only two tags (Pets/Potions), so the
+        sectioned "6 per category with a View all link" preview used by every
+        other collection would hide almost the whole catalog. It gets the flat,
+        progressively-loaded grid below instead — no other collection's layout
+        changes.
+      {%- endcomment -%}
+      {%- assign is_adopt_me = false -%}
+      {%- if collection.handle == 'adopt-me' -%}{%- assign is_adopt_me = true -%}{%- endif -%}
+
+      {%- if showing_all and category_filter and is_adopt_me == false -%}
         {%- comment -%}
           "All items" view: sectioned category previews (matches bloxcart.com's
           own layout — see docs/catalog-audit.md) instead of one flat grid.
@@ -363,7 +373,7 @@
             {%- endif -%}
           {%- endfor -%}
         {%- endpaginate -%}
-      {%- elsif showing_all and category_tags.size > 0 -%}
+      {%- elsif showing_all and category_tags.size > 0 and is_adopt_me == false -%}
         {%- comment -%}
           Same sectioned "all items" view as above, built from the plain
           category:{slug} tag fallback when Search & Discovery isn't
@@ -420,7 +430,7 @@
         fall back to the plain unfiltered grid so every product is still
         visible and usable.
       {%- endcomment -%}
-      {%- if showing_all and sections_rendered == 0 -%}
+      {%- if showing_all and sections_rendered == 0 and is_adopt_me == false -%}
         {%- paginate collection.products by 24 -%}
           <div class="product-grid">
             {%- for product in collection.products -%}
@@ -436,9 +446,14 @@
             </nav>
           {%- endif -%}
         {%- endpaginate -%}
-      {%- elsif showing_all == false -%}
+      {%- elsif showing_all == false or is_adopt_me -%}
         {%- paginate collection.products by 24 -%}
-          <div class="product-grid">
+          <div class="product-grid"
+            {%- if is_adopt_me %} id="ProductGrid" data-infinite-grid
+              data-next-page="{{ paginate.current_page | plus: 1 }}"
+              data-total-pages="{{ paginate.pages }}"
+              data-total-count="{{ collection.products_count }}"
+              data-loaded-count="{{ collection.products.size }}"{% endif -%}>
             {%- for product in collection.products -%}
               {% render 'product-card', product: product %}
             {%- else -%}
@@ -446,7 +461,24 @@
             {%- endfor -%}
           </div>
 
-          {%- if paginate.pages > 1 -%}
+          {%- if is_adopt_me -%}
+            {%- if paginate.pages > 1 -%}
+              <div class="collection-page__load-more" data-load-more-wrap>
+                <p class="collection-page__progress" data-load-progress>
+                  Showing {{ collection.products.size }} of {{ collection.products_count }} items
+                </p>
+                <button type="button" class="btn--load-more" data-load-more-btn>
+                  <span>{{ 'collections.general.show_more' | t: default: 'Show More Items' }}</span>
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <div class="collection-page__load-sentinel" data-load-sentinel aria-hidden="true"></div>
+              </div>
+            {%- else -%}
+              <p class="collection-page__progress">
+                Showing {{ collection.products.size }} of {{ collection.products_count }} items
+              </p>
+            {%- endif -%}
+          {%- elsif paginate.pages > 1 -%}
             <nav class="collection-page__pagination">
               {{ paginate | default_pagination }}
             </nav>
@@ -457,6 +489,10 @@
     </div>
   </div>
 </div>
+
+{%- if is_adopt_me -%}
+  <script src="{{ 'collection-infinite.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 
 {% schema %}
 {
