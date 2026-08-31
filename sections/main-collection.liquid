@@ -74,10 +74,58 @@
   nothing left to go wrong. Always computed (not just when the native
   filter is missing) so the displayed number next to a native checkbox
   can be overridden with this stable, always-whole-catalog count too.
+
+  `{% paginate %}` reads its page number from the SAME `page` URL
+  parameter for every paginate block in a request -- there's no way to
+  scope one to "always page 1" while the product grid below is on page
+  2+. Wrapping base_collection.products in `by 250` here means that on
+  `?page=2`, this block ALSO becomes "page 2 of 250", which is empty for
+  any collection under 500 products -- base_collection.products yields
+  nothing, so every count came out 0 the moment a shopper paged past the
+  first page. Guarding on `current_page` (a real top-level Liquid value,
+  already used for the <title> tag in layout/theme.liquid) and only using
+  the 250-cap paginate block on page 1 avoids that; page 2+ falls back to
+  the bare (unwrapped) product list, which Shopify caps at 50 but --
+  critically -- is NOT tied to the `page` parameter, so it stays correct
+  instead of zeroing out.
 {%- endcomment -%}
-{%- paginate base_collection.products by 250 -%}
+{%- if current_page <= 1 -%}
+  {%- paginate base_collection.products by 250 -%}
+    {%- liquid
+      assign in_stock_count = 0
+      for p in base_collection.products
+        if p.available
+          assign in_stock_count = in_stock_count | plus: 1
+        endif
+      endfor
+
+      assign category_counts = ''
+      for tag in category_tags
+        assign tag_count = 0
+        for p in base_collection.products
+          if p.tags contains tag
+            assign tag_count = tag_count | plus: 1
+          endif
+        endfor
+        assign category_counts = category_counts | append: tag_count | append: '||'
+      endfor
+      assign category_counts = category_counts | split: '||'
+
+      assign rarity_counts = ''
+      for tag in rarity_tags
+        assign tag_count = 0
+        for p in base_collection.products
+          if p.tags contains tag
+            assign tag_count = tag_count | plus: 1
+          endif
+        endfor
+        assign rarity_counts = rarity_counts | append: tag_count | append: '||'
+      endfor
+      assign rarity_counts = rarity_counts | split: '||'
+    -%}
+  {%- endpaginate -%}
+{%- else -%}
   {%- liquid
-    assign in_stock_count = 0
     for p in base_collection.products
       if p.available
         assign in_stock_count = in_stock_count | plus: 1
@@ -108,7 +156,7 @@
     endfor
     assign rarity_counts = rarity_counts | split: '||'
   -%}
-{%- endpaginate -%}
+{%- endif -%}
 
 <div class="collection-page">
   <h1 class="visually-hidden">{{ collection.title }}</h1>
