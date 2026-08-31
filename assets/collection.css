@@ -67,11 +67,19 @@
   color: var(--color-accent);
   font-weight: 600;
 }
+/* Close (X) button, sticky footer "Show results" button and the dimming
+   backdrop only exist for the mobile bottom-sheet presentation -- desktop's
+   sidebar filters auto-apply on change and never need either, so both stay
+   hidden until the max-width: 900px block below turns them on. */
+.collection-filters__close { display: none; }
+.collection-filters__footer { display: none; }
+.collection-filters__backdrop { display: none; }
+.collection-filters__body { display: contents; }
 .collection-filters__group {
   padding-block: 1rem;
   border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 8%, transparent);
 }
-.collection-filters__header + .collection-filters__group { border-top: none; padding-top: 0; }
+.collection-filters__body > .collection-filters__group:first-child { border-top: none; padding-top: 0; }
 .collection-filters__group h3 {
   font-size: 0.8125rem;
   font-weight: 700;
@@ -512,17 +520,93 @@
     font-weight: 600;
   }
 
+  /* Bottom-sheet presentation (replaces the old side-drawer): slides up
+     from the bottom instead of in from the side, matching the reference
+     mobile filter UI. Kept entirely inside this max-width: 900px block so
+     desktop's sticky sidebar is untouched. */
+  .collection-filters__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(8, 12, 16, 0.6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms ease;
+  }
+  .collection-filters__backdrop.is-open { opacity: 1; pointer-events: auto; }
+
   .collection-filters {
     position: fixed;
-    inset: 0 15% 0 0;
-    top: 0;
-    z-index: 70;
-    border-radius: 0;
-    overflow-y: auto;
-    transform: translateX(-100%);
-    transition: transform 220ms ease;
+    inset: auto 0 0 0;
+    top: 6vh;
+    z-index: 101;
+    height: auto;
+    max-height: 94vh;
+    border-radius: 1.25rem 1.25rem 0 0;
+    box-shadow: 0 -16px 40px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  .collection-filters.is-open { transform: translateX(0); }
+  .collection-filters.is-open { transform: translateY(0); }
+
+  .collection-filters__body {
+    display: block;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0 1.25rem;
+  }
+
+  .collection-filters__header {
+    flex: 0 0 auto;
+    padding: 1.25rem 1.25rem 1rem;
+    margin-bottom: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
+  }
+  /* Small drag-handle affordance at the top of the sheet, purely visual. */
+  .collection-filters::before {
+    content: "";
+    position: absolute;
+    top: 0.625rem;
+    left: 50%;
+    width: 2.5rem;
+    height: 0.25rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-border-subtle) 40%, transparent);
+    transform: translateX(-50%);
+  }
+
+  .collection-filters__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-left: 0.5rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--color-bg-card) 60%, var(--color-bg-primary));
+    color: var(--color-text-primary);
+  }
+
+  .collection-filters__footer {
+    display: block;
+    flex: 0 0 auto;
+    padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, black 10%, var(--color-bg-card));
+    border-top: 1px solid color-mix(in srgb, var(--color-border-subtle) 12%, transparent);
+  }
+  .collection-filters__show-results { height: 3rem; font-size: 0.9375rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collection-filters,
+  .collection-filters__backdrop {
+    transition: none;
+  }
 }
 
 @media (max-width: 640px) {

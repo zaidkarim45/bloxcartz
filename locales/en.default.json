@@ -90,7 +90,9 @@
       "in_stock_only": "In stock only",
       "rarity": "Rarity",
       "apply": "Apply",
-      "reset_all": "Reset all"
+      "reset_all": "Reset all",
+      "show_results": "Show results",
+      "close": "Close"
     },
     "tabs": {
       "all_items": "All items"

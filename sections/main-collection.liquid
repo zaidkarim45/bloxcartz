@@ -115,13 +115,20 @@
 
   <div class="collection-page__layout">
 
+    <div class="collection-filters__backdrop" data-collection-filters-close></div>
+
     <aside class="collection-filters" id="CollectionFilters" data-collection-filters>
       <form method="get" action="{{ collection.url }}" data-filter-form>
       <div class="collection-filters__header">
         <span>{{ 'collections.filters.title' | t: default: 'Filter' }}</span>
         <span class="badge">{{ collection.products_count }} {{ 'collections.filters.items' | t: default: 'items' }}</span>
         <a href="{{ collection.url }}" class="collection-filters__reset">{{ 'collections.filters.reset_all' | t: default: 'Reset all' }}</a>
+        <button type="button" class="collection-filters__close" data-collection-filters-close aria-label="{{ 'collections.filters.close' | t: default: 'Close' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
+
+      <div class="collection-filters__body">
 
       {%- if price_filter -%}
         <div class="collection-filters__group">
@@ -214,7 +221,11 @@
           {%- endfor -%}
         </div>
       {%- endif -%}
-      <noscript><button type="submit" class="btn btn--primary btn--full">{{ 'collections.filters.apply' | t: default: 'Apply' }}</button></noscript>
+      </div>
+
+      <div class="collection-filters__footer">
+        <button type="submit" class="btn btn--primary btn--full collection-filters__show-results" data-collection-filters-submit>{{ 'collections.filters.show_results' | t: default: 'Show results' }}</button>
+      </div>
       </form>
     </aside>
 

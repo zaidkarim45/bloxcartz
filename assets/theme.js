@@ -345,6 +345,13 @@
       var delay = isContinuous ? 500 : 0;
       debounceTimer = window.setTimeout(function () {
         beginNavigating();
+        try {
+          if (window.sessionStorage && filterPanel && filterPanel.classList.contains("is-open")) {
+            sessionStorage.setItem(FILTER_SHEET_FLAG, "1");
+          }
+        } catch (err) {
+          /* sessionStorage can throw in locked-down/private browsing contexts -- losing the reopen flag just means the sheet closes on reload instead of staying open. */
+        }
         filterForm.requestSubmit ? filterForm.requestSubmit() : filterForm.submit();
       }, delay);
     });
@@ -476,14 +483,57 @@
     }
   }
 
-  /* ---- Mobile filter drawer ---- */
+  /* ---- Mobile filter bottom sheet ----
+     The underlying filter form still does a real full-page GET navigation
+     on every change (see the debounced requestSubmit() above) -- that's
+     intentional, not something this rewrites. The one wrinkle a full
+     reload creates is that it wipes the "sheet was open" UI state along
+     with everything else, so a sessionStorage flag stands in for that one
+     bit across the reload: set right before a filter-triggered submit,
+     read once on the next load to reopen the sheet immediately (a plain
+     "Show results"/X close never sets it, so those correctly land back on
+     a closed sheet). */
+  var FILTER_SHEET_FLAG = "cf-open";
   var filterToggle = document.querySelector("[data-filter-toggle]");
   var filterPanel = document.querySelector("[data-collection-filters]");
+  var filterBackdrop = document.querySelector(".collection-filters__backdrop");
+  var filterCloseEls = document.querySelectorAll("[data-collection-filters-close]");
+
+  function openFilterSheet() {
+    if (!filterPanel) return;
+    filterPanel.classList.add("is-open");
+    if (filterBackdrop) filterBackdrop.classList.add("is-open");
+    document.body.classList.add("filters-open");
+    if (filterToggle) filterToggle.setAttribute("aria-expanded", "true");
+  }
+  function closeFilterSheet() {
+    if (!filterPanel) return;
+    filterPanel.classList.remove("is-open");
+    if (filterBackdrop) filterBackdrop.classList.remove("is-open");
+    document.body.classList.remove("filters-open");
+    if (filterToggle) filterToggle.setAttribute("aria-expanded", "false");
+  }
+
   if (filterToggle && filterPanel) {
     filterToggle.addEventListener("click", function () {
-      var open = filterPanel.classList.toggle("is-open");
-      filterToggle.setAttribute("aria-expanded", String(open));
+      if (filterPanel.classList.contains("is-open")) {
+        closeFilterSheet();
+      } else {
+        openFilterSheet();
+      }
     });
+  }
+  filterCloseEls.forEach(function (el) {
+    el.addEventListener("click", closeFilterSheet);
+  });
+
+  try {
+    if (window.sessionStorage && sessionStorage.getItem(FILTER_SHEET_FLAG) === "1") {
+      sessionStorage.removeItem(FILTER_SHEET_FLAG);
+      openFilterSheet();
+    }
+  } catch (err) {
+    /* sessionStorage can throw in locked-down/private browsing contexts -- reopening the sheet is a nicety, not essential. */
   }
 
   /* ---- Price range slider (syncs with the From/To text inputs) ---- */
