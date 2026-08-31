@@ -124,9 +124,19 @@
               {% render 'icon-cart' %} {{ 'products.product.add_to_cart' | t: default: 'Add to cart' }}
             </button>
           </form>
+          {%- comment -%}
+            A plain `name="checkout"` submit skips the cart and goes straight
+            to Shopify checkout with just this variant -- no brand logo, so
+            it always reads "Buy it now" instead of whichever payment method
+            (PayPal, Shop Pay...) the dynamic accelerated-checkout button
+            happens to pick for a given shopper/browser.
+          {%- endcomment -%}
           {%- form 'product', product, class: 'product-page__buy-now-form' -%}
             <input type="hidden" name="id" value="{{ variant.id }}">
-            {{ form | payment_button }}
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" name="checkout" class="btn btn--buy-now product-page__buy-now">
+              {{ 'products.product.buy_it_now' | t: default: 'Buy it now' }}
+            </button>
           {%- endform -%}
         </div>
       {%- else -%}
