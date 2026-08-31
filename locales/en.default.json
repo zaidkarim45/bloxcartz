@@ -19,6 +19,9 @@
     },
     "accessibility": {
       "close": "Close"
+    },
+    "header": {
+      "game_select_title": "Select game"
     }
   },
   "cart": {

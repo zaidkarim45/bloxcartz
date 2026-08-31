@@ -54,14 +54,21 @@
               <img src="{{ current_game_icon }}" alt="" class="site-header__game-icon" loading="eager">
             {%- endif -%}
           </span>
-          <span>{{ collection.title }}</span>
+          <span class="site-header__game-select-label">{{ collection.title }}</span>
         {%- else -%}
           <span class="site-header__game-select-placeholder">?</span>
-          <span>Select game</span>
+          <span class="site-header__game-select-label">Select game</span>
         {%- endif -%}
         {% render 'icon-chevron-down' %}
       </button>
+      <div class="site-header__game-backdrop" data-game-select-close></div>
       <div class="site-header__game-menu" hidden>
+        <div class="site-header__game-menu-header">
+          <span>{{ 'general.header.game_select_title' | t: default: 'Select game' }}</span>
+          <button type="button" class="site-header__game-menu-close" data-game-select-close aria-label="{{ 'general.accessibility.close' | t: default: 'Close' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
         <div class="site-header__game-search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input type="search" placeholder="Search games" data-game-search aria-label="Search games">
@@ -140,8 +147,13 @@
             if game_image.src != blank
               assign img_src = game_image.src
             endif
+
+            assign is_current_game = false
+            if collection.handle == slug
+              assign is_current_game = true
+            endif
           -%}
-          <li role="option" data-game-name="{{ game_title | downcase }}">
+          <li role="option" aria-selected="{{ is_current_game }}" data-game-name="{{ game_title | downcase }}" class="{% if is_current_game %}is-active{% endif %}">
             <a href="{{ game_url }}" {% if is_external %}target="_blank" rel="noopener sponsored"{% endif %}>
               {%- if img_src != blank -%}
                 <img src="{{ img_src }}" alt="{{ game_title }}" loading="lazy">

@@ -1,23 +1,48 @@
 (function () {
   "use strict";
 
-  /* ---- Header: game select dropdown ---- */
+  /* ---- Header: game select dropdown / mobile bottom sheet ---- */
+  var GAME_MENU_CLOSE_MS = 320; // matches the mobile sheet's transform transition
   document.querySelectorAll("[data-game-select]").forEach(function (root) {
     var btn = root.querySelector(".site-header__game-select-btn");
     var menu = root.querySelector(".site-header__game-menu");
+    var backdrop = root.querySelector(".site-header__game-backdrop");
+    var closeEls = root.querySelectorAll("[data-game-select-close]");
     if (!btn || !menu) return;
 
     // Uses opacity/transform (not the `hidden` attribute) for open/close
     // so the CSS transition can actually animate it.
     menu.hidden = false;
 
+    var closeTimer = null;
+
     function closeMenu() {
       btn.setAttribute("aria-expanded", "false");
       menu.classList.remove("is-open");
+      if (backdrop) backdrop.classList.remove("is-open");
+      document.body.classList.remove("game-menu-open");
+      // On mobile the menu/backdrop also get fully unmounted (display:
+      // none) once the slide-down finishes -- same reasoning as the
+      // collection filter sheet: a closed position:fixed layer left
+      // mounted is what let iOS Safari peek it back in during scroll.
+      // Desktop never sets "is-mounted" in the first place, so this is a
+      // no-op there.
+      window.clearTimeout(closeTimer);
+      closeTimer = window.setTimeout(function () {
+        menu.classList.remove("is-mounted");
+        if (backdrop) backdrop.classList.remove("is-mounted");
+      }, GAME_MENU_CLOSE_MS);
     }
     function openMenu() {
+      window.clearTimeout(closeTimer);
       btn.setAttribute("aria-expanded", "true");
-      menu.classList.add("is-open");
+      menu.classList.add("is-mounted");
+      if (backdrop) backdrop.classList.add("is-mounted");
+      requestAnimationFrame(function () {
+        menu.classList.add("is-open");
+        if (backdrop) backdrop.classList.add("is-open");
+      });
+      document.body.classList.add("game-menu-open");
       var search = menu.querySelector("[data-game-search]");
       if (search) search.focus();
     }
@@ -25,6 +50,9 @@
     btn.addEventListener("click", function () {
       var open = btn.getAttribute("aria-expanded") === "true";
       if (open) closeMenu(); else openMenu();
+    });
+    closeEls.forEach(function (el) {
+      el.addEventListener("click", closeMenu);
     });
     document.addEventListener("click", function (e) {
       if (!root.contains(e.target)) closeMenu();
@@ -315,8 +343,39 @@
   // right before it happens is enough to make switching filters/tabs
   // feel like a transition instead of an abrupt flash.
   var collectionMain = document.querySelector(".collection-page__main");
+  var collectionTabs = document.querySelector(".collection-tabs");
+  function tabsScrollKey() {
+    // Scoped to /collections/<handle> (not the full path with any
+    // tag/query suffix) so switching between tag pages of the SAME
+    // collection -- itself a full page navigation -- still restores the
+    // scroll position, while landing on a different collection starts
+    // fresh instead of carrying over an unrelated bar's offset.
+    var parts = window.location.pathname.split("/").filter(Boolean);
+    return "cf-tabs-scroll:" + parts.slice(0, 2).join("/");
+  }
   function beginNavigating() {
     if (collectionMain) collectionMain.classList.add("is-navigating");
+    // Every action that reaches this function (tab click, filter change,
+    // sort change) is about to trigger a real full-page reload, which
+    // would otherwise snap the category tab bar back to its scroll
+    // start -- save the current position so it can be restored below.
+    try {
+      if (window.sessionStorage && collectionTabs) {
+        sessionStorage.setItem(tabsScrollKey(), String(collectionTabs.scrollLeft));
+      }
+    } catch (err) {
+      /* sessionStorage can throw in locked-down/private browsing contexts -- losing this just means the tab bar resets to the start on reload. */
+    }
+  }
+  if (collectionTabs) {
+    try {
+      var savedTabsScroll = sessionStorage.getItem(tabsScrollKey());
+      if (savedTabsScroll !== null) {
+        collectionTabs.scrollLeft = parseInt(savedTabsScroll, 10) || 0;
+      }
+    } catch (err) {
+      /* ignore -- same as above */
+    }
   }
 
   var filterForm = document.querySelector("[data-filter-form]");
@@ -494,15 +553,29 @@
      "Show results"/X close never sets it, so those correctly land back on
      a closed sheet). */
   var FILTER_SHEET_FLAG = "cf-open";
+  var FILTER_CLOSE_MS = 320; // matches .collection-filters' transform transition duration
   var filterToggle = document.querySelector("[data-filter-toggle]");
   var filterPanel = document.querySelector("[data-collection-filters]");
   var filterBackdrop = document.querySelector(".collection-filters__backdrop");
   var filterCloseEls = document.querySelectorAll("[data-collection-filters-close]");
+  var filterCloseTimer = null;
 
   function openFilterSheet() {
     if (!filterPanel) return;
-    filterPanel.classList.add("is-open");
-    if (filterBackdrop) filterBackdrop.classList.add("is-open");
+    window.clearTimeout(filterCloseTimer);
+    // Two-step mount: add "is-mounted" (display: flex, still translated
+    // off-screen) now, then "is-open" (slides it up) on the next frame --
+    // going straight from display:none to the open transform in one step
+    // would give the transition nothing to animate from. Same choreography
+    // as the cart drawer's hidden/is-open toggle, via a class instead of
+    // the `hidden` attribute so it only ever applies inside the mobile
+    // bottom-sheet media query, never touching the desktop sidebar.
+    filterPanel.classList.add("is-mounted");
+    if (filterBackdrop) filterBackdrop.classList.add("is-mounted");
+    requestAnimationFrame(function () {
+      filterPanel.classList.add("is-open");
+      if (filterBackdrop) filterBackdrop.classList.add("is-open");
+    });
     document.body.classList.add("filters-open");
     if (filterToggle) filterToggle.setAttribute("aria-expanded", "true");
   }
@@ -512,6 +585,14 @@
     if (filterBackdrop) filterBackdrop.classList.remove("is-open");
     document.body.classList.remove("filters-open");
     if (filterToggle) filterToggle.setAttribute("aria-expanded", "false");
+    // Stay mounted through the slide-down animation, then fully unmount --
+    // this is what stops the closed sheet from ever being a live
+    // position:fixed layer that iOS can let peek back in during scroll.
+    window.clearTimeout(filterCloseTimer);
+    filterCloseTimer = window.setTimeout(function () {
+      filterPanel.classList.remove("is-mounted");
+      if (filterBackdrop) filterBackdrop.classList.remove("is-mounted");
+    }, FILTER_CLOSE_MS);
   }
 
   if (filterToggle && filterPanel) {

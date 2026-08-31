@@ -286,6 +286,19 @@
   overflow-x: auto;
   scrollbar-width: none;
   flex: 1 1 auto;
+  /* min-width: 0 lets this shrink below its (very wide, nowrap) content
+     size instead of forcing the flex row itself wider than the viewport --
+     without it the row's true rendered width could exceed the screen,
+     which is what made swiping feel like it was fighting/snapping back
+     against the page's own edge rather than scrolling smoothly inside
+     this element. touch-action/-webkit-overflow-scrolling/overscroll-
+     behavior make this its own self-contained momentum-scroll region so
+     iOS doesn't hand the gesture off to page-level rubber-banding. */
+  min-width: 0;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-behavior: auto;
 }
 .collection-tabs::-webkit-scrollbar { display: none; }
 .collection-tabs__count { opacity: 0.7; margin-left: 0.25rem; font-size: 0.8125rem; }
@@ -523,9 +536,22 @@
   /* Bottom-sheet presentation (replaces the old side-drawer): slides up
      from the bottom instead of in from the side, matching the reference
      mobile filter UI. Kept entirely inside this max-width: 900px block so
-     desktop's sticky sidebar is untouched. */
+     desktop's sticky sidebar is untouched.
+
+     Both the sheet and its backdrop default to `display: none` -- fully
+     unmounted, not just translated off-screen -- while closed. A
+     position: fixed element that's merely transformed out of view is
+     still a live compositor layer, and on iOS Safari that layer can
+     visibly "peek" back in at the bottom edge during scroll-driven
+     address-bar collapse/rubber-band overscroll. `is-mounted` puts it
+     back in the render tree (still at transform: translateY(100%)) for
+     one frame so the transition has a start state to animate from,
+     then JS adds `is-open` on the next frame to slide it up -- same
+     two-step dance as the cart drawer's hidden/is-open toggle, just via
+     a class instead of the `hidden` attribute so it stays scoped to
+     this breakpoint. */
   .collection-filters__backdrop {
-    display: block;
+    display: none;
     position: fixed;
     inset: 0;
     z-index: 100;
@@ -534,9 +560,11 @@
     pointer-events: none;
     transition: opacity 280ms ease;
   }
+  .collection-filters__backdrop.is-mounted { display: block; }
   .collection-filters__backdrop.is-open { opacity: 1; pointer-events: auto; }
 
   .collection-filters {
+    display: none;
     position: fixed;
     inset: auto 0 0 0;
     top: 6vh;
@@ -547,11 +575,11 @@
     box-shadow: 0 -16px 40px -12px rgba(0, 0, 0, 0.5);
     overflow: hidden;
     padding: 0;
-    display: flex;
     flex-direction: column;
     transform: translateY(100%);
     transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
   }
+  .collection-filters.is-mounted { display: flex; }
   .collection-filters.is-open { transform: translateY(0); }
 
   .collection-filters__body {
