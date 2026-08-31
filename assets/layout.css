@@ -433,6 +433,15 @@
   .site-header__divider { display: none; }
   .site-header__menu-toggle { display: flex; }
 
+  /* Reclaims real room for the row below: desktop's generous 2.25rem
+     side padding and 1.25rem gaps were sized for a 2-item row (logo +
+     actions). Verified empirically (headless-browser layout probe, not
+     guessed) against the worst realistic case -- a 320px-wide phone,
+     the narrowest anything shipping today actually reports -- with the
+     locale icon now also in the mix. */
+  .site-header__inner { padding-inline: 1rem; gap: 0.75rem; }
+  .site-header__logo-img { height: 2rem; }
+
   /* Compact icon-only version instead of hiding it outright -- just the
      flag, no "English / USD" text, so it doesn't compete for space with
      the game selector and hamburger in an already-tight header row. */
@@ -444,25 +453,25 @@
     flex-shrink: 0;
   }
   .site-header__locale span:not(.site-header__locale-flag) { display: none; }
-  /* Tighter than desktop's 1.25rem -- with two icon buttons here now
-     (locale + hamburger) instead of just one, the full gap left too
-     little room for the game selector next to it (see min-width:0 note
-     below), which is what let the two visually collide. */
-  .site-header__actions { gap: 0.625rem; }
+  .site-header__actions { gap: 0.5rem; }
 
   /* Compact + centered game selector so a long title never pushes the
      header wider than the viewport next to the logo and hamburger --
      desktop keeps its fixed 11.25rem min-width and untruncated title.
-     overflow: hidden is a hard backstop: min-width: 0 lets this flex
-     item shrink, but the button inside it has its own minimum content
-     width (icon tile + chevron, even once the label's ellipsized to
-     nothing) that can still exceed a badly-squeezed track at the
-     narrowest phone widths -- without clipping, that overflow spills
-     visibly into the locale/hamburger buttons right next to it instead
-     of just truncating in place. */
-  .site-header__game-select { flex: 1 1 auto; min-width: 0; overflow: hidden; }
+
+     min-width is a real content floor here (icon tile + gap + chevron +
+     the button's own horizontal padding = ~5.5rem with the label
+     ellipsized to nothing), NOT 0 -- 0 let the flex item shrink past
+     its own icon's width, and since the icon has flex-shrink: 0 (it
+     can't shrink itself without distorting), the overflow: hidden
+     backstop from the last round of this fix ended up hard-clipping
+     the icon tile itself in half instead of the harmless, gracefully-
+     truncating text label. overflow: hidden stays as a last-resort
+     backstop for anything still unaccounted for, but with a correct
+     floor it should never actually need to clip anything visible now. */
+  .site-header__game-select { flex: 1 1 auto; min-width: 5.5rem; overflow: hidden; }
   .site-header__game-select-btn {
-    min-width: 0;
+    min-width: 5.5rem;
     max-width: 13rem;
     width: 100%;
     margin-inline: auto;
