@@ -437,18 +437,30 @@
      flag, no "English / USD" text, so it doesn't compete for space with
      the game selector and hamburger in an already-tight header row. */
   .site-header__locale {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
     padding: 0;
     justify-content: center;
     flex-shrink: 0;
   }
   .site-header__locale span:not(.site-header__locale-flag) { display: none; }
+  /* Tighter than desktop's 1.25rem -- with two icon buttons here now
+     (locale + hamburger) instead of just one, the full gap left too
+     little room for the game selector next to it (see min-width:0 note
+     below), which is what let the two visually collide. */
+  .site-header__actions { gap: 0.625rem; }
 
   /* Compact + centered game selector so a long title never pushes the
      header wider than the viewport next to the logo and hamburger --
-     desktop keeps its fixed 11.25rem min-width and untruncated title. */
-  .site-header__game-select { flex: 1 1 auto; min-width: 0; }
+     desktop keeps its fixed 11.25rem min-width and untruncated title.
+     overflow: hidden is a hard backstop: min-width: 0 lets this flex
+     item shrink, but the button inside it has its own minimum content
+     width (icon tile + chevron, even once the label's ellipsized to
+     nothing) that can still exceed a badly-squeezed track at the
+     narrowest phone widths -- without clipping, that overflow spills
+     visibly into the locale/hamburger buttons right next to it instead
+     of just truncating in place. */
+  .site-header__game-select { flex: 1 1 auto; min-width: 0; overflow: hidden; }
   .site-header__game-select-btn {
     min-width: 0;
     max-width: 13rem;
