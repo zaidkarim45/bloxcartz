@@ -9,6 +9,19 @@
   assign variant = product.selected_or_first_available_variant
   assign in_stock = variant.available
 
+  # Only Adopt Me intercepts a plain card click to open the variant
+  # picker / add straight to cart -- every other game goes back to a real
+  # product page click-through. Checked against the product's own
+  # collections (not the current `collection` object) so this is correct
+  # everywhere this snippet renders, including "Similar items" on the PDP
+  # and homepage/search contexts where `collection` isn't the game collection.
+  assign card_is_adopt_me = false
+  for c in product.collections
+    if c.handle == 'adopt-me'
+      assign card_is_adopt_me = true
+    endif
+  endfor
+
   # Some catalog imports set the product title to its raw handle/slug
   # (e.g. "murder-mystery-2-heartblade-knife"). Only reformat for display
   # when the title *is* the handleized slug -- a real human-authored title
@@ -37,17 +50,18 @@
   {%- endif -%}
 
   {%- comment -%}
-    Card-wide activation: clicking the image/title/price does the exact
-    same thing the "Add" button below does (open the variant modal, or
-    add straight to cart) instead of navigating to the product page --
-    see the "Card-wide activation" section of theme.js. Still a real <a
-    href> so a middle-click/Ctrl-click/right-click "open in new tab" still
-    reaches the actual product page; only a plain left-click is intercepted.
+    Card-wide activation (Adopt Me only): clicking the image/title/price
+    does the exact same thing the "Add" button below does (open the
+    variant modal, or add straight to cart) instead of navigating to the
+    product page -- see the "Card-wide activation" section of theme.js.
+    Every other game leaves `data-card-activate` off entirely, so the
+    click just follows the real <a href> to the product page like normal;
+    the "Add" button below still adds to cart on its own regardless.
   {%- endcomment -%}
   <a
     href="{{ product.url }}"
     class="product-card__link"
-    data-card-activate
+    {% if card_is_adopt_me %}data-card-activate{% endif %}
     data-product-title="{{ display_title | escape }}"
     data-product-image="{{ product.featured_image | image_url: width: 600 }}"
     data-product-price="{{ variant.price | money }}"

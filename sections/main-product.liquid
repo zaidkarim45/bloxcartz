@@ -19,12 +19,23 @@
 <div class="product-page page-width">
 
   <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a href="/">{{ 'general.breadcrumb.home' | t: default: 'Home' }}</a>
+    <a href="{{ product.collections.first.url | default: '/' }}" class="breadcrumb__back" aria-label="{{ 'general.breadcrumb.back' | t: default: 'Back' }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </a>
     {%- if product.collections.first -%}
-      <span aria-hidden="true">›</span>
       <a href="{{ product.collections.first.url }}">{{ product.collections.first.title }}</a>
+      <span aria-hidden="true">›</span>
     {%- endif -%}
-    <span aria-hidden="true">›</span>
+    {%- assign category_crumb = '' -%}
+    {%- for tag in product.tags -%}
+      {%- if tag contains 'category:' -%}
+        {%- assign category_crumb = tag | remove_first: 'category:' | replace: '-', ' ' | capitalize -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if category_crumb != blank -%}
+      <span>{{ category_crumb }}</span>
+      <span aria-hidden="true">›</span>
+    {%- endif -%}
     <span aria-current="page">{{ product.title }}</span>
   </nav>
 
@@ -39,7 +50,10 @@
     <div class="product-page__info">
       <div class="product-page__badges">
         {%- if rarity_tag != blank -%}
-          <span class="badge badge--rarity" style="--rarity-color: {% render 'rarity-color', rarity: rarity_tag %};">{{ rarity_tag | capitalize }}</span>
+          <span class="badge badge--rarity" style="--rarity-color: {% render 'rarity-color', rarity: rarity_tag %};">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.5 3.7l2.9 3.3c.7.8.7 1.9.1 2.7L13.7 20.2c-.9 1.1-2.6 1.1-3.4 0L2.4 9.8c-.6-.8-.6-2 .1-2.7l2.9-3.3C5.9 3.3 6.5 3 7 3h10c.6 0 1.1.3 1.5.7z"/></svg>
+            {{ rarity_tag | capitalize }}
+          </span>
         {%- endif -%}
         {%- if bestseller -%}
           <span class="badge badge--bestseller">🔥 {{ 'products.product.bestseller' | t: default: 'Bestseller' }}</span>
@@ -106,22 +120,26 @@
       {%- endif -%}
 
       {%- if shop.enabled_payment_types.size > 0 -%}
-        <div class="product-page__payment-icons">
-          {%- for type in shop.enabled_payment_types -%}
-            {{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}
-          {%- endfor -%}
+        <div class="product-page__payment-box">
+          <div class="product-page__payment-icons">
+            {%- for type in shop.enabled_payment_types -%}
+              {{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}
+            {%- endfor -%}
+          </div>
+          <p class="product-page__secure-note">
+            {{ 'products.product.secure_checkout' | t: default: 'Secure checkout with 256-bit encryption' }}
+          </p>
         </div>
       {%- endif -%}
-
-      <p class="product-page__secure-note">
-        {{ 'products.product.secure_checkout' | t: default: 'Secure checkout with 256-bit encryption' }}
-      </p>
     </div>
   </div>
 
   {%- if product.collections.first.products.size > 1 -%}
     <div class="product-page__similar">
-      <h2>{{ 'products.product.similar_items' | t: default: 'Similar items' }}</h2>
+      <h2>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 20 5.5v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10v-6l8-3Z"/></svg>
+        {{ 'products.product.similar_items' | t: default: 'Similar items' }}
+      </h2>
       <div class="product-grid">
         {%- assign similar_count = 0 -%}
         {%- for similar in product.collections.first.products -%}
