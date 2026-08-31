@@ -184,7 +184,8 @@
   color: var(--color-text-primary);
   font-size: 0.9375rem;
 }
-.site-header__locale-flag { font-size: 1.125rem; line-height: 1; }
+.site-header__locale-flag { display: flex; align-items: center; }
+.country-flag-icon { width: 1.125rem; height: auto; border-radius: 0.125rem; display: block; }
 
 /* ---- Language & Currency modal ----
    A plain centered dialog (not a bottom sheet like the filter/game-select
@@ -290,8 +291,8 @@
 .locale-modal__select-flag {
   position: absolute;
   left: 1rem;
-  font-size: 1.125rem;
-  line-height: 1;
+  display: flex;
+  align-items: center;
   pointer-events: none;
 }
 
@@ -429,9 +430,20 @@
 
 @media (max-width: 768px) {
   .site-header__login,
-  .site-header__locale,
   .site-header__divider { display: none; }
   .site-header__menu-toggle { display: flex; }
+
+  /* Compact icon-only version instead of hiding it outright -- just the
+     flag, no "English / USD" text, so it doesn't compete for space with
+     the game selector and hamburger in an already-tight header row. */
+  .site-header__locale {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .site-header__locale span:not(.site-header__locale-flag) { display: none; }
 
   /* Compact + centered game selector so a long title never pushes the
      header wider than the viewport next to the logo and hamburger --

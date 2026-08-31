@@ -213,9 +213,14 @@
                   <span class="locale-modal__select-flag" aria-hidden="true">{% render 'country-flag', iso_code: localization.country.iso_code %}</span>
                   <select name="country_code" id="LocaleModalCurrency" data-locale-autosubmit>
                     {%- for country in localization.available_countries -%}
-                      {%- capture country_flag %}{% render 'country-flag', iso_code: country.iso_code %}{% endcapture -%}
+                      {%- comment -%}
+                        No flag here -- a native <option> can only ever
+                        hold plain text, never an <img> or emoji-as-icon,
+                        so plain text is the only thing that renders
+                        cleanly and consistently across every browser/OS.
+                      {%- endcomment -%}
                       <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
-                        {{ country_flag | strip }} {{ country.name }} &middot; {{ country.currency.iso_code }} {{ country.currency.symbol }}
+                        {{ country.name }} &middot; {{ country.currency.iso_code }} {{ country.currency.symbol }}
                       </option>
                     {%- endfor -%}
                   </select>
