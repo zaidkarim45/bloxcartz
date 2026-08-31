@@ -3,7 +3,16 @@
 <head>
   <meta name="google-site-verification" content="-elIJ6bRGXYscSlBatrJ5s8P2GQVwU0s_2m96kn0LSc" />
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {%- comment -%}
+    maximum-scale=1 + user-scalable=no locks pinch-zoom -- standard for an
+    app-like mobile shopping experience (no native app lets you pinch-zoom
+    its UI), and fixes a real iOS Safari bug: once a page is pinch-zoomed
+    at all, position:fixed elements (the cart drawer, its close button,
+    the floating cart pill) can render visually in one place while their
+    actual tap-registration stays at the pre-zoom position, so a tap that
+    looks like it's on the close button silently misses it.
+  {%- endcomment -%}
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#131C23">
   <meta name="color-scheme" content="dark">
 
