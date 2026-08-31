@@ -113,11 +113,6 @@
 <div class="collection-page">
   <h1 class="visually-hidden">{{ collection.title }}</h1>
 
-  <button type="button" class="collection-filters__toggle" data-filter-toggle aria-expanded="false" aria-controls="CollectionFilters">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="10" y1="18" x2="14" y2="18"></line></svg>
-    {{ 'collections.filters.title' | t: default: 'Filter' }}
-  </button>
-
   <div class="collection-page__layout">
 
     <aside class="collection-filters" id="CollectionFilters" data-collection-filters>
@@ -281,6 +276,11 @@
               <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>{{ option.name }}</option>
             {%- endfor -%}
           </select>
+
+          <button type="button" class="collection-filters__toggle" data-filter-toggle aria-expanded="false" aria-controls="CollectionFilters">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="7" y1="12" x2="17" y2="12"></line><line x1="10" y1="18" x2="14" y2="18"></line></svg>
+            <span class="collection-filters__toggle-label">{{ 'collections.filters.title' | t: default: 'Filter' }}</span>
+          </button>
         </div>
       </div>
 

@@ -377,6 +377,18 @@ body.variant-modal-open { overflow: hidden; }
 
 @media (max-width: 480px) {
   .variant-modal__panel { max-width: 100%; }
+
+  /* Denser cards at the narrow 2-column width -- the fixed 11.5rem image
+     height reads as oversized/whitespace-heavy once the card itself is
+     only ~45vw wide, and nothing else in this file's rules changes. */
+  .product-card__image-wrap { height: 8rem; padding: 0.625rem; }
+  .product-card__title { font-size: 0.8125rem; margin-top: 0.25rem; }
+  .product-card .price { padding-top: 0.25rem; }
+  .price__current { font-size: 0.875rem; }
+  .product-card__form,
+  .product-card > .product-card__cta { padding: 0.5rem 0.625rem 0.625rem; }
+  .product-card__form { padding-top: 0.5rem; }
+  .product-card__cta { height: 2rem; font-size: 0.75rem; }
 }
 
 /* ---- Warning / stock banner ---- */

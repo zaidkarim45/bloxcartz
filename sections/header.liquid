@@ -190,6 +190,29 @@
     </div>
 
   </div>
+
+  {%- comment -%}
+    Mobile-only floating cart pill (hidden on desktop, replaces the inline
+    header cart pill below ~480px -- see the mobile media query in
+    layout.css). Deliberately still inside .site-header, not a separate
+    fixed-positioned element elsewhere in the page, so the existing
+    `.site-header [data-cart-count]` / `[data-cart-total]` sync logic in
+    theme.js picks it up for free with zero JS changes -- position:fixed
+    on this button still anchors to the viewport regardless of .site-header
+    being sticky, since nothing in that ancestor chain sets a transform/
+    filter that would change its containing block.
+  {%- endcomment -%}
+  <button
+    type="button"
+    class="site-header__cart site-header__cart--floating"
+    data-cart-toggle
+    aria-haspopup="dialog"
+    aria-controls="CartDrawer"
+  >
+    <span class="site-header__cart-icon">{% render 'icon-cart' %}</span>
+    <span data-cart-total>{{ cart.total_price | money }}</span>
+    <span class="site-header__cart-count" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
+  </button>
 </header>
 
 {% schema %}
