@@ -109,6 +109,10 @@
   font-weight: 700;
   white-space: nowrap;
   transition: background-color 180ms ease, color 180ms ease, transform 150ms ease;
+  /* Pairs with .collection-tabs' scroll-snap-type: x -- each pill is a
+     snap stop so a swipe settles cleanly on one instead of stopping
+     wherever momentum happens to run out. */
+  scroll-snap-align: start;
   /* Without this, a slow/deliberate swipe starting on a tab's text on iOS
      Safari gets interpreted as a text-selection drag instead of a scroll
      gesture -- the row never actually moves, the selection highlight just

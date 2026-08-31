@@ -291,18 +291,26 @@
      without it the row's true rendered width could exceed the screen,
      which is what made swiping feel like it was fighting/snapping back
      against the page's own edge rather than scrolling smoothly inside
-     this element. touch-action/-webkit-overflow-scrolling/overscroll-
-     behavior make this its own self-contained momentum-scroll region so
-     iOS doesn't hand the gesture off to page-level rubber-banding. */
+     this element. */
   min-width: 0;
-  touch-action: pan-x;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   scroll-behavior: auto;
-  /* Belt-and-suspenders alongside .pill-tab's own user-select: none --
-     stops iOS from ever starting a text-selection drag anywhere in this
-     row (including the gaps/counts between pills), which is what was
-     actually causing the "fights the swipe and snaps back" feeling. */
+  /* Explicit scroll-snap (rather than free scrolling + touch-action:
+     pan-x, which was tried and didn't hold up) -- a real swipe is never
+     perfectly horizontal, and touch-action: pan-x tells iOS's gesture
+     recognizer to treat any vertical drift in that swipe as an invalid
+     gesture and abort it, which reads exactly as "starts to scroll then
+     snaps back". Letting touch-action stay at its default and instead
+     having each pill snap into place gives a deliberate, controllable
+     swipe instead of relying on ambiguous free-scroll heuristics.
+     "proximity" (not "mandatory") so a short drag or a tap-triggered
+     scrollIntoView doesn't get forced into a full snap. */
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 0.25rem;
+  /* Stops iOS from ever starting a text-selection drag anywhere in this
+     row (including the gaps/counts between pills) instead of scrolling
+     it -- also part of what read as the bar "fighting" the swipe. */
   -webkit-user-select: none;
   user-select: none;
 }
