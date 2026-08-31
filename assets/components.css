@@ -248,6 +248,7 @@
 body.variant-modal-open { overflow: hidden; }
 body.filters-open { overflow: hidden; }
 body.game-menu-open { overflow: hidden; }
+body.locale-modal-open { overflow: hidden; }
 
 .variant-modal[hidden] { display: none; }
 .variant-modal {

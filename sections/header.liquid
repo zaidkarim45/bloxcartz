@@ -170,11 +170,62 @@
 
     <div class="site-header__actions">
       {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
-        <button type="button" class="site-header__locale" aria-haspopup="dialog">
+        <button type="button" class="site-header__locale" aria-haspopup="dialog" aria-expanded="false" aria-controls="LocaleModal" data-locale-toggle>
+          <span class="site-header__locale-flag" aria-hidden="true">{% render 'country-flag', iso_code: localization.country.iso_code %}</span>
           <span>{{ localization.language.endonym_name | capitalize }}</span>
           <span aria-hidden="true">/</span>
           <span>{{ cart.currency.iso_code }}</span>
         </button>
+
+        <div class="locale-modal__backdrop" data-locale-close></div>
+        <div class="locale-modal" id="LocaleModal" role="dialog" aria-modal="true" aria-labelledby="LocaleModalTitle" hidden>
+          <div class="locale-modal__header">
+            <h2 id="LocaleModalTitle">{{ 'general.localization.title' | t: default: 'Language & Currency' }}</h2>
+            <button type="button" class="locale-modal__close" data-locale-close aria-label="{{ 'general.accessibility.close' | t: default: 'Close' }}">
+              {% render 'icon-close' %}
+            </button>
+          </div>
+
+          {%- if localization.available_languages.size > 1 -%}
+            <div class="locale-modal__field">
+              <label for="LocaleModalLanguage">{{ 'general.localization.language_label' | t: default: 'Language' }}</label>
+              {%- form 'localization', id: 'LocaleModalLanguageForm' -%}
+                <div class="locale-modal__select-wrap">
+                  <span class="locale-modal__select-flag" aria-hidden="true">{% render 'country-flag', iso_code: localization.country.iso_code %}</span>
+                  <select name="locale_code" id="LocaleModalLanguage" data-locale-autosubmit>
+                    {%- for language in localization.available_languages -%}
+                      <option value="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
+                        {{ language.endonym_name | capitalize }}
+                      </option>
+                    {%- endfor -%}
+                  </select>
+                  {% render 'icon-chevron-down' %}
+                </div>
+              {%- endform -%}
+            </div>
+          {%- endif -%}
+
+          {%- if localization.available_countries.size > 1 -%}
+            <div class="locale-modal__field">
+              <label for="LocaleModalCurrency">{{ 'general.localization.currency_label' | t: default: 'Currency' }}</label>
+              {%- form 'localization', id: 'LocaleModalCurrencyForm' -%}
+                <div class="locale-modal__select-wrap">
+                  <span class="locale-modal__select-badge">{{ localization.country.currency.iso_code }}</span>
+                  <select name="country_code" id="LocaleModalCurrency" data-locale-autosubmit>
+                    {%- for country in localization.available_countries -%}
+                      <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                        {{ country.currency.iso_code }} &middot; {{ country.currency.name }}
+                      </option>
+                    {%- endfor -%}
+                  </select>
+                  {% render 'icon-chevron-down' %}
+                </div>
+              {%- endform -%}
+            </div>
+          {%- endif -%}
+
+          <p class="locale-modal__note">{{ 'general.localization.note' | t: default: 'Prices update to reflect the selected currency. You will be charged in that currency at checkout.' }}</p>
+        </div>
       {%- endif -%}
 
       {%- if shop.customer_accounts_enabled -%}

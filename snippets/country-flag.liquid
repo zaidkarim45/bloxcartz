@@ -1,0 +1,28 @@
+{%- comment -%}
+  Renders a flag emoji for a 2-letter ISO country code (falls back to a
+  globe for anything not in this short list -- extend as new markets are
+  added in Shopify admin). No arithmetic-on-codepoints trick here since
+  Liquid has no way to do that; a plain case statement is the simplest
+  thing that can't silently render the wrong flag.
+  Usage: {% render 'country-flag', iso_code: country.iso_code %}
+{%- endcomment -%}
+{%- case iso_code -%}
+  {%- when 'US' -%}🇺🇸
+  {%- when 'CA' -%}🇨🇦
+  {%- when 'GB' -%}🇬🇧
+  {%- when 'AU' -%}🇦🇺
+  {%- when 'DE' -%}🇩🇪
+  {%- when 'FR' -%}🇫🇷
+  {%- when 'ES' -%}🇪🇸
+  {%- when 'IT' -%}🇮🇹
+  {%- when 'NL' -%}🇳🇱
+  {%- when 'MX' -%}🇲🇽
+  {%- when 'BR' -%}🇧🇷
+  {%- when 'IN' -%}🇮🇳
+  {%- when 'JP' -%}🇯🇵
+  {%- when 'SE' -%}🇸🇪
+  {%- when 'NO' -%}🇳🇴
+  {%- when 'IE' -%}🇮🇪
+  {%- when 'NZ' -%}🇳🇿
+  {%- else -%}🌐
+{%- endcase -%}

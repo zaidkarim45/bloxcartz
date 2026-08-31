@@ -22,6 +22,12 @@
     },
     "header": {
       "game_select_title": "Select game"
+    },
+    "localization": {
+      "title": "Language & Currency",
+      "language_label": "Language",
+      "currency_label": "Currency",
+      "note": "Prices update to reflect the selected currency. You will be charged in that currency at checkout."
     }
   },
   "cart": {

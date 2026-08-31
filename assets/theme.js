@@ -84,6 +84,64 @@
     }
   });
 
+  /* ---- Header: language & currency modal ----
+     Plain centered dialog, mounted/unmounted the same way as the mobile
+     filter/game sheets (see those for why: a closed position:fixed
+     overlay left mounted can become a stray interactive layer). Each
+     select is its own real `{% form 'localization' %}` from Shopify --
+     changing it just submits that form (full page reload with the new
+     locale/currency baked into the session), no client-side state to
+     keep in sync. */
+  var LOCALE_MODAL_CLOSE_MS = 220;
+  var localeToggle = document.querySelector("[data-locale-toggle]");
+  var localeModal = document.getElementById("LocaleModal");
+  var localeBackdrop = document.querySelector(".locale-modal__backdrop");
+  var localeCloseEls = document.querySelectorAll("[data-locale-close]");
+  if (localeToggle && localeModal) {
+    var localeCloseTimer = null;
+
+    var openLocaleModal = function () {
+      window.clearTimeout(localeCloseTimer);
+      localeModal.hidden = false;
+      localeModal.classList.add("is-mounted");
+      if (localeBackdrop) localeBackdrop.classList.add("is-mounted");
+      requestAnimationFrame(function () {
+        localeModal.classList.add("is-open");
+        if (localeBackdrop) localeBackdrop.classList.add("is-open");
+      });
+      localeToggle.setAttribute("aria-expanded", "true");
+      document.body.classList.add("locale-modal-open");
+    };
+    var closeLocaleModal = function () {
+      localeModal.classList.remove("is-open");
+      if (localeBackdrop) localeBackdrop.classList.remove("is-open");
+      localeToggle.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("locale-modal-open");
+      window.clearTimeout(localeCloseTimer);
+      localeCloseTimer = window.setTimeout(function () {
+        localeModal.hidden = true;
+        localeModal.classList.remove("is-mounted");
+        if (localeBackdrop) localeBackdrop.classList.remove("is-mounted");
+      }, LOCALE_MODAL_CLOSE_MS);
+    };
+
+    localeToggle.addEventListener("click", function () {
+      var open = localeToggle.getAttribute("aria-expanded") === "true";
+      if (open) closeLocaleModal(); else openLocaleModal();
+    });
+    localeCloseEls.forEach(function (el) {
+      el.addEventListener("click", closeLocaleModal);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && localeToggle.getAttribute("aria-expanded") === "true") closeLocaleModal();
+    });
+  }
+  document.querySelectorAll("[data-locale-autosubmit]").forEach(function (select) {
+    select.addEventListener("change", function () {
+      select.form.requestSubmit ? select.form.requestSubmit() : select.form.submit();
+    });
+  });
+
   /* ---- Header: mobile menu toggle ---- */
   var menuToggle = document.querySelector("[data-mobile-menu-toggle]");
   if (menuToggle) {
