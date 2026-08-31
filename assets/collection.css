@@ -299,6 +299,12 @@
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   scroll-behavior: auto;
+  /* Belt-and-suspenders alongside .pill-tab's own user-select: none --
+     stops iOS from ever starting a text-selection drag anywhere in this
+     row (including the gaps/counts between pills), which is what was
+     actually causing the "fights the swipe and snaps back" feeling. */
+  -webkit-user-select: none;
+  user-select: none;
 }
 .collection-tabs::-webkit-scrollbar { display: none; }
 .collection-tabs__count { opacity: 0.7; margin-left: 0.25rem; font-size: 0.8125rem; }

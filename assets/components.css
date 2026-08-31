@@ -109,6 +109,15 @@
   font-weight: 700;
   white-space: nowrap;
   transition: background-color 180ms ease, color 180ms ease, transform 150ms ease;
+  /* Without this, a slow/deliberate swipe starting on a tab's text on iOS
+     Safari gets interpreted as a text-selection drag instead of a scroll
+     gesture -- the row never actually moves, the selection highlight just
+     tracks the finger and then clears on release, which reads exactly
+     like the bar "fighting" the swipe and snapping back to the start. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .pill-tab:hover { color: var(--color-text-primary); }
 .pill-tab svg { flex-shrink: 0; width: 0.875rem; height: 0.875rem; }

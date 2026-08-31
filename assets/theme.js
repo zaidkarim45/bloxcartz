@@ -3,6 +3,7 @@
 
   /* ---- Header: game select dropdown / mobile bottom sheet ---- */
   var GAME_MENU_CLOSE_MS = 320; // matches the mobile sheet's transform transition
+  var GAME_MENU_MOBILE_QUERY = window.matchMedia("(max-width: 768px)");
   document.querySelectorAll("[data-game-select]").forEach(function (root) {
     var btn = root.querySelector(".site-header__game-select-btn");
     var menu = root.querySelector(".site-header__game-menu");
@@ -43,8 +44,12 @@
         if (backdrop) backdrop.classList.add("is-open");
       });
       document.body.classList.add("game-menu-open");
+      // Autofocusing the search field pops the virtual keyboard the
+      // instant the sheet opens on mobile, covering half of it before the
+      // user has even seen the game list -- keep that instant-focus
+      // convenience for desktop's mouse+keyboard dropdown only.
       var search = menu.querySelector("[data-game-search]");
-      if (search) search.focus();
+      if (search && !GAME_MENU_MOBILE_QUERY.matches) search.focus();
     }
 
     btn.addEventListener("click", function () {
