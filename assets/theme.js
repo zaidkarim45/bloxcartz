@@ -115,11 +115,19 @@
     }, 200);
   }
 
-  document.querySelectorAll("[data-cart-toggle]").forEach(function (el) {
-    el.addEventListener("click", openCartDrawer);
-  });
-  document.querySelectorAll("[data-cart-close]").forEach(function (el) {
-    el.addEventListener("click", closeCartDrawer);
+  // Delegated on `document`, not bound directly to the matched nodes --
+  // the close button (and its "Clear cart" neighbor, wired the same way
+  // further down) live inside .cart-drawer__panel, which gets its
+  // innerHTML replaced wholesale after every cart mutation (see the big
+  // comment below on applyCartUpdate). A direct .addEventListener() on
+  // the close button only ever bound to the page-load DOM node, so it
+  // silently stopped responding the moment the panel was first
+  // re-rendered -- e.g. right after adding an item -- while the backdrop
+  // (never replaced) kept working, which is exactly the "closes
+  // sometimes, not other times" behavior this was causing.
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("[data-cart-toggle]")) openCartDrawer();
+    if (e.target.closest("[data-cart-close]")) closeCartDrawer();
   });
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") closeCartDrawer();

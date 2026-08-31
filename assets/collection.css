@@ -653,7 +653,21 @@
 
 @media (max-width: 640px) {
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .collection-page__controls { flex-direction: column; align-items: stretch; }
+  /* flex-wrap: nowrap is the actual fix for the category tabs never being
+     swipeable on portrait phones -- the base (desktop) rule above sets
+     flex-wrap: wrap and this block never overrode it. Combined with
+     flex-direction: column here, that let .collection-tabs size itself to
+     its own full unwrapped content width (900+px) instead of being capped
+     by align-items: stretch at the container's actual ~370px width, so
+     .collection-tabs' scrollWidth === clientWidth: it was never actually
+     overflowing internally, just getting silently clipped by the page's
+     overflow-x: hidden with nothing left to scroll to. Every previous
+     touch/scroll-snap tweak was correct but irrelevant, since there was no
+     real overflow for them to act on. (Landscape/tablet widths stayed
+     wide enough that the base row layout below 900px min-width:0 fix
+     alone was already sizing things correctly, which is why it only
+     "worked" in landscape.) */
+  .collection-page__controls { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
   .collection-page__toolbar {
     margin-left: 0;
     width: 100%;
