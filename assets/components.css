@@ -171,6 +171,12 @@
 .product-card__image { max-height: 100%; max-width: 100%; object-fit: contain; }
 
 .product-card { display: flex; flex-direction: column; }
+/* Without this, the "in stock only" toggle's card.hidden = true (assets/
+   theme.js) has no visual effect at all: an author-level display rule
+   (this one, right above) always beats the browser's default
+   [hidden] { display: none } UA style, hidden attribute or not, so every
+   card stayed visible regardless of the checkbox. */
+.product-card[hidden] { display: none; }
 .product-card__link { display: flex; flex-direction: column; flex: 1; }
 .product-card__title {
   padding: 0 0.875rem;
