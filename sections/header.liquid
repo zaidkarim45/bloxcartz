@@ -210,11 +210,12 @@
               <label for="LocaleModalCurrency">{{ 'general.localization.currency_label' | t: default: 'Currency' }}</label>
               {%- form 'localization', id: 'LocaleModalCurrencyForm' -%}
                 <div class="locale-modal__select-wrap">
-                  <span class="locale-modal__select-badge">{{ localization.country.currency.iso_code }}</span>
+                  <span class="locale-modal__select-flag" aria-hidden="true">{% render 'country-flag', iso_code: localization.country.iso_code %}</span>
                   <select name="country_code" id="LocaleModalCurrency" data-locale-autosubmit>
                     {%- for country in localization.available_countries -%}
+                      {%- capture country_flag %}{% render 'country-flag', iso_code: country.iso_code %}{% endcapture -%}
                       <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
-                        {{ country.currency.iso_code }} &middot; {{ country.currency.name }}
+                        {{ country_flag | strip }} {{ country.name }} &middot; {{ country.currency.iso_code }} {{ country.currency.symbol }}
                       </option>
                     {%- endfor -%}
                   </select>
